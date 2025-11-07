@@ -1,3 +1,17 @@
+# -------------------- Our Own Ignore Config --------------------
+# Generated Type Definition Files
+*.d.ts
+!src/**/types/*.d.ts
+
+# Published Files Owned by Root Directory
+src/LICENSE
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# -------------------- NPM (via GitHub) --------------------
 # Logs
 logs
 *.log
@@ -22,8 +36,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-# Playwright
-/test-results/
-/playwright-report/
-/playwright/.cache/

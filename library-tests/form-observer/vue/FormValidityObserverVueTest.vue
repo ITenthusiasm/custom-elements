@@ -29,6 +29,7 @@ async function handleSubmit(event: SubmitEvent) {
 <template>
   <!-- NOTE: Vue's TS types fail to properly type the `:ref` callback with an `HTMLFormElement` parameter -->
   <!-- See: https://github.com/vuejs/core/issues/13969 -->
+  <!-- @vue-expect-error -- See Note above. -->
   <form :ref="autoObserve()" @submit="handleSubmit">
     <h1>Example Form</h1>
 

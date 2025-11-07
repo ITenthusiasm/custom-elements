@@ -1,4 +1,4 @@
-import type ComboboxListbox from "./ComboboxListbox.js";
+import type ComboboxListbox from "../ComboboxListbox.js";
 
 export interface ListboxWithChildren<T extends HTMLElement> extends ComboboxListbox {
   children: HTMLCollectionOf<T>;

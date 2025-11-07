@@ -1,0 +1,38 @@
+{
+  "name": "@itenthusiasm/custom-elements",
+  "type": "module",
+  "version": "0.0.1",
+  "sideEffects": false,
+  "license": "MIT",
+  "description": "Robust, accessible, and progressively-enhanceable Web Components for common developer needs",
+  "author": "Isaiah Thomason",
+  "homepage": "https://github.com/ITenthusiasm/custom-elements#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ITenthusiasm/custom-elements.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ITenthusiasm/custom-elements/issues"
+  },
+  "keywords": [
+    "itenthusiasm",
+    "web",
+    "components",
+    "custom",
+    "elements",
+    "ui",
+    "form",
+    "combobox",
+    "html",
+    "js",
+    "framework-agnostic",
+    "progressive-enhancement"
+  ],
+  "exports": {
+    "./*.js": "./*.js",
+    "./*.d.ts": {
+      "types": "./*.d.ts"
+    },
+    "./*": "./*/index.js"
+  }
+}

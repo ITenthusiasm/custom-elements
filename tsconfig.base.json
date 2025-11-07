@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "rootDir": ".",
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+
+    "strict": true,
+    "allowJs": true,
+    "checkJs": true,
+    "skipLibCheck": false,
+
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}

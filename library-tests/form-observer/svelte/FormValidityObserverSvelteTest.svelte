@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createFormValidityObserver } from "@form-observer/svelte";
   import type { ValidatableField } from "@form-observer/svelte";
-  import type { ComboboxField } from "../../../src/Combobox";
+  import type { ComboboxField } from "../../../src/Combobox/index.js";
 
   const { autoObserve, configure, validateFields } = createFormValidityObserver("focusout", {
     revalidateOn: "input",

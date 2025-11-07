@@ -1,8 +1,8 @@
 // Primary Imports
-import ComboboxField from "./Combobox/ComboboxField.js";
-import ComboboxListbox from "./Combobox/ComboboxListbox.js";
-import ComboboxOption from "./Combobox/ComboboxOption.js";
-import SelectEnhancer from "./Combobox/SelectEnhancer.js";
+import ComboboxField from "./src/Combobox/ComboboxField.js";
+import ComboboxListbox from "./src/Combobox/ComboboxListbox.js";
+import ComboboxOption from "./src/Combobox/ComboboxOption.js";
+import SelectEnhancer from "./src/Combobox/SelectEnhancer.js";
 
 /* -------------------- "App Logic" -------------------- */
 customElements.define("combobox-listbox", ComboboxListbox);

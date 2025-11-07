@@ -1,0 +1,10 @@
+/* The TSConfig for Generating + Shipping the Library's Types */
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "types": [],
+    "declaration": true,
+    "emitDeclarationOnly": true
+  },
+  "include": ["./**/*.js"]
+}

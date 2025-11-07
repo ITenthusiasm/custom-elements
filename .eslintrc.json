@@ -67,10 +67,11 @@
         "no-promise-executor-return": "off",
 
         // Import
-        "import/no-extraneous-dependencies": ["error", { "devDependencies": true }]
+        "import/no-extraneous-dependencies": ["error", { "packageDir": ["./"], "devDependencies": true }]
       }
     },
     { "files": ["library-tests/**"], "rules": { "no-alert": "off" } },
+    { "files": ["library-tests/**", "main.js"], "rules": { "import/no-relative-packages": "off" } },
     {
       "files": ["library-tests/form-observer/solid/**"],
       "plugins": ["solid"],
@@ -78,6 +79,7 @@
         "solid/jsx-uses-vars": "error",
         "solid/jsx-no-undef": "error"
       }
-    }
+    },
+    { "files": "scripts/**/*.js", "rules": { "no-console": "off" } }
   ]
 }

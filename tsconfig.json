@@ -1,18 +1,18 @@
+/* TSConfig for Linting the Entire Project */
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "NodeNext",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "jsx": "preserve",
-
-    "strict": true,
-    "allowJs": true,
-    "checkJs": true,
-    "skipLibCheck": false,
-
     "noEmit": true,
-    "isolatedModules": true,
-    "forceConsistentCasingInFileNames": true
+    "jsx": "preserve",
+    "skipLibCheck": true // Rollup has some weird type-related bugs that we need to ignore
   },
-  "include": ["src", "library-tests", "playwright.config.ts", "vite.config.ts", "svelte.config.js"]
+  "include": [
+    "src",
+    "main.js",
+    "library-tests",
+    "playwright.config.ts",
+    "vite.config.ts",
+    "svelte.config.js",
+    "scripts"
+  ]
 }

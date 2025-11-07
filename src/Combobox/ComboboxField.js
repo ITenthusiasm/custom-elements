@@ -1,4 +1,4 @@
-/** @import {ListboxWithChildren} from "./Combobox.js" */
+/** @import {ListboxWithChildren} from "./types/helpers.js" */
 import { setAttributeFor } from "../utils/dom.js";
 import ComboboxOption from "./ComboboxOption.js";
 import ComboboxListbox from "./ComboboxListbox.js";
@@ -582,7 +582,7 @@ class ComboboxField extends HTMLElement {
   #text = new Text();
 
   /**
-   * @readonly The _singular_ {@link Text} Node associated with the `combobox`.
+   * The _singular_ {@link Text} Node associated with the `combobox`.
    *
    * To alter the `combobox`'s text content, update this node **_instead of_** using {@link textContent}.
    * @returns {Text}
