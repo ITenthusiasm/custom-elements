@@ -1,12 +1,16 @@
 {
   "name": "@itenthusiasm/custom-elements",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "sideEffects": false,
   "license": "MIT",
   "description": "Robust, accessible, and progressively-enhanceable Web Components for common developer needs",
   "author": "Isaiah Thomason",
   "homepage": "https://github.com/ITenthusiasm/custom-elements#readme",
+  "scripts": {
+    "prepublishOnly": "npm run build --include-workspace-root --if-present",
+    "postpublish": "npm run clean --include-workspace-root --if-present"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ITenthusiasm/custom-elements.git"
@@ -27,6 +31,10 @@
     "js",
     "framework-agnostic",
     "progressive-enhancement"
+  ],
+  "files": [
+    "./**/README.md",
+    "./**/*.{js,css,d.ts}"
   ],
   "exports": {
     "./*.js": "./*.js",

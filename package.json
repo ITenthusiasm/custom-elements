@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "dev": "vite",
+    "clean": "node scripts/delete-generated-files.js",
     "build": "node scripts/build-library.js",
     "prelint": "vue-tsc --build --clean . src",
     "lint": "prettier --ignore-path .gitignore --check . && eslint --ignore-path .gitignore . && vue-tsc --build . src && svelte-check --no-tsconfig",
