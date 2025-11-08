@@ -1,3 +1,4 @@
+// NOTE: We need this script because we need a PLATFORM INDEPENDENT way to delete copied files like `LICENSE`.
 import fs from "node:fs/promises";
 import path from "node:path";
 import url from "node:url";

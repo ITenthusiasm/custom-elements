@@ -9,8 +9,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
+    "build": "node scripts/build-library.js",
     "prelint": "vue-tsc --build --clean . src",
     "lint": "prettier --ignore-path .gitignore --check . && eslint --ignore-path .gitignore . && vue-tsc --build . src && svelte-check --no-tsconfig",
     "postlint": "vue-tsc --build --clean . src",

@@ -1,4 +1,5 @@
 // Prepares the Library for publishing
+// NOTE: We need this script because we need a PLATFORM INDEPENDENT way to copy files like `LICENSE`.
 import fs from "node:fs/promises";
 import path from "node:path";
 import { exec } from "node:child_process";
@@ -15,7 +16,7 @@ try {
   // Generate `.d.ts` files
   await /** @type {Promise<void>} */ (
     new Promise((resolve, reject) => {
-      exec("npx tsc", { cwd: sourceCodeDirectory }, (error) => (error ? reject(error) : resolve()));
+      exec("npx vue-tsc --build . src", { cwd: root }, (error) => (error ? reject(error) : resolve()));
     })
   );
 
