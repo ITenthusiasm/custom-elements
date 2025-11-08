@@ -1,6 +1,7 @@
 import { FormValidityObserver } from "@form-observer/core";
 import type { ValidatableField } from "@form-observer/core";
-import { ComboboxField, ComboboxListbox, ComboboxOption, SelectEnhancer } from "../../src/Combobox/index.js";
+import { ComboboxField, ComboboxListbox, ComboboxOption, SelectEnhancer } from "@itenthusiasm/custom-elements";
+import type {} from "@itenthusiasm/custom-elements/types/dom.d.ts";
 
 customElements.define("combobox-listbox", ComboboxListbox);
 customElements.define("combobox-field", ComboboxField);

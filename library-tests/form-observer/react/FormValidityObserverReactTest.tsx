@@ -3,7 +3,8 @@ import { StrictMode, useState, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import { createFormValidityObserver } from "@form-observer/react";
 import type { ValidatableField } from "@form-observer/react";
-import { ComboboxField, ComboboxListbox, ComboboxOption, SelectEnhancer } from "../../../src/Combobox/index.js";
+import { ComboboxField, ComboboxListbox, ComboboxOption, SelectEnhancer } from "@itenthusiasm/custom-elements";
+import type {} from "@itenthusiasm/custom-elements/types/react.d.ts";
 
 function FormValidityObserverReactTest() {
   type ErrorMessage = React.ReactElement | string | null;

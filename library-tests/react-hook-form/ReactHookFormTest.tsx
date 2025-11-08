@@ -2,7 +2,8 @@
 import { StrictMode, useCallback } from "react";
 import { createRoot } from "react-dom/client";
 import { useForm } from "react-hook-form";
-import { ComboboxField, ComboboxListbox, ComboboxOption, SelectEnhancer } from "../../src/Combobox/index.js";
+import { ComboboxField, ComboboxListbox, ComboboxOption, SelectEnhancer } from "@itenthusiasm/custom-elements";
+import type {} from "@itenthusiasm/custom-elements/Combobox/types/react.d.ts";
 
 function ReactHookFormTest() {
   const { register, formState, ...form } = useForm({ mode: "onBlur", progressive: true, reValidateMode: "onChange" });

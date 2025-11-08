@@ -9,6 +9,7 @@ import type SelectEnhancer from "../SelectEnhancer.js";
 import type ComboboxField from "../ComboboxField.js";
 import type ComboboxOption from "../ComboboxOption.js";
 import type ComboboxListbox from "../ComboboxListbox.js";
+import type {} from "../types/dom.d.ts";
 
 /*
  * NOTE: It seems that the accessibility requirements for the `Combobox` Web Component are now taken care of.

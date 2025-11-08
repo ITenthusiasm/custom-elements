@@ -1,6 +1,8 @@
 # -------------------- Our Own Ignore Config --------------------
 # Generated Type Definition Files
 *.d.ts
+*.d.ts.map
+tsconfig.tsbuildinfo
 !src/**/types/*.d.ts
 
 # Published Files Owned by Root Directory

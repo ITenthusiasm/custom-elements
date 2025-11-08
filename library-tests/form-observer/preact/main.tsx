@@ -1,7 +1,8 @@
 /** @jsxImportSource preact */
 import { render } from "preact";
+import { SelectEnhancer, ComboboxField, ComboboxListbox, ComboboxOption } from "@itenthusiasm/custom-elements";
+import type {} from "@itenthusiasm/custom-elements/types/preact.d.ts";
 import FormValidityObserverPreactTest from "./FormValidityObserverPreactTest.jsx";
-import { SelectEnhancer, ComboboxField, ComboboxListbox, ComboboxOption } from "../../../src/Combobox/index.js";
 
 if (!customElements.get("combobox-listbox")) customElements.define("combobox-listbox", ComboboxListbox);
 if (!customElements.get("combobox-field")) customElements.define("combobox-field", ComboboxField);

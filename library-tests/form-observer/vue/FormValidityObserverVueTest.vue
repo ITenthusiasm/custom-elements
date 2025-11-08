@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { createFormValidityObserver } from "@form-observer/vue";
 import type { ValidatableField } from "@form-observer/vue";
-import type { ComboboxField } from "../../../src/Combobox/index.js";
+import type { ComboboxField } from "@itenthusiasm/custom-elements";
 
 const { autoObserve, configure, validateFields } = createFormValidityObserver("focusout", {
   revalidateOn: "input",

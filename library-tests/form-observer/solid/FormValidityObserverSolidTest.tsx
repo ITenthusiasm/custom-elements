@@ -2,7 +2,8 @@
 import { render } from "solid-js/web";
 import { createFormValidityObserver } from "@form-observer/solid";
 import type { ValidatableField } from "@form-observer/solid";
-import { SelectEnhancer, ComboboxField, ComboboxListbox, ComboboxOption } from "../../../src/Combobox/index.js";
+import { SelectEnhancer, ComboboxField, ComboboxListbox, ComboboxOption } from "@itenthusiasm/custom-elements";
+import type {} from "@itenthusiasm/custom-elements/types/solid.d.ts";
 
 function FormValidityObserverSolidTest() {
   const { autoObserve, configure, validateFields } = createFormValidityObserver("focusout", {

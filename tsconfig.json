@@ -7,12 +7,13 @@
     "skipLibCheck": true // Rollup has some weird type-related bugs that we need to ignore
   },
   "include": [
-    "src",
+    "scripts",
     "main.js",
     "library-tests",
     "playwright.config.ts",
+    "src/**/__tests__/*.test.ts",
     "vite.config.ts",
-    "svelte.config.js",
-    "scripts"
-  ]
+    "svelte.config.js"
+  ],
+  "references": [{ "path": "./src" }]
 }

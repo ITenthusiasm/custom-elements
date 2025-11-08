@@ -7,6 +7,7 @@
     "ecmaVersion": "latest",
     "sourceType": "module",
     "project": "tsconfig.json",
+    "projectService": true,
     "jsx": true
   },
   "settings": {
@@ -14,7 +15,8 @@
       "node": {
         "extensions": [".js", ".ts", ".d.ts"]
       }
-    }
+    },
+    "import/internal-regex": "@itenthusiasm/custom-elements"
   },
   "rules": {
     // Core Configurations
@@ -45,17 +47,21 @@
     "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
 
     // Import
-    "import/extensions": ["error", "ignorePackages", { "js": "always", "ts": "never", "d.ts": "never" }],
-    "import/no-unresolved": "off" // Let TypeScript handle import resolution
+    "import/extensions": "off", // TypeScript drives which extensions are required (due to `moduleResolution: NodeNext`)
+    "import/no-unresolved": "off", // Let TypeScript handle import resolution
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "packageDir": ["./", "./src"],
+        "devDependencies": ["./*.config.ts", "library-tests/**", "**/__tests__/**/*.test.ts"]
+      }
+    ]
   },
   "overrides": [
+    { "files": "scripts/**/*.js", "rules": { "no-console": "off" } },
     {
       "files": "src/utils/**.js",
       "rules": { "import/prefer-default-export": "off" } // Usually these files are intended to have named exports only
-    },
-    {
-      "files": ["playwright.config.ts", "vite.config.ts", "library-tests/**"],
-      "rules": { "import/no-extraneous-dependencies": ["error", { "devDependencies": true }] }
     },
     {
       "files": "**/__tests__/**/*.test.ts",
@@ -64,14 +70,10 @@
         "no-await-in-loop": "off",
         "no-param-reassign": "off",
         "no-restricted-syntax": "off",
-        "no-promise-executor-return": "off",
-
-        // Import
-        "import/no-extraneous-dependencies": ["error", { "packageDir": ["./"], "devDependencies": true }]
+        "no-promise-executor-return": "off"
       }
     },
-    { "files": ["library-tests/**"], "rules": { "no-alert": "off" } },
-    { "files": ["library-tests/**", "main.js"], "rules": { "import/no-relative-packages": "off" } },
+    { "files": ["library-tests/**", "main.js"], "rules": { "no-alert": "off" } },
     {
       "files": ["library-tests/form-observer/solid/**"],
       "plugins": ["solid"],
@@ -79,7 +81,6 @@
         "solid/jsx-uses-vars": "error",
         "solid/jsx-no-undef": "error"
       }
-    },
-    { "files": "scripts/**/*.js", "rules": { "no-console": "off" } }
+    }
   ]
 }

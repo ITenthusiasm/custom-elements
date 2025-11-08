@@ -1,3 +1,5 @@
 docs/
 __tests__/
+*.d.ts.map
 tsconfig.json
+tsconfig.tsbuildinfo

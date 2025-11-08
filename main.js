@@ -1,8 +1,5 @@
 // Primary Imports
-import ComboboxField from "./src/Combobox/ComboboxField.js";
-import ComboboxListbox from "./src/Combobox/ComboboxListbox.js";
-import ComboboxOption from "./src/Combobox/ComboboxOption.js";
-import SelectEnhancer from "./src/Combobox/SelectEnhancer.js";
+import { ComboboxField, ComboboxListbox, ComboboxOption, SelectEnhancer } from "@itenthusiasm/custom-elements";
 
 /* -------------------- "App Logic" -------------------- */
 customElements.define("combobox-listbox", ComboboxListbox);

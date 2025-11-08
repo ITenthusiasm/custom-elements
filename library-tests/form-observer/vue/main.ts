@@ -1,7 +1,8 @@
 import { createApp } from "vue";
+import { SelectEnhancer, ComboboxField, ComboboxListbox, ComboboxOption } from "@itenthusiasm/custom-elements";
+import type {} from "@itenthusiasm/custom-elements/types/vue.d.ts";
 import FormValidityObserverVueTest from "./FormValidityObserverVueTest.vue";
 // import JSXTest from "./JSXTest.vue"; // Only for testing JSX + TS in Vue, not forms
-import { SelectEnhancer, ComboboxField, ComboboxListbox, ComboboxOption } from "../../../src/Combobox/index.js";
 
 if (!customElements.get("combobox-listbox")) customElements.define("combobox-listbox", ComboboxListbox);
 if (!customElements.get("combobox-field")) customElements.define("combobox-field", ComboboxField);

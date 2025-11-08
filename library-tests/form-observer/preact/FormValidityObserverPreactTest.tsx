@@ -3,7 +3,7 @@ import type { JSX } from "preact";
 import { useState, useMemo } from "preact/hooks";
 import { createFormValidityObserver } from "@form-observer/preact";
 import type { ValidatableField } from "@form-observer/preact";
-import type { ComboboxField } from "../../../src/Combobox/index.js";
+import type { ComboboxField } from "@itenthusiasm/custom-elements";
 
 export default function FormValidityObserverPreactTest() {
   type ErrorMessage = JSX.Element | string | null;

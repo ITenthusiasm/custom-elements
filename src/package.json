@@ -33,6 +33,17 @@
     "./*.d.ts": {
       "types": "./*.d.ts"
     },
-    "./*": "./*/index.js"
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./Combobox": {
+      "types": "./Combobox/index.d.ts",
+      "default": "./Combobox/index.js"
+    },
+    "./*": {
+      "types": "./*.d.ts",
+      "default": "./*.js"
+    }
   }
 }

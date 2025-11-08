@@ -19,7 +19,7 @@ export default async function deleteGeneratedFilesFrom(directoryPath) {
         return /** @type {any} */ (deleteGeneratedFilesFrom(filepath));
       }
 
-      if (!f.endsWith(".d.ts") && f !== "LICENSE") return;
+      if (!f.endsWith(".d.ts") && !f.endsWith(".d.ts.map") && f !== "tsconfig.tsbuildinfo" && f !== "LICENSE") return;
       return fs.rm(filepath);
     }),
   );

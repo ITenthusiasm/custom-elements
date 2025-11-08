@@ -310,7 +310,7 @@ class ComboboxField extends HTMLElement {
       }
 
       setAttributeFor(combobox, attrs["aria-activedescendant"], nextActiveOption.id);
-      this.#searchTimeout = window.setTimeout(() => (this.#searchString = ""), 500);
+      this.#searchTimeout = setTimeout(() => (this.#searchString = ""), 500);
     }
   };
 
