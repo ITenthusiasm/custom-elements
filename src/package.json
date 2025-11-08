@@ -1,7 +1,7 @@
 {
   "name": "@itenthusiasm/custom-elements",
   "type": "module",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "sideEffects": false,
   "license": "MIT",
   "description": "Robust, accessible, and progressively-enhanceable Web Components for common developer needs",
@@ -38,6 +38,7 @@
   ],
   "exports": {
     "./*.js": "./*.js",
+    "./*.css": "./*.css",
     "./*.d.ts": {
       "types": "./*.d.ts"
     },
