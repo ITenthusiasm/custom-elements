@@ -33,7 +33,7 @@
     "progressive-enhancement"
   ],
   "files": [
-    "./**/README.md",
+    "./*/README.md",
     "./**/*.{js,css,d.ts}"
   ],
   "exports": {
