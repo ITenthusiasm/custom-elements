@@ -43,8 +43,6 @@ This empowers you to write robust forms that are progressively enhanced. If your
 
 As you can tell from the above example, our `Combobox` component is really a collection of sub-components which, when properly assembled, function together as a robust `combobox`. There are 4 parts to it:
 
-<!-- TODO: Should we use `<dl>` for this instead? -->
-
 <dl>
   <dt>
     <a href="./select-enhancer.md"><code>&lt;select-enhancer&gt;</code></a>
