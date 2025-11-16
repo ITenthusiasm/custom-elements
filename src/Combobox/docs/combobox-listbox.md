@@ -2,11 +2,9 @@
 
 The `ComboboxListbox` is a [Custom Element](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements) used by the [`Combobox` component](..). Its sole purpose is to serve as an accessible [`listbox`](https://www.w3.org/TR/wai-aria-1.2/#listbox) which wraps the [`<combobox-option>`s](./combobox-option.md). This is necessary to satisfy the accessibility requirements of [`combobox`es](https://www.w3.org/TR/wai-aria-1.2/#combobox). Besides this, the `ComboboxListbox` provides an easy way to iterate over the component's `option`s programmatically.
 
-As a Custom Element, the `ComboboxListbox` supports all of the [global attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes) and inherits all of the methods/properties of [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) interface.
-
 ## Attributes
 
-The following attributes are special to the `ComboboxListbox`:
+As a Custom Element, the `ComboboxListbox` supports all of the [global attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes). The following attributes are special to the `ComboboxListbox`:
 
 <dl>
   <dt id="attributes-id">
@@ -31,3 +29,7 @@ The following attributes are special to the `ComboboxListbox`:
     <p>This attribute <strong>is not</strong> reflected by a JS property.</p>
   </dd>
 </dl>
+
+## Properties
+
+As a Custom Element, the `ComboboxListbox` inherits all of the methods/properties of [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) interface. It has no special properties of its own.
