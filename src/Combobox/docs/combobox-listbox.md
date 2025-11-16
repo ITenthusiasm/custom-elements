@@ -1,0 +1,33 @@
+# The `ComboboxListbox` Element
+
+The `ComboboxListbox` is a [Custom Element](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements) used by the [`Combobox` component](..). Its sole purpose is to serve as an accessible [`listbox`](https://www.w3.org/TR/wai-aria-1.2/#listbox) which wraps the [`<combobox-option>`s](./combobox-option.md). This is necessary to satisfy the accessibility requirements of [`combobox`es](https://www.w3.org/TR/wai-aria-1.2/#combobox). Besides this, the `ComboboxListbox` provides an easy way to iterate over the component's `option`s programmatically.
+
+As a Custom Element, the `ComboboxListbox` supports all of the [global attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes) and inherits all of the methods/properties of [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) interface.
+
+## Attributes
+
+The following attributes are special to the `ComboboxListbox`:
+
+<dl>
+  <dt id="attributes-id">
+    <a href="#attributes-id"><code>id</code></a>
+  </dt>
+  <dd>
+    <p>
+      Same as the regular <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/id"><code>id</code></a> attribute which exists on every <code>HTMLElement</code>. However, <strong>modifying this attribute is forbidden</strong>. For accessibility purposes, its value is controlled by the <a href="./combobox-field.md"><code>ComboboxField</code></a> associated with the <code>ComboboxListbox</code>, and it always follows the pattern <code>{ComboboxFieldId}-listbox</code>.
+    </p>
+    <p>
+      This attribute is reflected by the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/id"><code>Element.id</code></a> property which exists on all <code>HTMLElement</code>s. This value can be read, but it should never be modified by the developer.
+    </p>
+  </dd>
+
+  <dt id="attributes-nomatchesmessage">
+    <a href="#attributes-nomatchesmessage"><code>nomatchesmessage</code></a>
+  </dt>
+  <dd>
+    <p>
+      Every <a href="./combobox-field.md"><code>ComboboxField</code></a> has a <a href="./combobox-field.md#attributes-nomatchesmessage"><code>nomatchesmessage</code></a> attribute which functions as an <em>optional</em> way to control the component's No Matches Message in <a href="./combobox-field.md#attributes-filter">Filter Mode</a>. The <code>nomatchesmessage</code> attribute on the <code>ComboboxListbox</code> is simply a reflection of the attribute on the owning <code>ComboboxField</code>. It only exists as a way to help with styling the No Matches Message. (There are other ways to style this message, as laid out in our <a href="./guides">guides</a>.)
+    </p>
+    <p>This attribute <strong>is not</strong> reflected by a JS property.</p>
+  </dd>
+</dl>
