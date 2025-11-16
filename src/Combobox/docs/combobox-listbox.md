@@ -1,6 +1,6 @@
 # The `ComboboxListbox` Element
 
-The `ComboboxListbox` is a [Custom Element](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements) used by the [`Combobox` component](..). Its sole purpose is to serve as an accessible [`listbox`](https://www.w3.org/TR/wai-aria-1.2/#listbox) which wraps the [`<combobox-option>`s](./combobox-option.md). This is necessary to satisfy the accessibility requirements of [`combobox`es](https://www.w3.org/TR/wai-aria-1.2/#combobox). Besides this, the `ComboboxListbox` provides an easy way to iterate over the component's `option`s programmatically.
+The `ComboboxListbox` is a [Custom Element](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements) used by the [`Combobox` component](.). Its sole purpose is to serve as an accessible [`listbox`](https://www.w3.org/TR/wai-aria-1.2/#listbox) which wraps the [`<combobox-option>`s](./combobox-option.md). This is necessary to satisfy the accessibility requirements of [`combobox`es](https://www.w3.org/TR/wai-aria-1.2/#combobox). Besides this, the `ComboboxListbox` provides an easy way to iterate over the component's `option`s programmatically.
 
 ## Attributes
 
