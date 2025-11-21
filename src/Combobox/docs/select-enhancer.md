@@ -1,6 +1,8 @@
 # The `SelectEnhancer` Element
 
-The `SelectEnhancer` is a [Custom Element](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements) used by the [`Combobox` component](.). It is responsible for guaranteeing that the [`<combobox-field>`](./combobox-field.md), [`<combobox-listbox>`](./combobox-listbox.md), and [`<combobox-option>`](./combobox-option.md) elements are initialized and arranged correctly so that the entire group of components function together as an accessible [`combobox`](https://www.w3.org/TR/wai-aria-1.2/#combobox). This initialization is performed in one of two cases: 1&rpar; When the page first loads (if any `<select-enhancer>`s are in the initial markup), or 2&rpar; When the `<select-enhancer>` is mounted to the DOM (if it was originally created outside of the DOM).
+The `SelectEnhancer` is a [Custom Element](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements) used by the [`Combobox` component](.)[^1]. It is responsible for guaranteeing that the [`<combobox-field>`](./combobox-field.md), [`<combobox-listbox>`](./combobox-listbox.md), and [`<combobox-option>`](./combobox-option.md) elements are initialized and arranged correctly so that the entire group of components function together as an accessible [`combobox`](https://www.w3.org/TR/wai-aria-1.2/#combobox). This initialization is performed in one of two cases: 1&rpar; When the page first loads (if any `<select-enhancer>`s are in the initial markup), or 2&rpar; When the `<select-enhancer>` is mounted to the DOM (if it was originally created outside of the DOM).
+
+[^1]: Note: In our documentation, we use `combobox` (lowercase "c") to refer to the accessible [`role`](https://www.w3.org/TR/wai-aria-1.2/#combobox), whereas we use `Combobox` (capital "C") to refer to the [group of components](.#component-structure) used by our library to provide an accessible `combobox` to users.
 
 ## Modes of Use
 
@@ -168,7 +170,7 @@ As a Custom Element, the `SelectEnhancer` supports all of the [global attributes
   </dd>
 </dl>
 
-## Instance Properties
+## Properties
 
 As a Custom Element, the `SelectEnhancer` inherits all of the methods and properties of [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) interface. The properties which are _specific_ to the `SelectEnhancer` are as follows:
 
@@ -176,17 +178,17 @@ As a Custom Element, the `SelectEnhancer` inherits all of the methods and proper
   <dt id="properties-comboboxTag">
     <a href="#properties-comboboxTag"><code>comboboxTag</code></a>
   </dt>
-  <dd>Reflects the <a href="#attributes-comboboxtag"><code>comboboxtag</code></a> attribute.</dd>
+  <dd>Reflects the <a href="#attributes-comboboxtag"><code>comboboxtag</code></a> attribute. Type is <code>string</code>.</dd>
 
   <dt id="properties-optionTag">
     <a href="#properties-optionTag"><code>optionTag</code></a>
   </dt>
-  <dd>Reflects the <a href="#attributes-optiontag"><code>optiontag</code></a> attribute.</dd>
+  <dd>Reflects the <a href="#attributes-optiontag"><code>optiontag</code></a> attribute. Type is <code>string</code>.</dd>
 
   <dt id="properties-listboxTag">
     <a href="#properties-listboxTag"><code>listboxTag</code></a>
   </dt>
-  <dd>Reflects the <a href="#attributes-listboxtag"><code>listboxtag</code></a> attribute.</dd>
+  <dd>Reflects the <a href="#attributes-listboxtag"><code>listboxtag</code></a> attribute. Type is <code>string</code>.</dd>
 </dl>
 
 ## Using Other Custom Elements or Tag Names
@@ -286,3 +288,11 @@ It's important to remember that the Custom Elements for the `Combobox` component
 4. `SelectEnhancer` (and/or all child classes of the `SelectEnhancer`)
 
 This order is required because some of the sub-components depend on each other.
+
+## What's Next?
+
+- Get a [high-level](.) view of how the `Combobox` component works. Or, dive deeper into the component's other segments:
+  - [`<combobox-field>`](./combobox-field.md)
+  - [`<combobox-listbox>`](./combobox-listbox.md)
+  - [`<combobox-option>`](./combobox-option.md)
+- Read our [guides](./guides) to learn more about what you can accomplish with our component.
