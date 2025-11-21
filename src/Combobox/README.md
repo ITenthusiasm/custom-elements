@@ -115,7 +115,7 @@ Below are some quick tips for using the `combobox`. If you want to dive deeper i
 
 ### Filter Mode
 
-The `combobox` can be made searchable by applying the [`filter`](https://github.com/ITenthusiasm/custom-elements/tree/main/src/Combobox/docs/combobox-field.md#filter) attribute to it.
+The `combobox` can be made searchable by applying the [`filter`](https://github.com/ITenthusiasm/custom-elements/tree/main/src/Combobox/docs/combobox-field.md#attributes-filter) attribute to it.
 
 ```html
 <!-- Manual Setup Mode -->
@@ -142,10 +142,10 @@ Remember that in `Select Enhancing Mode`, all attributes/states will be copied f
 
 ### Configuring the Allowed Values
 
-When the `combobox` is in `filter` mode, its allowed values can be configured with the [`valueis`](https://github.com/ITenthusiasm/custom-elements/tree/main/src/Combobox/docs/combobox-field.md#valueis) attribute. (This attribute does nothing if the component is not in `filter` mode.) There are 3 allowed values:
+When the `combobox` is in `filter` mode, its allowed values can be configured with the [`valueis`](https://github.com/ITenthusiasm/custom-elements/tree/main/src/Combobox/docs/combobox-field.md#attributes-valueis) attribute. (This attribute does nothing if the component is not in `filter` mode.) There are 3 allowed values:
 
 - `unclearable`: The `combobox` can only be given a value that matches one of its `option`s. If the user starts filtering the `option`s and leaves the `combobox` without selecting an `option`, then the searchbox's text will be reset to the label of the currently-selected `option`.
-- `clearable` (Default): Same as `unclearable`, except that the `combobox`'s value can be cleared. This can happen if the user empties the searchbox, or if the developer sets the [`ComboboxField.value`](https://github.com/ITenthusiasm/custom-elements/tree/main/src/Combobox/docs/combobox-field.md#value) property to an empty string. When the `combobox`'s value is cleared, the previously-selected `option` will be deselected (if one exists).
+- `clearable` (Default): Same as `unclearable`, except that the `combobox`'s value can be cleared. This can happen if the user empties the searchbox, or if the developer sets the [`ComboboxField.value`](https://github.com/ITenthusiasm/custom-elements/tree/main/src/Combobox/docs/combobox-field.md#properties-value) property to an empty string. When the `combobox`'s value is cleared, the previously-selected `option` will be deselected (if one exists).
 - `anyvalue`: The `combobox` accepts any value, even if there is no matching `option`. If the user types into the `combobox` and leaves it without selecting an `option`, then searchbox's text will be left alone, and the `combobox` will adopt the value of the search text. The `combobox`'s value can also be set programmatically to any string.
 
 ```html

@@ -37,7 +37,7 @@ When mounted to the DOM, the `<select-enhancer>` Web Component replaces the `<se
 
 This empowers you to write robust forms that are progressively enhanced. If your users lack access to JavaScript, then your application will fallback to the regular `<select>` element. Otherwise, your users will be provided with a much more powerful [`combobox`](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/). Either way, your forms are _guaranteed_ to remain usable.
 
-> Note: In our documentation, we use `combobox` (lowercase "c") to refer to the accessible [`role`](https://www.w3.org/TR/wai-aria-1.2/#combobox), whereas we use `Combobox` (capital "C") to refer to the group of components used by our library to provide an accessible `combobox` to users.
+> Note: In our documentation, we use `combobox` (lowercase "c") to refer to the accessible [`role`](https://www.w3.org/TR/wai-aria-1.2/#combobox), whereas we use `Combobox` (capital "C") to refer to the [group of components](#component-structure) used by our library to provide an accessible `combobox` to users.
 
 ## Component Structure
 
@@ -55,7 +55,7 @@ As you can tell from the above example, our `Combobox` component is really a col
     <a href="./combobox-field.md"><code>&lt;combobox-field&gt;</code></a>
   </dt>
   <dd>
-    You can consider this the replacement for the <code>&lt;select&gt;</code> element. It displays the component's current value and acts as a search box when used in <a href="./combobox-field.md#filter"><code>filter</code> mode</a>. Since it is form-associated, it also holds all of the form-related information for the component group. Its role is <a href="https://www.w3.org/TR/wai-aria-1.2/#combobox"><code>combobox</code></a>.
+    You can consider this the replacement for the <code>&lt;select&gt;</code> element. It displays the component's current value and acts as a search box when used in <a href="./combobox-field.md#attributes-filter"><code>filter</code> mode</a>. Since it is form-associated, it also holds all of the form-related information for the component group. Its role is <a href="https://www.w3.org/TR/wai-aria-1.2/#combobox"><code>combobox</code></a>.
   </dd>
 
   <dt>
