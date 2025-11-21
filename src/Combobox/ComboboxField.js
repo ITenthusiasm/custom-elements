@@ -763,6 +763,8 @@ class ComboboxField extends HTMLElement {
     const defaultOption = listbox.querySelector(":scope [role='option']:nth-last-child(1 of [selected])");
 
     if (defaultOption) this.value = defaultOption.value;
+    // TODO: For the sake of avoiding confusion, this should probably be `this.forceEmptyValue()`.
+    //       Consider if the `ComboboxOption`'s deselect logic should be updated for `clearable`s in this case as well.
     else if (this.valueIs === "anyvalue" || this.valueIs === "clearable") this.value = "";
     else if (listbox.firstElementChild) this.value = listbox.firstElementChild.value;
   }
