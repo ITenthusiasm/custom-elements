@@ -29,6 +29,9 @@ As a Custom Element, the `ComboboxOption` supports all of the [global attributes
     <p>
       Determines the value of the <code>ComboboxOption</code>. When an option is selected, its value is assigned to the associated <a href="./combobox-field.md#properties-value"><code>ComboboxField.value</code></a>. If an option doesn't have a <code>value</code> attribute, then its text content is used as its value instead.
     </p>
+    <!-- TODO: Does this comment belong here, or in a GOTCHAS section with examples? -->
+    <!-- Or maybe the section can just be "ComboboxOption Values Must Be Unique"-->
+    <p>Note that each option in a <code>Combobox</code> component instance must have a unique value.</p>
     <p>This attribute is reflected by the <a href="#properties-value"><code>ComboboxOption.value</code></a> property.</p>
   </dd>
 
