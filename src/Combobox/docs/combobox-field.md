@@ -316,7 +316,7 @@ In addition to the methods that exist on the [`HTMLElement`](https://developer.m
 
 <dl>
   <dt id="methods-forceEmptyValue">
-    <a href="#methods-forceEmptyValue"><code>forceEmptyValue()</code></a> (Signature: <code>() => void</code>)
+    <a href="#methods-forceEmptyValue"><code>forceEmptyValue()</code></a> Signature: <code>() => void</code>
   </dt>
   <dd>
     <p>
@@ -328,12 +328,12 @@ In addition to the methods that exist on the [`HTMLElement`](https://developer.m
   </dd>
 
   <dt id="methods-getOptionByValue">
-    <a href="#methods-getOptionByValue"><code>getOptionByValue()</code></a> (Signature: <code>(value: string) => ComboboxOption | null</code>)
+    <a href="#methods-getOptionByValue"><code>getOptionByValue()</code></a> Signature: <code>(value: string) => ComboboxOption | null</code>
   </dt>
   <dd>Retrieves the option with the specified value (if it exists).</dd>
 
   <dt id="methods-acceptsValue">
-    <a href="#methods-acceptsValue"><code>acceptsValue()</code></a> (Signature: <code>(value: string) => boolean</code>)
+    <a href="#methods-acceptsValue"><code>acceptsValue()</code></a> Signature: <code>(value: string) => boolean</code>
   </dt>
   <dd>
     <p>Returns <code>true</code> if the <code>ComboboxField</code> will accept the provided value <em>even when no corresponding option exists</em>.</p>
@@ -341,7 +341,7 @@ In addition to the methods that exist on the [`HTMLElement`](https://developer.m
   </dd>
 
   <dt id="methods-checkValidity">
-    <a href="#methods-checkValidity"><code>checkValidity()</code></a> (Signature: <code>() => boolean</code>)
+    <a href="#methods-checkValidity"><code>checkValidity()</code></a> Signature: <code>() => boolean</code>
   </dt>
   <dd>
     <p>
@@ -350,7 +350,7 @@ In addition to the methods that exist on the [`HTMLElement`](https://developer.m
   </dd>
 
   <dt id="methods-reportValidity">
-    <a href="#methods-reportValidity"><code>reportValidity()</code></a> (Signature: <code>() => boolean</code>)
+    <a href="#methods-reportValidity"><code>reportValidity()</code></a> Signature: <code>() => boolean</code>
   </dt>
   <dd>
     <p>
@@ -359,7 +359,7 @@ In addition to the methods that exist on the [`HTMLElement`](https://developer.m
   </dd>
 
   <dt id="methods-setCustomValidity">
-    <a href="#methods-setCustomValidity"><code>setCustomValidity()</code></a> (Signature: <code>(error: string) => void</code>)
+    <a href="#methods-setCustomValidity"><code>setCustomValidity()</code></a> Signature: <code>(error: string) => void</code>
   </dt>
   <dd>
     <p>
@@ -368,7 +368,7 @@ In addition to the methods that exist on the [`HTMLElement`](https://developer.m
   </dd>
 
   <dt id="methods-optionMatchesFilter">
-    <a href="#methods-optionMatchesFilter"><code>optionMatchesFilter()</code></a> (advanced) | (Signature: <code>(option: ComboboxOption) => boolean</code>)
+    <a href="#methods-optionMatchesFilter"><code>optionMatchesFilter()</code></a> (advanced) Signature: <code>(option: ComboboxOption) => boolean</code>
   </dt>
   <dd>
     <p>
@@ -391,7 +391,7 @@ In addition to the methods that exist on the [`HTMLElement`](https://developer.m
   </dd>
 
   <dt id="methods-getFilteredOptions">
-    <a href="#methods-getFilteredOptions"><code>getFilteredOptions()</code></a> (advanced) | (Signature: <code>() => GetFilteredOptionsReturnType</code>)
+    <a href="#methods-getFilteredOptions"><code>getFilteredOptions()</code></a> (advanced) Signature: <code>() => GetFilteredOptionsReturnType</code>
   </dt>
   <dd>
     <p>
