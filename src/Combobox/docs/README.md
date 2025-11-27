@@ -37,7 +37,7 @@ When mounted to the DOM, the `<select-enhancer>` Web Component replaces the `<se
 
 This empowers you to write robust forms that are progressively enhanced. If your users lack access to JavaScript, then your application will fallback to the regular `<select>` element. Otherwise, your users will be provided with a much more powerful [`combobox`](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/). Either way, your forms are _guaranteed_ to remain usable.
 
-> Note: In our documentation, we use `combobox` (lowercase "c") to refer to the accessible [`role`](https://www.w3.org/TR/wai-aria-1.2/#combobox), whereas we use `Combobox` (capital "C") to refer to the [group of components](#component-structure) used by our library to provide an accessible `combobox` to users.
+> Note: In our documentation, we use `combobox` (lowercase "c") to refer to the accessible `combobox` [`role`](https://www.w3.org/TR/wai-aria-1.2/#combobox), whereas we use `Combobox` (capital "C") to refer to the [group of custom elements](#component-structure) in our library which together form one component that functions as an accessible `combobox` for users.
 
 ## Component Structure
 

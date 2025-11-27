@@ -2,7 +2,7 @@
 
 The `ComboboxListbox` is a [Custom Element](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements) used by the [`Combobox` component](.)[^1]. Its sole purpose is to serve as an accessible [`listbox`](https://www.w3.org/TR/wai-aria-1.2/#listbox) which wraps the [`<combobox-option>`s](./combobox-option.md). This is necessary to satisfy the accessibility requirements of [`combobox`es](https://www.w3.org/TR/wai-aria-1.2/#combobox). Besides this, the `ComboboxListbox` provides an easy way to iterate over the component's `option`s programmatically.
 
-[^1]: Note: In our documentation, we use `combobox` (lowercase "c") to refer to the accessible [`role`](https://www.w3.org/TR/wai-aria-1.2/#combobox), whereas we use `Combobox` (capital "C") to refer to the [group of components](.#component-structure) used by our library to provide an accessible `combobox` to users.
+[^1]: Note: In our documentation, we use `combobox` (lowercase "c") to refer to the accessible `combobox` [`role`](https://www.w3.org/TR/wai-aria-1.2/#combobox), whereas we use `Combobox` (capital "C") to refer to the [group of custom elements](.#component-structure) in our library which together form one component that functions as an accessible `combobox` for users.
 
 ## Attributes
 

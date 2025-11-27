@@ -2,7 +2,7 @@
 
 The `SelectEnhancer` is a [Custom Element](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements) used by the [`Combobox` component](.)[^1]. It is responsible for guaranteeing that the [`<combobox-field>`](./combobox-field.md), [`<combobox-listbox>`](./combobox-listbox.md), and [`<combobox-option>`](./combobox-option.md) elements are initialized and arranged correctly so that the entire group of components function together as an accessible [`combobox`](https://www.w3.org/TR/wai-aria-1.2/#combobox). This initialization is performed in one of two cases: 1&rpar; When the page first loads (if any `<select-enhancer>`s are in the initial markup), or 2&rpar; When the `<select-enhancer>` is mounted to the DOM (if it was originally created outside of the DOM).
 
-[^1]: Note: In our documentation, we use `combobox` (lowercase "c") to refer to the accessible [`role`](https://www.w3.org/TR/wai-aria-1.2/#combobox), whereas we use `Combobox` (capital "C") to refer to the [group of components](.#component-structure) used by our library to provide an accessible `combobox` to users.
+[^1]: Note: In our documentation, we use `combobox` (lowercase "c") to refer to the accessible `combobox` [`role`](https://www.w3.org/TR/wai-aria-1.2/#combobox), whereas we use `Combobox` (capital "C") to refer to the [group of custom elements](.#component-structure) in our library which together form one component that functions as an accessible `combobox` for users.
 
 ## Modes of Use
 

@@ -2,6 +2,22 @@
 
 A collection of questions/concerns that I thought through while designing some of the Web Components in this repository.
 
+## Why Use IDs for Web Component Accessibility Instead of `ElementInternals`? (2025-11-26)
+
+The [`ElementInternals`](https://developer.mozilla.org/en-US/docs/Web/API/ElementInternals) interface is getting more and more improvements over time. Many of these improvements enable developers to create accessibility relationships between Custom Elements _without_ having to use unique IDs. So why do some of our components still use unique IDs? Well, there are two simple reasons:
+
+### 1&rpar; Browser Compatibility
+
+Using IDs to build accessible relationships between `HTMLElement`s has been supported for a very long time. However, support for `ElementInternals` is still fairly new. Some states, such as [`ElementInternals.ariaExpanded`](https://developer.mozilla.org/en-US/docs/Web/API/ElementInternals/ariaExpanded) have been supported since October 2023 (according to MDN). Compared to the support timeline for features like [`setFormValue()`](https://developer.mozilla.org/en-US/docs/Web/API/ElementInternals/setFormValue), that's not too bad. (However, `ElementInternals.setFormValue()` had support added in March 2023 according to MDN. So the argument that states "Well, if you're using `ElementInternals` for forms, you may as well use it for a11y too" isn't 100% true/valid.)
+
+However, other accessibility features like [`ElementInternals.ariaControlsElements`](https://developer.mozilla.org/en-US/docs/Web/API/ElementInternals/ariaControlsElements) and [`ElementInternals.ariaActiveDescendantElement`](https://developer.mozilla.org/en-US/docs/Web/API/ElementInternals/ariaActiveDescendantElement) became supported in April 2025 &mdash; two years later! So, for the sake of browser compatibility, some a11y features from `ElementInternals` really shouldn't be used yet.
+
+### Playwright Tests
+
+Playwright plays a _very_ crucial role in testing the functionality and accessibility of advanced Custom Elements; it can test behaviors that many tools out there cannot. Unfortunately, Playwright isn't currently able to inspect the ARIA states of `ElementInternals`. This means that if we want to write _passing_, _reliable_ tests related to _accessibility_, then we'll have to use IDs to build accessibility relationships right now.
+
+Beyond this, it isn't immediately clear to me how much Screen Readers have actually been tested with the new `ElementInternals` features. Sure, the spec defines the a11y features, but that doesn't mean they're actually supported in the wild yet. For example, `aria-errormessage` has been in the spec for a long time, but its support is still quite lacking today. Until there's proof that these new features are truly tested and reliable, there's no reason to chase after them. Doing so could unexpectedly break the UX of our components. (NOTE: It isn't _immediately_ clear to me either whether or not this is a valid concern. It's possible that all browsers expose `aria-controls` and `ElementInternals.ariaControlsElements` the same way. I don't know. But my point remains: proven testing has to be done by someone first.)
+
 ## Reasons to Prefer `attributeChangedCallback()` to `MutationObserver`s (2025-10-09)
 
 ### Synchronicity (Predictability)

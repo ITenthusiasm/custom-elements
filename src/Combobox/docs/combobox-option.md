@@ -4,7 +4,7 @@ The `ComboboxOption` is a [Custom Element](https://developer.mozilla.org/en-US/d
 
 The `ComboboxOption`'s accessible role is [`option`](https://www.w3.org/TR/wai-aria-1.2/#option). As such, this Custom Element must always be placed within a [`<combobox-listbox>`](./combobox-listbox.md).
 
-[^1]: Note: In our documentation, we use `combobox` (lowercase "c") to refer to the accessible [`role`](https://www.w3.org/TR/wai-aria-1.2/#combobox), whereas we use `Combobox` (capital "C") to refer to the [group of components](.#component-structure) used by our library to provide an accessible `combobox` to users.
+[^1]: Note: In our documentation, we use `combobox` (lowercase "c") to refer to the accessible `combobox` [`role`](https://www.w3.org/TR/wai-aria-1.2/#combobox), whereas we use `Combobox` (capital "C") to refer to the [group of custom elements](.#component-structure) in our library which together form one component that functions as an accessible `combobox` for users.
 
 ## Attributes
 
@@ -29,6 +29,7 @@ As a Custom Element, the `ComboboxOption` supports all of the [global attributes
     <p>
       Determines the value of the <code>ComboboxOption</code>. When an option is selected, its value is assigned to the associated <a href="./combobox-field.md#properties-value"><code>ComboboxField.value</code></a>. If an option doesn't have a <code>value</code> attribute, then its text content is used as its value instead.
     </p>
+    <p>Note: Because of how option <a href="#attributes-id">IDs</a> are generated, each option in a <code>Combobox</code> component must have a unique value.</p>
     <p>This attribute is reflected by the <a href="#properties-value"><code>ComboboxOption.value</code></a> property.</p>
   </dd>
 
@@ -55,7 +56,9 @@ As a Custom Element, the `ComboboxOption` supports all of the [global attributes
 
 ## Properties
 
-As a Custom Element, the `ComboboxOption` inherits all of the methods and properties of [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) interface. The properties which are _specific_ to the `ComboboxOption` are analogous to the unique properties belonging to an [`HTMLOptionElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLOptionElement). However, the superfluous `text` property has been omitted, and the `label` property is readonly. The properties are as follows:
+As a Custom Element, the `ComboboxOption` inherits all of the methods and properties of [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) interface. The properties which are _specific_ to the `ComboboxOption` are analogous to the unique properties belonging to an [`HTMLOptionElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLOptionElement). However, the superfluous `text` property has been omitted, and the `label` property is readonly. The properties are listed below.
+
+> Note: Any items labeled `advanced` are only intended for handling special, **_uncommon_** use cases; you **_don't_** need to learn about them. However, you might find them useful for edge cases, like enhancing performance when you have an extremely large list of options.
 
 <dl>
   <dt id="properties-label">
