@@ -385,7 +385,7 @@ for (const { mode } of testConfigs) {
 
           const normalizedExpected = expected ?? "No options found";
           const browser = combobox.page().context().browser()?.browserType().name();
-          const content = await listbox.evaluate((e) => getComputedStyle(e, "::after").content);
+          const content = await listbox.evaluate((e) => getComputedStyle(e, "::before").content);
           const actual =
             browser === "firefox"
               ? await listbox.getAttribute("nomatchesmessage")

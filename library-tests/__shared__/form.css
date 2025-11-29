@@ -88,7 +88,7 @@ form {
   }
 
   select-enhancer :is([role="combobox"], [role="option"]),
-  :where([role="combobox"][data-bad-filter]) + [role="listbox"]::after {
+  :where([role="combobox"][data-bad-filter]) + [role="listbox"]::before {
     color: fieldtext;
     background-color: field;
   }

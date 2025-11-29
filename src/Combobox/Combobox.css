@@ -4,7 +4,7 @@ select-enhancer {
   position: relative;
   display: inline-block;
   box-sizing: border-box;
-  width: inherit;
+  width: min(100%, 200px);
   height: inherit;
 
   @media only screen and (min-width: 600px) {
@@ -64,15 +64,16 @@ select-enhancer {
       }
 
       & > [role="option"],
-      &:where([role="combobox"][data-bad-filter] + [role="listbox"])::after {
+      &:where([role="combobox"][data-bad-filter] + [role="listbox"])::before {
         display: block;
         box-sizing: border-box;
         height: var(--option-height);
         padding: var(--option-padding);
+        align-content: center;
         cursor: pointer;
 
         &[data-active="true"]:not([aria-selected="true"]) {
-          background-color: #bddaff; /* `background-color` for `selected` items, brightened by 70% */
+          background-color: #bddaff; /* This color is the `background-color` for `selected` items, brightened by 70% */
         }
 
         &[aria-selected="true"] {
@@ -85,13 +86,13 @@ select-enhancer {
           visibility: hidden; /* Needed to hide filtered-out `option`s in Safari + VoiceOver (Bug in Browser) */
         }
 
-        /* TODO: Add clearer `disabled` styles. */
+        /* TODO: Add clearer/better `disabled` styles. */
         &[aria-disabled="true"] {
-          cursor: auto;
+          cursor: not-allowed;
         }
       }
 
-      &:where([role="combobox"][data-bad-filter] + [role="listbox"])::after {
+      &:where([role="combobox"][data-bad-filter] + [role="listbox"])::before {
         content: attr(nomatchesmessage, "No options found") / "";
         cursor: auto;
       }
