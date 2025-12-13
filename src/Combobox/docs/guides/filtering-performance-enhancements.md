@@ -92,7 +92,7 @@ Now you know how the `ComboboxField.getFilteredOptions()` method works, and what
 
 ## Filtering Options with `Trie`s
 
-> **NOTE**: This section assumes that you have a sufficient understanding of how the `ComboboxField.getFilteredOptions()` method works and how to override it (as detailed at the beginning of this document). It also assumes you have a basic understanding of the [`Trie`](https://en.wikipedia.org/wiki/Trie) and [`ArrayList`](https://en.wikipedia.org/wiki/Trie) data structures.
+> **NOTE**: This section assumes that you have a sufficient understanding of how the `ComboboxField.getFilteredOptions()` method works and how to override it (as detailed at the beginning of this document). It also assumes you have a basic understanding of the [`Trie`](https://en.wikipedia.org/wiki/Trie) and [`ArrayList`](https://en.wikipedia.org/wiki/Dynamic_array) data structures.
 >
 > If you are unfamiliar with these data structures, see ThePrimeagen's Free Course on [Data Structures and Algorithms](https://frontendmasters.com/courses/algorithms/) first. (Note that if you're unfamiliar with these data structures, you probably _don't_ need this section's performance enhancement. Either that, or this is the very first time you've needed to reduce an autocomplete's time complexity below `O(n)`.)
 
@@ -361,7 +361,7 @@ Note that practically speaking, if you're looking to use a `Trie` because you're
 
 The one limitation with the `ComboboxField`'s performance enhancement capabilities is Option Resetting. Option Resetting is the process where all `ComboboxOption`s are marked as filtered in (`ComboboxOption.filteredOut = false`) and are inserted into the internal `matchingOptions` list in proper order. This occurs when the user collpases the `combobox`, or when the developer swaps out some of the `ComboboboxOption`s in the DOM while the `combobox` is collapsed.
 
-Option Resetting is an `O(n)` procedure, and the logic for this procedure cannot be overridden. However, it is possible for the maintainers of this library to add the ability to override this behavior so that it can have a time complexity of `O(1)`. The path to accomplishing this is straightforward, but we are requesting developer feedback before pursuing it to see if there is a genuine need. See GitHub Issue #1.
+Option Resetting is an `O(n)` procedure, and the logic for this procedure cannot be overridden. However, it is possible for the maintainers of this library to add the ability to override this behavior so that it can have a time complexity of `O(1)`. The path to accomplishing this is straightforward, but we are requesting developer feedback before pursuing it to see if there is a genuine need. See GitHub Issue ITenthusiasm/custom-elements#1.
 
 <!--
 ...
