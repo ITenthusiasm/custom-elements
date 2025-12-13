@@ -36,11 +36,12 @@ We recommend this structure because it is the most simple, clear, flexible, and 
 
 ## Styles by Use Case
 
-In this section, we explain how you can style the different parts of the `Combobox` component. Note that some of the component's functionality is implemented using CSS rather than JS. There are three primary reasons for taking this approach:
+In this section, we explain how you can style the different parts of the `Combobox` component. Note that some of the component's functionality is implemented using CSS rather than JS. There are four primary reasons for taking this approach:
 
-1. In many cases it makes the JS simpler _and_ makes the component more performant.
-2. This approach makes it easier to guarantee that accessibility requirements are met.
-3. It gives greater flexibility to developers. (It's easier to override styles than it is to override internal class component methods.)
+1. Any actions which require DOM insertion/removal in JS (e.g., hiding/revealing options) will make a Web Component incompatible with most JS Frameworks. If the action is performed with CSS instead, then no compatibility issues will be encountered.
+2. In many cases, this approach makes the component's overall JS logic simpler _and_ more performant.
+3. This approach makes it easier to guarantee that accessibility requirements are met.
+4. It gives greater flexibility to developers. (It's easier to override styles than it is to override internal class component methods.)
 
 To prove this point, consider the fact that the specification for accessible web applications states that a [`listbox`](https://www.w3.org/TR/wai-aria-1.2/#listbox) (in our case, the `ComboboxListbox`) should only be displayed when the associated [`combobox`](https://www.w3.org/TR/wai-aria-1.2/#combobox) (in our case, the `ComboboxField`) has set its [`aria-expanded`](https://www.w3.org/TR/wai-aria-1.2/#aria-expanded) attribute to the string `"true"`.
 

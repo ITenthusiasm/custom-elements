@@ -126,7 +126,7 @@ Once the new `option` data is loaded, the developer can take one of two primary 
 
 Loading `option`s asynchronously means that developers must replace old `option`s with newly-loaded ones. This swapping of `option`s will always trigger the `ComboboxField`'s `option`-watching `MutationObserver`, which exists to ensure that the state of the component remains valid as `option`s are changed. If the `combobox` is expanded while the observer callback is running, it will filter the new `option`s to make sure that only those matching the user's filter are displayed. (This is the safest course of action because the `ComboboxField` has no way of knowing whether all the `option`s provided to it match the user's filter.) If the `combobox` is collapsed at execution time, the observer will reset the `option`s so that nothing is marked filtered out, updating `#matchingOptions` to reflect this reality in the process.
 
-For clarity, both `option`-filtering and `option`-resetting cause the `#matchingOption`s to be brought up-to-date.
+For clarity, both `option`-filtering and `option`-resetting cause the `#matchingOption`s to be brought up-to-date, which is mandatory.
 
 This explanation should be pretty straightforward. All developers who need to load `option`s asynchronously can accomplish what they want with an async `filterchange` event handler.
 

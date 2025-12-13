@@ -401,7 +401,7 @@ In addition to the methods that exist on the [`HTMLElement`](https://developer.m
       <dt><code>matchingOptions: ComboboxOption[]</code></dt>
       <dd>The (ordered) list of options which match the user's current filter.<dd>
       <dt><code>autoselectableOption: ComboboxOption | undefined</code> (Optional)</dt>
-      <dd>The option which is a candidate for automatic selection. See: <a href="#properties-autoselectableOption"><code>ComboboxField.autoselectableOption</code></a>.</dd>
+      <dd>The option which is a candidate for automatic selection. Updates the <a href="#properties-autoselectableOption"><code>ComboboxField.autoselectableOption</code></a> property without selecting the option.</dd>
     </dl>
     <p>
       <strong>NOTE: You should never call this method directly.</strong> As noted above, this method mutates the <code>Combobox</code> component's options, so it is dangerous to call this method arbitrarily. Only the <code>ComboboxField</code> may call this method, and it does so only when the user changes the filter, or on an as-needed basis when the options are dynamically changed. This internal method is publicly exposed so that developers can <strong><em>completely</em></strong> overhaul the element's filtering logic, which can be accomplished by overriding the method.
