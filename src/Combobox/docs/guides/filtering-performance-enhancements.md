@@ -261,7 +261,7 @@ class ComboboxOptionTrie {
 
 This is technically more efficient. But again, you're optimizing `O(1)` time complexity, so consider how much this is actually worthwhile.
 
-One last note before moving on: When the user's filter is emptied, you'll need to mark all of the available options as filtered in. You can do this in the `Trie.search()` method or in the `ComboboxField.getFilteredOptions()` method. (We know that this will result in a nasty `O(n)` operation. However, this operation will only occur when the user changes their filter from non-empty to empty, or vice-versa. If you find this requirement problematic, please engage the [RFC for additional `ComboboxField` performance improvements](TODO!!!). We are interested in resolving this limitation if others genuinely need it resolved.)
+One last note before moving on: When the user's filter is emptied, you'll need to mark all of the available options as filtered in. You can do this in the `Trie.search()` method or in the `ComboboxField.getFilteredOptions()` method. (We know that this will result in a nasty `O(n)` operation. However, this operation will only occur when the user changes their filter from non-empty to empty, or vice-versa. If you find this requirement problematic, please engage the [RFC for additional `ComboboxField` performance improvements](https://github.com/ITenthusiasm/custom-elements/issues/1). We are interested in resolving this limitation if others genuinely need it resolved.)
 
 ### Using the Correct CSS Styles
 
@@ -361,7 +361,7 @@ Note that practically speaking, if you're looking to use a `Trie` because you're
 
 The one limitation with the `ComboboxField`'s performance enhancement capabilities is Option Resetting. Option Resetting is the process where all `ComboboxOption`s are marked as filtered in (`ComboboxOption.filteredOut = false`) and are inserted into the internal `matchingOptions` list in proper order. This occurs when the user collpases the `combobox`, or when the developer swaps out some of the `ComboboboxOption`s in the DOM while the `combobox` is collapsed.
 
-Option Resetting is an `O(n)` procedure, and the logic for this procedure cannot be overridden. However, it is possible for the maintainers of this library to add the ability to override this behavior so that it can have a time complexity of `O(1)`. The path to accomplishing this is straightforward, but we are requesting developer feedback before pursuing it to see if there is a genuine need. See #ISSUE_TODO.
+Option Resetting is an `O(n)` procedure, and the logic for this procedure cannot be overridden. However, it is possible for the maintainers of this library to add the ability to override this behavior so that it can have a time complexity of `O(1)`. The path to accomplishing this is straightforward, but we are requesting developer feedback before pursuing it to see if there is a genuine need. See GitHub Issue #1.
 
 <!--
 ...
