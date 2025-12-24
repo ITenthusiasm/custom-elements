@@ -1,6 +1,6 @@
 # The `ComboboxField` Element
 
-The `ComboboxField` is a [Custom Element](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements) used by the [`Combobox` component](.)[^1]. Besides the [`SelectEnhancer`](./select-enhancer.md) (which glues all of the `Combobox` component pieces together), it is perhaps the most important part of the `Combobox` component. It hides/reveals the options, manages the form and validity states of the component, implements the component's filtering logic, and more. Its accessible role is [`combobox`](https://www.w3.org/TR/wai-aria-1.2/#combobox).
+The `ComboboxField` is a [Custom Element](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements) used by the [`Combobox` component](.)[^1]. Besides the [`SelectEnhancer`](./select-enhancer.md) (which glues all of the `Combobox` component's pieces together), it is perhaps the most important part of the `Combobox` component. It hides/reveals the options, manages the form and validity states of the component, implements the component's filtering logic, and more. Its accessible role is [`combobox`](https://www.w3.org/TR/wai-aria-1.2/#combobox).
 
 [^1]: Note: In our documentation, we use `combobox` (lowercase "c") to refer to the accessible `combobox` [`role`](https://www.w3.org/TR/wai-aria-1.2/#combobox), whereas we use `Combobox` (capital "C") to refer to the [group of custom elements](.#component-structure) in our library which together form one component that functions as an accessible `combobox` for users.
 
@@ -14,7 +14,7 @@ As a Custom Element, the `ComboboxField` supports all of the [global attributes]
   </dt>
   <dd>
     <p>
-      Same as the regular <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/id"><code>id</code></a> attribute which exists on every <code>HTMLElement</code>. When the <code>ComboboxField</code>'s ID is changed, the ID of its <a href="./combobox-listbox.md"><code>ComboboxListbox</code></a> is updated to <code>{ComboboxField.id}-listbox</code>, and the IDs of all associated <a href="./combobox-option.md"><code>ComboboxOption</code>s</a> are updated to <code>{ComboboxField.id}-option-{ComboboxOption.value}</code>. These IDs are needed for accessibility purposes. (For this reason, every option within a single listbox must have a unique value.)
+      Same as the regular <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/id"><code>id</code></a> attribute which exists on every <code>HTMLElement</code>. When the <code>ComboboxField</code>'s ID is changed, the ID of its <a href="./combobox-listbox.md"><code>ComboboxListbox</code></a> is updated to <code>{ComboboxField.id}-listbox</code>, and the IDs of all associated <a href="./combobox-option.md"><code>ComboboxOption</code>s</a> are updated to <code>{ComboboxField.id}-option-{ComboboxOption.value}</code>. These IDs are needed for accessibility purposes. (For this reason, each option within a given listbox must have a unique value.)
     </p>
     <p>
       If the <code>ComboboxField</code> does not have an ID when the page is first loaded (or when the entire <code>Combobox</code> component is first connected to the DOM), then the <a href="./select-enhancer.md"><code>SelectEnhancer</code></a> generates a unique one for it. Afterwards, the IDs of the <code>ComboboxListbox</code> and the <code>ComboboxOption</code>s will be synchronized as needed.
@@ -64,7 +64,7 @@ As a Custom Element, the `ComboboxField` supports all of the [global attributes]
   </dt>
   <dd>
     <p>
-      An enumerated attribute which determines the kinds of values that the component will accept. (Only relevant in <a href="#attributes-filter">Filter Mode</a>.) This attribute (together with the <code>filter</code> attribute) has the largest impact on how the <code>Combobox</code> component behaves. Allowed values:
+      An enumerated attribute which determines the kinds of values that the component will accept. (Only relevant in <a href="#attributes-filter">Filter Mode</a>.) This attribute (together with the <code>filter</code> attribute) has the largest impact the <code>Combobox</code> component's behavior. Allowed values:
     </p>
     <dl>
       <dt><code>anyvalue</code></dt>
@@ -87,11 +87,11 @@ As a Custom Element, the `ComboboxField` supports all of the [global attributes]
       </dd>
       <dt><code>clearable</code> (Default)</dt>
       <dd>
-        Similar to <code>unclearable</code>, except that the <code>ComboboxField.value</code> can always be set to an empty string, even if there is no option with an empty string value. The element's value will become an empty string when 1&rpar; the property is set to an empty string, 2&rpar; the user deletes all of the searchbox's text content, or 3&rpar; <a href="#methods-forceEmptyValue"><code>ComboboxField.forceEmptyValue()</code></a> is called. Keep in mind that clearing the element's value will also deselect the currently-selected option.
+        Similar to <code>unclearable</code>, except that the <code>ComboboxField.value</code> can always be set to an empty string, even if there is no option with an empty string value. The element's value will become an empty string when 1&rpar; The property is set to an empty string, 2&rpar; The user deletes all of the searchbox's text content, or 3&rpar; <a href="#methods-forceEmptyValue"><code>ComboboxField.forceEmptyValue()</code></a> is called. Keep in mind that clearing the element's value will also deselect the currently-selected option.
       </dd>
     </dl>
     <p>
-      In addition to determining the allowed values for the <code>ComboboxField</code>, the <code>valueis</code> attribute determines what the <a href="./combobox-option.md#determining-the-default-option">default option</a> for the <code>Combobox</code> component will be if none is specified by the developer. If the <code>ComboboxField</code> is not in Filter Mode, the entire component behaves as if <code>valueis</code> is unclearable (except that the options won't be filterable).
+      In addition to determining the allowed values for the <code>ComboboxField</code>, the <code>valueis</code> attribute determines what the <a href="./combobox-option.md#determining-the-default-option">default option</a> for the <code>Combobox</code> component will be if none is specified by the developer. If the <code>ComboboxField</code> is not in Filter Mode, the entire component behaves as if <code>valueis</code> is <code>unclearable</code> (except that the options won't be filterable).
     </p>
     <p>This attribute is reflected by the <a href="#properties-valueIs"><code>ComboboxField.valueIs</code></a> property.</p>
   </dd>
@@ -101,7 +101,7 @@ As a Custom Element, the `ComboboxField` supports all of the [global attributes]
   </dt>
   <dd>
     <p>
-      Determines the message that will be displayed to users when they provide a filter that has no matching options. (Only relevant in <a href="#attributes-filter">Filter Mode</a>.) To learn more about how to customize the display of the "No Matches Message", see our <a href="./guides">guides</a>.
+      Determines the message that will be displayed to users when they provide a filter that has no matching options. (Only relevant in <a href="#attributes-filter">Filter Mode</a>.) To learn more about how to customize the display of the "No Matches Message", see our <a href="./guides/styling-the-combobox.md#styling-the-no-matches-message">guides</a>.
     </p>
     <p>This attribute is reflected by the <a href="#properties-noMatchesMessage"><code>ComboboxField.noMatchesMessage</code></a> property.</p>
   </dd>
@@ -134,7 +134,7 @@ As a Custom Element, the `ComboboxField` supports all of the [global attributes]
   </dt>
   <dd>
     <p>
-      Same as the <code>name</code> attribute seen on native form controls (e.g., <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#name"><code>&lt;input&gt;</code></a>). Ensures that the element's value will be submitted to the server under the specified <code>name</code>. The name can also be used to access the element via the <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/elements"><code>HTMLFormElement.elements</code></a> property of the owning form.
+      Same as the <code>name</code> attribute seen on native form controls (e.g., <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#name"><code>&lt;input&gt;</code></a>). Ensures that the element's value will be submitted to the server under the specified <code>name</code> on form submission. The name can also be used to access the element via the <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/elements"><code>HTMLFormElement.elements</code></a> property of the owning form.
     </p>
     <p>This attribute is reflected by the <a href="#properties-name"><code>ComboboxField.name</code></a> property.</p>
   </dd>
@@ -152,7 +152,7 @@ As a Custom Element, the `ComboboxField` supports all of the [global attributes]
 
 ## Properties
 
-As a Custom Element, the `ComboboxField` inherits all of the methods and properties of [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) interface. The properties which are _specific_ to the `ComboboxField` are as follows:
+As a Custom Element, the `ComboboxField` inherits all of the methods and properties of the [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) interface. The properties which are _specific_ to the `ComboboxField` are as follows:
 
 <dl>
   <dt id="properties-value">
@@ -160,10 +160,18 @@ As a Custom Element, the `ComboboxField` inherits all of the methods and propert
   </dt>
   <dd>
     <p>
-      Sets or retrieves the value of the element. Type is <code>string | null</code>. The values that this property accepts depend on the element's <a href="#attributes-valueis"><code>valueis</code></a> attribute. Note that this property cannot be set to <code>null</code> by the developer. And it will only return <code>null</code> if the <code>Combobox</code> component has no options and is in <code>unclearable</code> or <code>clearable</code> mode.
+      Sets or retrieves the value of the element. Type is <code>string | null</code>. The values which this property accepts depend on the element's <a href="#attributes-valueis"><code>valueis</code></a> attribute.
+    </p>
+    <blockquote>
+      <p>
+        Note: This property cannot be set to <code>null</code> by the developer, and it will only return <code>null</code> if the <code>Combobox</code> component has no options <em>and</em> is <code>clearable</code> or <code>unclearable</code>.
+      </p>
+    </blockquote>
+    <p>
+      When the <code>ComboboxField</code>'s value is set to a valid string, the <code>ComboboxOption</code> with a matching value will be marked selected (if it exists). Similarly, whenever a new option is selected, the <code>ComboboxField</code>'s value will be updated to match that option's value.
     </p>
     <p>
-      When the <code>ComboboxField</code>'s value is set successfully, the <code>ComboboxOption</code> with a matching value will be marked selected (if it exists). Similarly, whenever a new option is selected, the <code>ComboboxField</code>'s value will be updated to match that option's value. If the <code>ComboboxField</code>'s new value has a matching option when it is changed, then its text content will be set to the matching option's label. Otherwise, the element's text content will be set to the new value string.
+      If the <code>ComboboxField</code> is given a new value that has a matching option, then its text content will be set to the matching option's label. Otherwise, the element's text content will be set to the new value.
     </p>
     <blockquote>
       <p>
@@ -195,11 +203,14 @@ As a Custom Element, the `ComboboxField` inherits all of the methods and propert
   </dt>
   <dd>
     <p>
-      A read-only property which returns the option whose <code>label</code> matches the user's most recent filter. (Only relevant in <a href="#attributes-filter">Filter Mode</a>.) Type is <code>ComboboxOption | null</code>. This property is useful if you want to automatically select options for your users as they type. For example, in a <a href="#events-filterchange"><code>filterchange</code></a> event listener, you could check for an <code>autoselectableOption</code> and select it if it exists. Note that the user's filter must <em>exactly</em> match an option's label (including casing) for an <code>autoselectableOption</code> to exist.
+      A read-only property which returns the option whose <code>label</code> matches the user's most recent filter. (Only relevant in <a href="#attributes-filter">Filter Mode</a>.) Type is <code>ComboboxOption | null</code>.
+    </p>
+    <p>
+      This property is useful if you want to automatically select options for your users as they type. For example, in a <a href="#events-filterchange"><code>filterchange</code></a> event listener, you could check for an <code>autoselectableOption</code> and select it if it exists. Note that the user's filter must <em>exactly</em> match an option's label (including casing) for an <code>autoselectableOption</code> to exist.
     </p>
     <p>This property will become <code>null</code> in any of the following scenarios:</p>
     <ul>
-      <li>The user's most recent filter didn't match any of the options.</li>
+      <li>The user's most recent filter didn't match any of the (enabled) options.</li>
       <li>The <code>ComboboxField</code>'s text content was altered because of a change to its <code>value</code>.</li>
       <li>The <code>ComboboxField</code> was expanded and the user has not yet applied a filter.</li>
     </ul>
@@ -221,7 +232,7 @@ As a Custom Element, the `ComboboxField` inherits all of the methods and propert
   <dt id="properties-listbox">
     <a href="#properties-listbox"><code>listbox</code></a>
   </dt>
-  <dd>A read-only property which returns the <a href="./combobox-listbox.md"><code>ComboboxListbox</code></a> that the element controls.</dd>
+  <dd>A read-only property which returns the <a href="./combobox-listbox.md"><code>ComboboxListbox</code></a> that this element controls.</dd>
 
   <dt id="properties-text">
     <a href="#properties-text"><code>text</code></a>
@@ -231,7 +242,7 @@ As a Custom Element, the `ComboboxField` inherits all of the methods and propert
       A read-only property which returns the singular <a href="https://developer.mozilla.org/en-US/docs/Web/API/Text"><code>Text</code></a> Node associated with the <code>ComboboxField</code>. To alter the <code>ComboboxField</code>'s text content, <a href="https://developer.mozilla.org/en-US/docs/Web/API/CharacterData/data">update</a> this Node <strong><em>instead of</em></strong> using the common <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent"><code>Node.textContent</code></a> property.
     </p>
     <blockquote>
-      Note: Directly altering the <code>data</code> of the <code>Text</code> Node can lead to a confusing UX if not done wisely, so be careful when doing so. In practice, you should never need to update the element's text content yourself.
+      <p>Note: Directly altering the <code>data</code> of the <code>Text</code> Node can lead to a confusing UX if not done wisely, so be careful when doing so. In practice, you should never need to update the element's text content yourself.</p>
     </blockquote>
   </dd>
 
@@ -281,7 +292,7 @@ As a Custom Element, the `ComboboxField` inherits all of the methods and propert
     <a href="#properties-validationMessage"><code>validationMessage</code></a>
   </dt>
   <dd>
-    Same as the read-only <code>validationMessage</code> property found on native form controls (e.g., <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/validationMessage"><code>&lt;input&gt;</code></a>): Returns the message that will be displayed to users when the <code>ComboboxField</code> fails constraint validation. Type is <code>string</code>. To learn more about client-side form validation and when the user is shown an error message bubble, see MDN's <a href="https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Form_validation">Client-side Form Validation</a> tutorial.
+    Same as the read-only <code>validationMessage</code> property found on native form controls (e.g., <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/validationMessage"><code>&lt;input&gt;</code></a>): Returns the message that will be displayed to users when the <code>ComboboxField</code> fails constraint validation. Type is <code>string</code>. To learn more about client-side form validation and when the user is shown an error message bubble, see MDN's <a href="https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Form_validation"><em>Client-side Form Validation</em></a> tutorial.
   </dd>
 
   <dt id="properties-willValidate">
@@ -303,7 +314,7 @@ The following properties are defined directly on the <code>ComboboxField</code> 
   <dd>
     <p>The default value for the <a href="#attributes-nomatchesmessage"><code>nomatchesmessage</code></a> attribute. Type is <code>string</code>.</p>
     <p>
-      Note: This is the default "No Matches Message" for <strong><em>all</em></strong> instances of the <code>ComboboxField</code>. To learn more about how to customize the display of the "No Matches Message", see our <a href="./guides">guides</a>.
+      Note: This is the default "No Matches Message" for <strong><em>all</em></strong> instances of the <code>ComboboxField</code>. To learn more about how to customize the display of the "No Matches Message", see our <a href="./guides/styling-the-combobox.md#styling-the-no-matches-message">guides</a>.
     </p>
   </dd>
 </dl>
@@ -312,7 +323,7 @@ The following properties are defined directly on the <code>ComboboxField</code> 
 
 In addition to the methods that exist on the [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) interface, the `ComboboxField` defines the instance methods listed below.
 
-> Note: Any items labeled `advanced` are only intended for handling special, **_uncommon_** use cases; you **_don't_** need to learn about them. However, you might find them useful for edge cases, like enhancing performance when you have an extremely large list of options.
+> Note: Any items labeled `advanced` are only intended for handling special, **_uncommon_** use cases; you **_don't_** need to learn about them. However, you might find them useful for edge cases, like enhancing performance when filtering an extremely large list of options.
 
 <dl>
   <dt id="methods-forceEmptyValue">
@@ -336,7 +347,7 @@ In addition to the methods that exist on the [`HTMLElement`](https://developer.m
     <a href="#methods-acceptsValue"><code>acceptsValue()</code></a> Signature: <code>(value: string) => boolean</code>
   </dt>
   <dd>
-    <p>Returns <code>true</code> if the <code>ComboboxField</code> will accept the provided value <em>even when no corresponding option exists</em>.</p>
+    <p>Returns <code>true</code> if the <code>ComboboxField</code> will accept the provided value <em>even when no matching option exists</em>.</p>
     <p>This method is primarily used for internal purposes, though you may find it useful if you extend/override any of the <code>Combobox</code> component's features.</p>
   </dd>
 
@@ -345,7 +356,7 @@ In addition to the methods that exist on the [`HTMLElement`](https://developer.m
   </dt>
   <dd>
     <p>
-      Same as the <code>checkValidity()</code> method found on native form controls like the <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLSelectElement/checkValidity"><code>&lt;select&gt;</code></a> element: Returns <code>true</code> if the element passes constraint validation. Otherwise, returns <code>false</code>. If validation has failed, an <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/invalid_event"><code>invalid</code></a> event will be fired on the element, but the element <em>will not</em> display an error message bubble.
+      Same as the <code>checkValidity()</code> method found on native form controls like the <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLSelectElement/checkValidity"><code>&lt;select&gt;</code></a> element: Returns <code>true</code> if the element passes constraint validation. Otherwise, returns <code>false</code>. If validation fails, an <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/invalid_event"><code>invalid</code></a> event will be fired on the element, but the element <em>will not</em> display an error message bubble.
     </p>
   </dd>
 
@@ -385,7 +396,7 @@ In addition to the methods that exist on the [`HTMLElement`](https://developer.m
         <strong>WARNING</strong>: The <a href="#attributes-filtermethod"><code>filtermethod</code></a> attribute's behavior is made possible by the <code>ComboboxField</code>'s default implementation for the <code>optionMatchesFilter()</code> method. Thus, if you override this method, the <code>filtermethod</code> attribute will become useless unless you take the attribute into account in your method override.
       </p>
       <p>
-        You don't <em>need</em> to account for this attribute in your method override unless you want to preserve the attribute's behavior. But preserving the attribute's behavior is <em>recommended</em> because it will reduce confusion for consumers of your component. (Alternatively, if you don't want to account for the <code>filtermethod</code> attribute at all, you can mark the <a href="#properties-filterMethod"><code>ComboboxField.filterMethod</code></a> accessor as deprecated by using a <a href="https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html#deprecated">JSDoc</a> in your custom element class extension.)
+        You don't <em>need</em> to account for this attribute in your method override unless you want to preserve the attribute's behavior. However, preserving the attribute's behavior is <em>recommended</em> because it will reduce confusion for consumers of your component. (Alternatively, if you don't want to account for the <code>filtermethod</code> attribute at all, you can mark the <a href="#properties-filterMethod"><code>ComboboxField.filterMethod</code></a> accessor as deprecated by using a <a href="https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html#deprecated">JSDoc</a> in your Custom Element class extension.)
       </p>
     </blockquote>
   </dd>
@@ -401,13 +412,13 @@ In addition to the methods that exist on the [`HTMLElement`](https://developer.m
       <dt><code>matchingOptions: ComboboxOption[]</code></dt>
       <dd>The (ordered) list of options which match the user's current filter.<dd>
       <dt><code>autoselectableOption: ComboboxOption | undefined</code> (Optional)</dt>
-      <dd>The option which is a candidate for automatic selection. Updates the <a href="#properties-autoselectableOption"><code>ComboboxField.autoselectableOption</code></a> property without selecting the option.</dd>
+      <dd>The option which is a candidate for automatic selection. Updates the <a href="#properties-autoselectableOption"><code>ComboboxField.autoselectableOption</code></a> (but does not select the option).</dd>
     </dl>
     <p>
-      <strong>NOTE: You should never call this method directly.</strong> As noted above, this method mutates the <code>Combobox</code> component's options, so it is dangerous to call this method arbitrarily. Only the <code>ComboboxField</code> may call this method, and it does so only when the user changes the filter, or on an as-needed basis when the options are dynamically changed. This internal method is publicly exposed so that developers can <strong><em>completely</em></strong> overhaul the element's filtering logic, which can be accomplished by overriding the method.
+      <strong>NOTE: You should <em>never</em> call this method directly.</strong> As noted above, this method mutates the <code>Combobox</code> component's options, so it is dangerous to call this method arbitrarily. Only the <code>ComboboxField</code> may call this method, and it does so only when the user changes the filter, or on an as-needed basis when the options are dynamically changed. This internal method is publicly exposed so that developers can <strong><em>completely</em></strong> overhaul the element's filtering logic, which can be accomplished by overriding the method.
     </p>
     <p>
-      If you <em>only</em> need to change the element's filtering logic, then you should override <a href="#methods-optionMatchesFilter"><code>optionMatchesFilter()</code></a>, <strong>not</strong> <code>getFilteredOptions()</code>. But if you <em>also</em> need fine-tuned control over how the options are iterated for filtering (for example, if you prefer to use a <a href="https://en.wikipedia.org/wiki/Trie"><code>Trie</code></a> instead of an <a href="https://en.wikipedia.org/wiki/Dynamic_array"><code>ArrayList</code></a>), then you should override <code>getFilteredOptions()</code>. For more details on how to override this method effectively for performance, see our <a href="./guides/">guides</a>.
+      If you <em>only</em> need to change the element's filtering logic, then you should override <a href="#methods-optionMatchesFilter"><code>optionMatchesFilter()</code></a>, <strong>not</strong> <code>getFilteredOptions()</code>. But if you <em>also</em> need fine-tuned control over how the options are iterated for filtering (for example, if you prefer to filter options with a <a href="https://en.wikipedia.org/wiki/Trie"><code>Trie</code></a> instead of an <a href="https://en.wikipedia.org/wiki/Dynamic_array"><code>ArrayList</code></a>), then you should override <code>getFilteredOptions()</code>. For more details on how to override this method effectively for performance gains, see our <a href="./guides/filtering-performance-enhancements.md"><em>Filtering Performance Enhancements</em></a> guide.
     </p>
     <blockquote>
       <p>
@@ -422,7 +433,7 @@ In addition to the methods that exist on the [`HTMLElement`](https://developer.m
 
 ## Events
 
-The <code>ComboboxField</code> supports all of the events for the <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement"><code>HTMLElement</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element"><code>Element</code></a> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node"><code>Node</code></a> interfaces. Additionally, it supports the events below. You can listen for them by using the <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener">addEventListener()</code></a> method.
+As a Custom Element, the <code>ComboboxField</code> supports all of the events for the <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement"><code>HTMLElement</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element"><code>Element</code></a> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node"><code>Node</code></a> interfaces. Additionally, it supports the events below. You can listen for them by using the <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener">addEventListener()</code></a> method.
 
 <dl>
   <dt id="events-input">
@@ -441,7 +452,7 @@ The <code>ComboboxField</code> supports all of the events for the <a href="https
     <ol>
       <li>This event is not cancelable.</li>
       <li>
-        The dispatched event is only guaranteed to be an <a href="https://developer.mozilla.org/en-US/docs/Web/API/InputEvent"><code>InputEvent</code></a> if the value change was caused by a filter update (similar to the <code>&lt;input&gt;</code> element). If the value change was caused by selecting an option, the event will be a regular <a href="https://developer.mozilla.org/en-US/docs/Web/API/Event"><code>Event</code></a> (similar to the <code>&lt;select&gt;</code> element).
+        The dispatched event is only guaranteed to be an <a href="https://developer.mozilla.org/en-US/docs/Web/API/InputEvent"><code>InputEvent</code></a> if the value change was caused by a filter update (similar to the <code>&lt;input&gt;</code> element). If the value change was caused by selecting an option, then the event will be a regular <a href="https://developer.mozilla.org/en-US/docs/Web/API/Event"><code>Event</code></a> (similar to the <code>&lt;select&gt;</code> element).
       </li>
     </ol>
   </dd>
@@ -451,7 +462,7 @@ The <code>ComboboxField</code> supports all of the events for the <a href="https
   </dt>
   <dd>
     <p>
-      Fires whenever the user changes the <code>ComboboxField</code>'s value by selecting an option. If the <code>ComboboxField</code> is <a href="#attributes-filter">filterable</a>, then this event is also fired when the element loses focus (if the element's value was most recently changed by a filter update).
+      Fires whenever the user changes the <code>ComboboxField</code>'s value by selecting an option. If the <code>ComboboxField</code> is <a href="#attributes-filter">filterable</a>, then this event is also fired when the element loses focus <em>if the element's value was most recently changed by a filter update</em>.
     </p>
     <p>
       You can consider this event to be analogous to the native <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/change_event"><code>change</code></a> event if the <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select"><code>&lt;select&gt;</code></a> and <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input"><code>&lt;input&gt;</code></a> elements were merged into a single element. Just like the native event, this event is not cancelable, and its type is <a href="https://developer.mozilla.org/en-US/docs/Web/API/Event"><code>Event</code></a>.
@@ -466,7 +477,7 @@ The <code>ComboboxField</code> supports all of the events for the <a href="https
       Fires whenever the user changes the <code>ComboboxField</code>'s filter. (Only relevant in <a href="#attributes-filter">Filter Mode</a>.) The dispatched event is always of type <a href="https://developer.mozilla.org/en-US/docs/Web/API/Event"><code>Event</code></a>.
     </p>
     <p>
-      Canceling this event will stop the <code>ComboboxField</code> from applying the user's current filter to the options. For obvious reasons, this is generally discouraged. However, this can be useful if you are loading options asynchronously (because you will prevent the <code>ComboboxField</code> from trying to filter outdated options). For additional tips on loading options asynchronously, see our <a href="./guides">guides</a>.
+      Canceling this event will stop the <code>ComboboxField</code> from applying the user's current filter to the options. For obvious reasons, this is generally discouraged. However, this can be useful if you are loading options asynchronously (because you will prevent the <code>ComboboxField</code> from trying to filter outdated options). For additional tips on loading options asynchronously, see our <a href="./guides/loading-options-asynchronously.md"><em>Loading Options Asynchronously</em></a> guide.
     </p>
   </dd>
 </dl>

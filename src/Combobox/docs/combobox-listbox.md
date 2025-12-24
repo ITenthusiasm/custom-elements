@@ -26,7 +26,7 @@ As a Custom Element, the `ComboboxListbox` supports all of the [global attribute
   </dt>
   <dd>
     <p>
-      Every <a href="./combobox-field.md"><code>ComboboxField</code></a> has a <a href="./combobox-field.md#attributes-nomatchesmessage"><code>nomatchesmessage</code></a> attribute which functions as an <em>optional</em> way to control the component's No Matches Message in <a href="./combobox-field.md#attributes-filter">Filter Mode</a>. The <code>nomatchesmessage</code> attribute on the <code>ComboboxListbox</code> is simply a reflection of the attribute on the owning <code>ComboboxField</code>. It only exists as a way to help with styling the No Matches Message. (There are other ways to style this message, as laid out in our <a href="./guides">guides</a>.)
+      Every <a href="./combobox-field.md"><code>ComboboxField</code></a> has a <a href="./combobox-field.md#attributes-nomatchesmessage"><code>nomatchesmessage</code></a> attribute which functions as an <em>optional</em> way to control the component's No Matches Message in <a href="./combobox-field.md#attributes-filter">Filter Mode</a>. The <code>nomatchesmessage</code> attribute on the <code>ComboboxListbox</code> is simply a reflection of the attribute on the owning <code>ComboboxField</code>. It only exists as a way to help with styling the No Matches Message. (There are other ways to style this message, as laid out in our <a href="./guides/styling-the-combobox.md#styling-the-no-matches-message">guides</a>.)
     </p>
     <p>This attribute <strong>is not</strong> reflected by a JS property.</p>
   </dd>
@@ -34,7 +34,7 @@ As a Custom Element, the `ComboboxListbox` supports all of the [global attribute
 
 ## Properties
 
-As a Custom Element, the `ComboboxListbox` inherits all of the methods/properties of [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) interface. It has no special properties of its own.
+As a Custom Element, the `ComboboxListbox` inherits all of the methods and properties of the [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) interface. It has no special properties of its own.
 
 ## What's Next?
 

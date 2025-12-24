@@ -8,7 +8,7 @@ The `ComboboxOption`'s accessible role is [`option`](https://www.w3.org/TR/wai-a
 
 ## Attributes
 
-As a Custom Element, the `ComboboxOption` supports all of the [global attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes). The attributes which are _specific_ to the `ComboboxOption` are analogous to the unique attributes belonging to an [`HTMLOptionElement`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/option#attributes), excluding the superfluous `label` attribute. The attributes are as follows:
+As a Custom Element, the `ComboboxOption` supports all of the [global attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes). The attributes which are _specific_ to the `ComboboxOption` are analogous to the unique attributes belonging to an [`<option>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/option#attributes) element, excluding the superfluous `label` attribute. The attributes are as follows:
 
 <dl>
   <dt id="attributes-id">
@@ -27,9 +27,11 @@ As a Custom Element, the `ComboboxOption` supports all of the [global attributes
   </dt>
   <dd>
     <p>
-      Determines the value of the <code>ComboboxOption</code>. When an option is selected, its value is assigned to the associated <a href="./combobox-field.md#properties-value"><code>ComboboxField.value</code></a>. If an option doesn't have a <code>value</code> attribute, then its text content is used as its value instead.
+      Determines the value of the <code>ComboboxOption</code>. When an option is selected, its value is assigned to the associated <code>ComboboxField</code>. If an option doesn't have a <code>value</code> attribute, then its text content is used as its value instead.
     </p>
-    <p>Note: Because of how option <a href="#attributes-id">IDs</a> are generated, each option in a <code>Combobox</code> component must have a unique value.</p>
+    <p>
+      <strong>Note: Because of how option <a href="#attributes-id">IDs</a> are generated, each option in a <code>Combobox</code> component must have a unique value.</strong>
+    </p>
     <p>This attribute is reflected by the <a href="#properties-value"><code>ComboboxOption.value</code></a> property.</p>
   </dd>
 
@@ -56,9 +58,9 @@ As a Custom Element, the `ComboboxOption` supports all of the [global attributes
 
 ## Properties
 
-As a Custom Element, the `ComboboxOption` inherits all of the methods and properties of [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) interface. The properties which are _specific_ to the `ComboboxOption` are analogous to the unique properties belonging to an [`HTMLOptionElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLOptionElement). However, the superfluous `text` property has been omitted, and the `label` property is readonly. The properties are listed below.
+As a Custom Element, the `ComboboxOption` inherits all of the methods and properties of the [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) interface. The properties which are _specific_ to the `ComboboxOption` are analogous to the unique properties belonging to the [`HTMLOptionElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLOptionElement) interface. However, the superfluous `text` property has been omitted, the `label` property is readonly, and a `filteredOut` property has been added. All properties are listed below.
 
-> Note: Any items labeled `advanced` are only intended for handling special, **_uncommon_** use cases; you **_don't_** need to learn about them. However, you might find them useful for edge cases, like enhancing performance when you have an extremely large list of options.
+> Note: Any items labeled `advanced` are only intended for handling special, **_uncommon_** use cases; you **_don't_** need to learn about them. However, you might find them useful for edge cases, like enhancing performance when filtering an extremely large list of options.
 
 <dl>
   <dt id="properties-label">
@@ -103,7 +105,7 @@ As a Custom Element, the `ComboboxOption` inherits all of the methods and proper
     <a href="#properties-disabled"><code>disabled</code></a>
   </dt>
   <dd>
-    A <code>boolean</code> property which reflects the value of the <a href="#attributes-aria-disabled"><code>aria-disabled</code></a> attribute. You can consider it an alias for the global <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/ariaDisabled"><code>Element.ariaDisabled</code></a> property, except that it uses a more-ergonomic <code>boolean</code> instead of an enumerated <code>string</code>.
+    A <code>boolean</code> property which reflects the value of the <a href="#attributes-aria-disabled"><code>aria-disabled</code></a> attribute. You can consider it an alias for the global <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/ariaDisabled"><code>Element.ariaDisabled</code></a> property, except that it uses a more-ergonomic <code>boolean</code> type instead of an enumerated <code>string</code>.
   </dd>
 
   <dt id="properties-index">
@@ -111,7 +113,7 @@ As a Custom Element, the `ComboboxOption` inherits all of the methods and proper
   </dt>
   <dd>
     <p>
-      Retrieves the position of the option within the list of options as a 0-based index. If an option does not belong to a <code>Combobox</code> component, its <code>index</code> is always 0.
+      Retrieves the 0-indexed position of the option within a list of options. If an option does not belong to a <code>Combobox</code> component, its <code>index</code> is always 0.
     </p>
     <p>
       Note that an option's index is computed every time this property is accessed. Therefore, if you have a very large list of options, you should limit the number of times you read from this property.
@@ -121,7 +123,9 @@ As a Custom Element, the `ComboboxOption` inherits all of the methods and proper
   <dt id="properties-form">
     <a href="#properties-form"><code>form</code></a>
   </dt>
-  <dd>The <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement"><code>HTMLFormElement</code></a> with which the <code>Combobox</code> component is associated, or <code>null</code> if there is no associated form.</dd>
+  <dd>
+    The <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement"><code>HTMLFormElement</code></a> with which the <code>ComboboxOption</code>'s owning <code>ComboboxField</code> is associated, or <code>null</code> if there is no such form.
+  </dd>
 
   <dt id="properties-filteredOut">
     <a href="#properties-filteredOut"><code>filteredOut</code></a> (advanced)
@@ -131,7 +135,7 @@ As a Custom Element, the `ComboboxOption` inherits all of the methods and proper
       A <code>boolean</code> property indicating whether or not an option is currently filtered out by the user. Only relevant when the associated <code>ComboboxField</code> is in <a href="./combobox-field.md#attributes-filter">Filter Mode</a>.
     </p>
     <p>
-      <strong>NOTE: You should <em>never</em> update this property.</strong> And there should be no circumstances in which you need to read from it either. This property is an accessor which exists <em>solely</em> so that it can be overriden for fine-tuning the component's performance. <strong>Most developers will will not need it.</strong> For more details on performance tuning, see our <a href="./guides">guides</a>.
+      <strong>NOTE: You should <em>never</em> update this property.</strong> And there should be no circumstances in which you need to read from it either. This property is an accessor which exists <em>solely</em> so that it can be overriden for fine-tuning the component's performance. <strong>Most developers will will not need it.</strong> For more details on performance tuning, see our <a href="./guides/filtering-performance-enhancements.md"><em>Filtering Performance Enhancements</em></a> guide.
     </p>
   </dd>
 </dl>
