@@ -9,6 +9,7 @@
   "include": [
     "scripts",
     "main.js",
+    "framework-enhancement-tests",
     "library-tests",
     "playwright.config.ts",
     "src/**/__tests__/*.test.ts",

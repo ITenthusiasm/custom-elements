@@ -15,7 +15,7 @@ declare module "svelte/elements" {
     optiontag?: SelectEnhancer["optionTag"] | null;
   }
 
-  interface HTMLComboboxFieldAttributes<T extends EventTarget> extends HTMLAttributes<T> {
+  interface HTMLComboboxFieldAttributes<T extends EventTarget = ComboboxField> extends HTMLAttributes<T> {
     disabled?: ComboboxField["disabled"] | null;
     filter?: ComboboxField["filter"] | null;
     filtermethod?: ComboboxField["filterMethod"] | null;

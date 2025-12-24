@@ -38,8 +38,15 @@ declare module "solid-js" {
 
     interface ComboboxOptionHTMLAttributes<T> extends HTMLAttributes<T> {
       disabled?: ComboboxOption["disabled"];
-      selected?: ComboboxOption["selected"];
+      selected?: ComboboxOption["defaultSelected"];
       value?: ComboboxOption["value"];
+    }
+
+    interface ExplicitBoolAttributes {
+      filter?: boolean;
+      disabled?: boolean;
+      required?: boolean;
+      selected?: boolean;
     }
   }
 }

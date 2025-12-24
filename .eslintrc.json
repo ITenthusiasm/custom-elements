@@ -53,14 +53,19 @@
       "error",
       {
         "packageDir": ["./", "./src"],
-        "devDependencies": ["./*.config.ts", "library-tests/**", "**/__tests__/**/*.test.ts"]
+        "devDependencies": [
+          "./*.config.ts",
+          "framework-enhancement-tests/**",
+          "library-tests/**",
+          "**/__tests__/**/*.test.ts"
+        ]
       }
     ]
   },
   "overrides": [
     { "files": "scripts/**/*.js", "rules": { "no-console": "off" } },
     {
-      "files": "src/utils/**.js",
+      "files": ["src/utils/**.js", "framework-enhancement-tests/**"],
       "rules": { "import/prefer-default-export": "off" } // Usually these files are intended to have named exports only
     },
     {

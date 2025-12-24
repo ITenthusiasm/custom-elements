@@ -1,6 +1,6 @@
 # The `SelectEnhancer` Element
 
-The `SelectEnhancer` is a [Custom Element](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements) used by the [`Combobox` component](.)[^1]. It is responsible for guaranteeing that the [`<combobox-field>`](./combobox-field.md), [`<combobox-listbox>`](./combobox-listbox.md), and [`<combobox-option>`](./combobox-option.md) elements are initialized and arranged correctly so that the entire group of components function together as an accessible [`combobox`](https://www.w3.org/TR/wai-aria-1.2/#combobox). This initialization is performed in one of two cases: 1&rpar; When the page first loads (if any `<select-enhancer>`s are in the initial markup), or 2&rpar; When the `<select-enhancer>` is mounted to the DOM (if it was originally created outside of the DOM).
+The `SelectEnhancer` is a [Custom Element](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements) used by the [`Combobox` component](.)[^1]. It is responsible for guaranteeing that the [`<combobox-field>`](./combobox-field.md), [`<combobox-listbox>`](./combobox-listbox.md), and [`<combobox-option>`](./combobox-option.md) elements are initialized and arranged correctly so that the entire group of Custom Elements function together as an accessible [`combobox`](https://www.w3.org/TR/wai-aria-1.2/#combobox). This initialization is performed in one of two cases: 1&rpar; When the page first loads (if any `<select-enhancer>`s are in the initial markup), or 2&rpar; When the `<select-enhancer>` is mounted to the DOM (if it was originally created outside of the DOM).
 
 [^1]: Note: In our documentation, we use `combobox` (lowercase "c") to refer to the accessible `combobox` [`role`](https://www.w3.org/TR/wai-aria-1.2/#combobox), whereas we use `Combobox` (capital "C") to refer to the [group of custom elements](.#component-structure) in our library which together form one component that functions as an accessible `combobox` for users.
 
@@ -14,7 +14,7 @@ There are two modes in which the `SelectEnhancer` can be used: `Select Enhancing
 
 ```html
 <form>
-  <label for="ice-cream">Rating</label>
+  <label for="ice-cream">Ice Cream</label>
   <select-enhancer>
     <select id="ice-cream" name="ice-cream">
       <option value="vanilla">Vanilla</option>
@@ -41,14 +41,11 @@ In this mode, the `<select-enhancer>` replaces the `<select>`/`<option>` element
 </form>
 ```
 
-> Note: Even non-standard attributes will be copied over from the `<select>` element to the `<combobox-field>` element. This means, for example, that you can place the [`filter`](./combobox-field.md#attributes-filter) attribute on the `<select>` element to cause the corresponding `<combobox-field>` element to be initialized in Filter Mode.
+> Note: Even non-standard attributes will be copied over from the `<select>` element to the `<combobox-field>` element. This means, for example, that you can place the [`filter`](./combobox-field.md#attributes-filter) attribute on the `<select>` element to cause the generated `<combobox-field>` element to be initialized in Filter Mode.
 
-This makes `Select Enhancing Mode` ideal for two reasons:
+`Select Enhancing Mode` is ideal if you want to [progressively enhance](https://developer.mozilla.org/en-US/docs/Glossary/Progressive_Enhancement) a server-rendered application. If your users have JS disabled (or they otherwise [lack access to it](https://www.kryogenix.org/code/browser/everyonehasjs.html)), then they will still be able to use your forms because you'll be rendering regular `<select>` elements on initial page load. _Remember: `<select>` elements don't need JS to work properly_.
 
-1. **Simplicity**: All you have to do is wrap each of your `<select>` elements with their own `<select-enhancer>` elements. This makes it very easy to integrate the component into an already-existing application.
-2. **Progressive Enhancement**: If your users have JS disabled (or they otherwise [lack access to it](https://www.kryogenix.org/code/browser/everyonehasjs.html)), then they will still be able to use your forms because you'll be rendering regular `<select>` elements on initial page load. _Remember: `<select>` elements don't need JS to work properly_.
-
-The only caveat here is that you'll want to style your `<select>` elements to look like the `Combobox` component if you use this mode. That way, users with slower devices or weaker internet connections won't see a [Flash of Unstyled Content](https://en.wikipedia.org/wiki/Flash_of_unstyled_content) (so to speak) when the component is first mounted to the DOM. (Practically speaking, this is unlikely to be a real concern for your app.)
+The only caveat here is that you'll want to style your `<select>` element(s) to look like the `Combobox` component if you use this mode. That way, users with slower devices or weaker internet connections won't see a [Flash of Unstyled Content](https://en.wikipedia.org/wiki/Flash_of_unstyled_content) (so to speak) when the component is first mounted to the DOM. (Practically speaking, this is unlikely to be a real concern for your app.)
 
 ### 2&rpar; `Manual Setup Mode`
 
@@ -74,9 +71,11 @@ This mode is called `Manual Setup Mode` because the `<select-enhancer>` doesn't 
 
 Note that although this mode is called "Manual Setup Mode", there are still some actions that the `<select-enhancer>` will automate in this mode. For example, it will automatically establish the [ARIA](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA) relationships needed to make the component behave as an accessible [`combobox`](https://www.w3.org/TR/wai-aria-1.2/#combobox).
 
-Since this mode makes progressive enhancement impossible, it is not recommended for use. However, if you are using a JS Framework which expects to have _complete_ control over the DOM (such as React), then you might prefer `Manual Setup Mode`. This is because `Select Enhancing Mode` will cause the `<select-enhancer>` to replace your `<select>`/`<option>` elements _outside the control of your framework_. In such a case, if you want your application to be progressively enhanced, then you can make a helper component in your framework which renders a regular `<select>` element during SSR, and then renders a `<select-enhancer>` in `Manual Setup Mode` immediately after your application is first mounted/hydrated. You can find simple examples of this in our [guides](./guides#select-enhancement-in-js-frameworks).
+`Manual Setup Mode` is recommended for SPAs because a SPA cannot be progressively enhanced. Thus, it makes more sense to use the Custom Elements directly instead of using `Select Enhancing Mode` in this case.
 
-### Adding Icons / Buttons to the `SelectEnhancer`
+If you are server-rendering your application with a JS Framework (like React), then instead of using `Select Enhancing Mode`, you should create a helper component that renders a regular `<select>` element during SSR, and then renders a `<select-enhancer>` in `Manual Setup Mode` immediately after your application is first mounted/hydrated. This is to comply with the assumptions that many JS frameworks tend to have. You can find simple examples of this in our [guides](./guides/select-enhancement-in-js-frameworks.md).
+
+## Adding Icons / Buttons to the `SelectEnhancer`
 
 The `SelectEnhancer` applies some _minor_ restrictions regarding its descendants:
 
@@ -97,7 +96,7 @@ Besides that, there are no rules, and you are free to place whatever you want wi
 </select-enhancer>
 ```
 
-Or perhaps you want to display an `X` button which enables the user to clear their selected value:
+Or you might want to display an `X` button that enables users to clear their selected value:
 
 ```html
 <!-- HTML -->
@@ -129,7 +128,7 @@ button.addEventListener("click", () => {
 });
 ```
 
-There's no limit to what you can do! For additional insight on this topic, see our [guide](./guides#custom-styling) on customizing the component's display.
+There's no limit to what you can do! For additional insights, see our [guide](./guides/styling-the-combobox.md) on customizing the component's appearance.
 
 ## Attributes
 
@@ -172,7 +171,7 @@ As a Custom Element, the `SelectEnhancer` supports all of the [global attributes
 
 ## Properties
 
-As a Custom Element, the `SelectEnhancer` inherits all of the methods and properties of [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) interface. The properties which are _specific_ to the `SelectEnhancer` are as follows:
+As a Custom Element, the `SelectEnhancer` inherits all of the methods and properties of the [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) interface. The properties which are _specific_ to the `SelectEnhancer` are as follows:
 
 <dl>
   <dt id="properties-comboboxTag">
@@ -287,7 +286,7 @@ It's important to remember that the Custom Elements for the `Combobox` component
 3. `ComboboxOption` (and/or all child classes of the `ComboboxOption`)
 4. `SelectEnhancer` (and/or all child classes of the `SelectEnhancer`)
 
-This order is required because some of the sub-components depend on each other.
+This order is required because some of the Custom Elements depend on each other.
 
 ## What's Next?
 
