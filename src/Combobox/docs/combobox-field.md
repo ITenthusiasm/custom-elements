@@ -491,5 +491,3 @@ As a Custom Element, the <code>ComboboxField</code> supports all of the events f
 - Read our [guides](./guides) to learn more about what you can accomplish with our component.
 
 <!-- TODO: Guides should document i18n ... Actually, our component probably supports `i18n` already as is. It's just that some people might prefer to use `toLowerCaseLocale()` instead... but it's possible that might not be needed? -->
-
-<!-- TODO: Should we document behavior when all options are removed? This might hold significance for people trying to load options async (if using [un]clearable). ... Probably don't want to document it here. But perhaps we can document tips on async loading, and mention the nuance of removing all options prematurely. -->
