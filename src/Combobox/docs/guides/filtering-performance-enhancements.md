@@ -180,8 +180,6 @@ class TrieComboboxField extends ComboboxField {
     super.connectedCallback();
   }
 }
-
-customElements.define("trie-combobox-field", TrieComboboxField);
 ```
 
 ### Using the `Trie` to Filter `ComboboxOption`s
@@ -283,8 +281,6 @@ class AltComboboxOption extends ComboboxOption {
     this.toggleAttribute("data-filtered-in", !value);
   }
 }
-
-customElements.define("alt-combobox-option", AltComboboxOption);
 ```
 
 We'll also need to update the [CSS for the `ComboboxOption`s](./styling-the-combobox.md#styling-the-comboboxoptions) to reflect this change:
