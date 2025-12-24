@@ -12,7 +12,7 @@ Before overriding the `ComboboxField.getFilteredOptions()` method, it's importan
 
 ### The `matchingOptions` Property
 
-The `matchingOptions` property in the returned object is an _ordered_ list of all `ComboboxOption`s which match the user's current filter. Internally, this list is used by the `ComboboxField` to enable Keyboard Users to navigate between the matching options. The items in the `matchingOptions` list must be ordered in a way that is correspondent with the order of the options in the `ComboboxListbox`. For example, consider the following list of options:
+The `matchingOptions` property in the returned object is an _ordered_ list of all `ComboboxOption`s which match the user's current filter. Internally, this list is used by the `ComboboxField` to enable Keyboard Users to navigate between the matching options. The items in the `matchingOptions` list must be ordered in a way that is correspondent to the order of the options in the `ComboboxListbox`. For example, consider the following list of options:
 
 ```html
 <select-enhancer>
@@ -55,7 +55,7 @@ Here, the order of the `matchingOptions` corresponds to the order of the `Combob
 
 ### The `autoselectableOption` Property
 
-The `autoselectableOption` property in the returned object is the `ComboboxOption` which can be auto-selected. When this property is present on the returned object, the [`ComboboxField.autoselectableOption`](../combobox-field.md#properties-autoselectableOption) property is set to this option. When this property is absent (or `null`), the `ComboboxField.autoselectableOption` property is set to `null`. A nullish `autoselectableOption` implies that no auto-selectable option was found for the user's current filter (or that the auto-selection feature was intentionally disabled in a method override).
+The `autoselectableOption` property in the returned object is the `ComboboxOption` which can be auto-selected. When this property is present on the returned object, the [`ComboboxField.autoselectableOption`](../combobox-field.md#properties-autoselectableOption) property is set to this option. When this property is absent (or `null`), the `ComboboxField.autoselectableOption` property is set to `null`. A nullish `autoselectableOption` implies that no auto-selectable option was found for the user's current filter.
 
 ### Side-Effects
 
@@ -76,7 +76,7 @@ If you'd prefer a faster implementation, you can override the `getFilteredOption
 1. Return the up-to-date list of options which match the user's current filter. This list belongs on the `matchingOptions` property of the returned object.
 2. Order the list of `matchingOptions` in a way that corresponds to the order of the options in the `ComboboxListbox`.
 3. Ensure that every `ComboboxOption` which matches the user's current filter sets its `filteredOut` property to `false`, and that every option which _doesn't_ match the user's filter sets this property to `true`.
-4. Return the `ComboboxOption` which _exactly_, _case-sensitively_ matches the user's current filter. This `ComboboxOption` belongs on the `autoselectableOption` property of the returned object. If there is no such option (or if the option is disabled or forbidden in some way), the `autoselectableOption` property may be `null | undefined` (or omitted).
+4. Return the `ComboboxOption` which _exactly_, _case-sensitively_ matches the user's current filter. This `ComboboxOption` belongs on the `autoselectableOption` property of the returned object. If there is no such option (or if the option is disabled or forbidden in some way), the `autoselectableOption` property should be `null | undefined` (or omitted).
 
 > Note: Technically, the 4th rule is not "required" for the `Combobox` component to behave properly. However, satisfying this rule is _recommended_ to produce an intuitive experience for consumers of your component.
 
@@ -220,7 +220,7 @@ class TrieComboboxField extends ComboboxField {
 }
 ```
 
-As shown above, we start by marking the options from the user's _previous_ filter as filtered out (because the new filter makes the previous list of matching options outdated/obsolete). Next, we use the `Trie` to retrieve the list of options which match the user's _current_ filter. We mark these options as filtered in before returning them. Finally, we return the `autoselectableOption` if it exists.
+As shown above, we start by marking the options from the user's _previous_ filter as filtered out (because the new filter makes the previous list of matching options outdated/obsolete). Next, we use the `Trie` to retrieve the list of options which match the user's _current_ filter. We mark these options as filtered in before returning them. We also return the `autoselectableOption` if it exists.
 
 Note that the time complexity of this method is approximately `O(1)`. If you want to be a stickler, it's technically approximately `O(3h)`. One `h` is for marking the previously-matching options as filtered out. Another `h` is for calling `Trie.search()`. And the last `h` is for marking the newly-retrieved options as filtered in. However, as we mentioned previously, `h` is practically going to be so small that it's effectively a constant. So the real time complexity is approximately `O(3C)`, which is always reduced to approximately `O(1)`.
 
@@ -313,9 +313,9 @@ There are a few caveats to be aware of when using this approach.
 
 #### 1&rpar; The Ordered `matchingOptions` Rule Still Applies
 
-It's important to remember that, as was stated earlier, the order of the `matchingOptions` returned by `getFilteredOptions()` must correspond to the order of the component's options in the DOM. Since our `Trie` always returns a list of options in case-insensitive alphabetical order when performing a Pre-order Traversal, this means that **_the `ComboboxOption`s must rendered to the DOM in case-insensitive alphabetical order_**.
+It's important to remember that, as was stated earlier, the order of the `matchingOptions` returned by `getFilteredOptions()` must correspond to the order of the component's options in the DOM. Since our `Trie` always returns a list of options in case-insensitive alphabetical order when performing a Pre-order Traversal, this means that **_the `ComboboxOption`s must be rendered to the DOM in case-insensitive alphabetical order_**.
 
-Typically, your options will be fetched from the backend in some way (whether during Server Side Rendering or after Client Side Rendering). So you can just sort your options on the backend when they're fetched (e.g., in your [`SQL` query](https://stackoverflow.com/questions/2413427/how-to-use-sql-order-by-statement-to-sort-results-case-insensitive)). That way, your frontend only has to render the `ComboboxOption`s to the DOM (without sorting them) since they've already been sorted.
+Typically, your options will be fetched from the backend in some way (whether during Server Side Rendering or after Client Side Rendering). So you can just sort your options on the backend when they're fetched (e.g., in your [`SQL` query](https://stackoverflow.com/questions/2413427/how-to-use-sql-order-by-statement-to-sort-results-case-insensitive)). That way, your frontend only has to render the `ComboboxOption`s to the DOM (without sorting them) since they've already been sorted on the server.
 
 #### 2&rpar; Dynamically Replacing Options Requires `Trie` Updates
 
@@ -351,13 +351,13 @@ class TrieComboboxField extends ComboboxField {
 
 If you prefer to add/remove options from the `Trie` individually, you can look at the [`addedNodes`](https://developer.mozilla.org/en-US/docs/Web/API/MutationRecord/addedNodes) and [`removedNodes`](https://developer.mozilla.org/en-US/docs/Web/API/MutationRecord/removedNodes) of each mutation in the callback's `mutationList`. (The `mutationList` argument was omitted in the callback shown above.) In that case, you could choose to leverage `Trie.delete()` alongside `Trie.insert()`, and choose to only call these methods when an option isn't currently in the DOM. Visit [MDN's documentation](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver) to learn more about `MutationObserver`s.
 
-Note that practically speaking, if you're looking to use a `Trie` because you're managing an _enormous_ list of options, you probably don't want to be swapping out your `ComboboxOption`s in the DOM too frequently anyway. Doing so would likely harm performance.
+Note that practically speaking, if you're looking to use a `Trie` because you're managing an _enormous_ list of options, you probably don't want to be swapping out your `ComboboxOption`s in the DOM too frequently (if at all) anyway. Doing so would likely harm performance.
 
 ### Limitations
 
 The one limitation with the `ComboboxField`'s performance enhancement capabilities is Option Resetting. Option Resetting is the process where all `ComboboxOption`s are marked as filtered in (`ComboboxOption.filteredOut = false`) and are inserted into the internal `matchingOptions` list in proper order. This occurs when the user collpases the `combobox`, or when the developer swaps out some of the `ComboboboxOption`s in the DOM while the `combobox` is collapsed.
 
-Option Resetting is an `O(n)` procedure, and the logic for this procedure cannot be overridden. However, it is possible for the maintainers of this library to add the ability to override this behavior so that it can have a time complexity of `O(1)`. The path to accomplishing this is straightforward, but we are requesting developer feedback before pursuing it to see if there is a genuine need. See GitHub Issue ITenthusiasm/custom-elements#1.
+Option Resetting is an `O(n)` procedure, and the logic for this procedure cannot be overridden. However, it is possible for the maintainers of this library to add the ability to override this behavior so that it can have a time complexity of `O(1)`. The path to accomplishing this is straightforward, but we are requesting developer feedback before pursuing it to see if there is a genuine need. See GitHub Issue ITenthusiasm/custom-elements#1 for more details.
 
 <!--
 ...

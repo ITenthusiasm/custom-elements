@@ -43,9 +43,9 @@ In this section, we explain how you can style the different parts of the `Combob
 3. This approach makes it easier to guarantee that accessibility requirements are met.
 4. It gives greater flexibility to developers. (It's easier to override styles than it is to override internal class component methods.)
 
-To prove this point, consider the fact that the specification for accessible web applications states that a [`listbox`](https://www.w3.org/TR/wai-aria-1.2/#listbox) (in our case, the `ComboboxListbox`) should only be displayed when the associated [`combobox`](https://www.w3.org/TR/wai-aria-1.2/#combobox) (in our case, the `ComboboxField`) has set its [`aria-expanded`](https://www.w3.org/TR/wai-aria-1.2/#aria-expanded) attribute to the string `"true"`.
+To demonstrate the benefits of this approach, consider the fact that the specification for accessible web applications states that a [`listbox`](https://www.w3.org/TR/wai-aria-1.2/#listbox) (in our case, the `ComboboxListbox`) should only be displayed when the associated [`combobox`](https://www.w3.org/TR/wai-aria-1.2/#combobox) (in our case, the `ComboboxField`) has set its [`aria-expanded`](https://www.w3.org/TR/wai-aria-1.2/#aria-expanded) attribute to the string `"true"`.
 
-If you're using JavaScript to implement this logic, then you'll have to remember to toggle the visibility of the `listbox` in _every_ place where the `combobox` becomes expanded _or_ collapsed. You could technically simplify this effort by using an attribute-based [`MutationObserver`](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver). But it's much simpler to implement this logic in CSS:
+If you're using JavaScript to implement this logic, then you'll have to remember to toggle the visibility of the `listbox` in _every_ place where the `combobox` becomes expanded _or_ collapsed. You could technically simplify this effort by using an attribute-based [`MutationObserver`](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver). But it's much simpler to implement this logic in CSS instead:
 
 ```css
 [role="listbox"] {
@@ -58,13 +58,13 @@ If you're using JavaScript to implement this logic, then you'll have to remember
 }
 ```
 
-With this, we've basically encoded and satisfied the W3C Accessibility Spec directly in our CSS. And this code is much simpler than whatever we could come up with in JS! This is why some of the component's functionality is implemented in CSS instead of JS.
+With this, we've basically encoded and satisfied the W3C Accessibility Spec directly in our CSS. And this code is much simpler (and more performant) than whatever we could come up with in JS! This is why some of the component's functionality is implemented in CSS instead of JS.
 
 <!-- TODO: We should write an article on why anchoring CSS to A11y benefits codebases, then link to that article in the paragraph above. We want to avoid using too many words in this section because it will be more overwhelming for people who are primarily looking for help rather than philosphy. -->
 
 ### Styling the `SelectEnhancer`
 
-Styling the `SelectEnhancer` is the easiest part. Typically, you'll just be using styles that make the Custom Element function effectively as a wrapper/container (e.g., [`position`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/position), [`display`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/display), and/or [`box-sizing`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/box-sizing) styles).
+Styling the `SelectEnhancer` is the easiest part. Typically, you'll just be using styles that make the Custom Element function effectively as a wrapper/container (e.g., [`position`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/position), [`display`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/display), and [`box-sizing`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/box-sizing) styles).
 
 ```css
 select-enhancer {
@@ -145,7 +145,7 @@ select-enhancer {
         }
 
         &[data-active="true"]:not([aria-selected="true"]) {
-          /* Style the currently-active option, but NOT if it's selected */
+          /* Style the currently-active option if it is NOT selected */
         }
 
         &[aria-disabled="true"] {
@@ -175,7 +175,7 @@ There are 2 ways to style/customize the "No Matches Message". We will present bo
 
 This approach involves displaying the "No Matches Message" _without_ relying on the [`nomatchesmessage`](../combobox-field.md#attributes-nomatchesmessage) attribute of the `ComboboxField`.
 
-The [`SelectEnhancer` API docs](../select-enhancer.md#adding-icons--buttons-to-the-selectenhancer) mentions that you can put anything you want inside the `SelectEnhancer`. That really means _anything_, including your own custom "No Matches Message". For example, you might write markup like this:
+The [`SelectEnhancer` API docs](../select-enhancer.md#adding-icons--buttons-to-the-selectenhancer) mention that you can put anything you want inside the `SelectEnhancer`. That really means _anything_, including your own custom "No Matches Message". For example, you might write markup like this:
 
 ```html
 <label for="movies">Movies</label>
@@ -268,9 +268,24 @@ For a long time, developers have been able to render the value of an element's a
 
 There are a few things to note here:
 
-1. Because the `::before` selector is only satisfied when the `combobox` is in the `[data-bad-filter]` state (or the `:state(--bad-filter)` state), the "No Matches Message" will only be rendered when the user's filter has no matching options.
-2. The `::before` pseudo-element does not produce a real `HTMLElement` acknowledged by the DOM, and appending `/ ""` to the CSS `content` property hides the text from the accessibility tree. (This is _required_ because the web accessibility spec only allows `option`s and `group`s to be children of `listbox`es, and the "No Matches Message" _is not_ a real option that users can select. Also, Screen Reader Users don't need to see this text since they will already be told when their filter produces 0 matching `option`s in the `listbox`.)
-3. The `::before` pseudo-element is rendered _inside_ the `listbox`, so it does not need to be absolutely positioned (unlike the message used in the [other approach](#using-your-own-markup)).
+<ol>
+  <li>
+    Because the <code>::before</code> selector is only satisfied when the <code>combobox</code> is in the <code>[data-bad-filter]</code> state (or the <code>:state(--bad-filter)</code> state), the "No Matches Message" will only be rendered when the user's filter has no matching options.
+  </li>
+  <li>
+    <p>
+      The <code>::before</code> pseudo-element does not produce a real <code>HTMLElement</code> acknowledged by the DOM, and appending <code>/ ""</code> to the CSS <code>content</code> property hides the text from the accessibility tree.
+    </p>
+    <blockquote>
+      <p>
+        Note: This is <em>required</em> because the web accessibility spec only allows <code>option</code>s and <code>group</code>s to be children of <code>listbox</code>es, and the "No Matches Message" <em>is not</em> a real option that users can select. Also, Screen Reader Users don't need to see this text since they will already be told when their filter produces 0 matching <code>option</code>s in the <code>listbox</code>.
+      </p>
+    </blockquote>
+  </li>
+  <li>
+    The <code>::before</code> pseudo-element is rendered <em>inside</em> the <code>listbox</code>, so it does not need to be absolutely positioned (unlike the message used in the <a href="#using-your-own-markup">other approach</a>).
+  </li>
+</ol>
 
 If you want your "No Matches Message" to _look_ like your options, you can add an extra selector next to your `[role="option"]` selector:
 

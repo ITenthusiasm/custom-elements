@@ -10,7 +10,7 @@ Because many frameworks (like React) expect to have full control over what's ren
 
 ```tsx
 import { createContext, useContext, useState, useEffect } from "react";
-import type {} from "@itenthusiasm/custom-elements/Combobox/types/react.d.ts";
+import type {} from "@itenthusiasm/custom-elements/Combobox/types/react";
 
 const SelectContext = createContext(false);
 export default function Select({ children, ...rest }: React.ComponentProps<"combobox-field">) {
@@ -39,12 +39,14 @@ export function Option({ defaultSelected, ...rest }: React.ComponentProps<"combo
 }
 ```
 
-Note that when React sees a Custom Element which defines _both_ an attribute _and_ a property under the same name (e.g., `selected`), React will always prefer setting the property over setting the attribute. This is problematic because the `selected` _attribute_ of the `ComboboxOption` is what is used to determine the default-selected option. This is a severe limitation in React which will hopefully be resolved in the future. But in the meantime, the `defaultSelected` _property_ can be used to properly configure the default `ComboboxOption`, as shown above. The regular `<option>` element treats `selected` as an attribute in React, so the `defaultSelected` prop is mapped to that attribute.
+Note that when React sees a Custom Element which defines _both_ an attribute _and_ a property under the same name (e.g., `selected`), React will always prefer setting the property over setting the attribute. This is problematic because the `selected` _attribute_ of the `ComboboxOption` (_not_ its property) is what is used to determine the default-selected option.
+
+This is a severe limitation in React which will hopefully be resolved in the future. But in the meantime, the `defaultSelected` _property_ can be used to properly configure the default `ComboboxOption`, as shown above. Note that React treats `selected` as a regular attribute for `<option>` elements, so the `defaultSelected` prop is mapped to that attribute when an `<option>` is rendered.
 
 What's most important about this approach is that it's _simple_ and _declarative_, resulting in easily-maintained code as you write your UIs:
 
 ```tsx
-import Select, { Option } from "~/my-components/select";
+import Select, { Option } from "./components/Select";
 
 export default function MyForm() {
   const options = ["First", "Second", "Third", "Fourth", "Fifth"];
@@ -70,7 +72,7 @@ Below are examples of how to apply this same technique in other popular JS frame
 ```tsx
 import { createContext, useContext, onMount, createSignal, splitProps, Switch, Match } from "solid-js";
 import type { ComponentProps, Accessor, Context } from "solid-js";
-import type {} from "@itenthusiasm/custom-elements/Combobox/types/solid.d.ts";
+import type {} from "@itenthusiasm/custom-elements/Combobox/types/solid";
 
 const SelectContext = createContext() as Context<Accessor<boolean>>;
 export default function Select(props: ComponentProps<"combobox-field">) {
@@ -111,11 +113,11 @@ export function Option(props: ComponentProps<"combobox-option">) {
 }
 ```
 
-Note that Solid gives you the freedom to decide whether a component's props will target the underlying element's properties or its attributes. For example, [`bool:*`](https://docs.solidjs.com/reference/jsx-attributes/bool) can be used to force a component to treat a prop like a [boolean attribute](https://developer.mozilla.org/en-US/docs/Glossary/Boolean/HTML). Whether you choose to use the `selected` prop of the `<Option>` component as a JS property or as an attribute is up to you. However, using it as an attribute is recommended for better SSR support:
+Note that Solid gives you the freedom to decide whether a component's props will target the underlying element's properties or its attributes. For example, [`bool:*`](https://docs.solidjs.com/reference/jsx-attributes/bool) can be used to force a component to treat a prop like a [boolean attribute](https://developer.mozilla.org/en-US/docs/Glossary/Boolean/HTML). Whether you choose to supply the `selected` prop of the `<Option>` component as a JS property or as an attribute is up to you. However, supplying it as an attribute is recommended for better SSR support:
 
 ```tsx
 import { For } from "solid-js";
-import Select, { Option } from "./components/select";
+import Select, { Option } from "./components/Select";
 
 export default function MyForm() {
   const options = ["First", "Second", "Third", "Fourth", "Fifth"];
@@ -145,6 +147,7 @@ In Vue, we'll need to use 3 files:
 <script lang="ts" setup>
 /* Select.vue */
 import { ref, onMounted, provide, readonly } from "vue";
+import type {} from "@itenthusiasm/custom-elements/Combobox/types/vue";
 import { mountedKey } from "./keys.js";
 
 defineOptions({ inheritAttrs: false });
@@ -196,9 +199,9 @@ export const mountedKey = Symbol("mounted") as InjectionKey<Ref<boolean>>;
 
 There are a few things to note here:
 
-First, Vue's Web Component support is better than React's, but it is still limited. In order to guarantee that the `selected` _attribute_ is used for the `<combobox-option>` element, we must explicitly use [`:selected.attr`](https://vuejs.org/api/built-in-directives.html#v-bind). (Vue already uses the `selected` attribute for regular `<option>` elements; only `<combobox-option>` is a concern here.) Since Vue doesn't support dynamically binding [_boolean_ attributes](https://developer.mozilla.org/en-US/docs/Glossary/Boolean/HTML), we mimic the behavior of a boolean attribute by toggling between `true` and `undefined` for the `:selected.attr` value.
+First, Vue's Web Component support is better than React's, but it is still limited. In order to guarantee that the `selected` _attribute_ is used for the `<combobox-option>` element, we must explicitly use [`:selected.attr`](https://vuejs.org/api/built-in-directives.html#v-bind). (Vue already uses the `selected` attribute for regular `<option>` elements; so only `<combobox-option>` is a concern here.) Since Vue doesn't support dynamically binding [_boolean_ attributes](https://developer.mozilla.org/en-US/docs/Glossary/Boolean/HTML), we mimic the behavior of a boolean attribute by toggling between `"true"` and `undefined` for the `:selected.attr` value.
 
-Second, the [`fallthroughAttributes` Vue Compiler Option](https://github.com/vuejs/language-tools/wiki/Vue-Compiler-Options#fallthroughattributes-v210) enables Vue to infer the proper TypeScript types for the props of the `<Select>` and `<Option>` Vue components. These types are based on where the [fallthrough attributes](https://vuejs.org/guide/components/attrs) are passed.
+Second, the [`fallthroughAttributes` Vue Compiler Option](https://github.com/vuejs/language-tools/wiki/Vue-Compiler-Options#fallthroughattributes-v210) enables Vue to infer the proper TypeScript types for the props of the `<Select>` and `<Option>` Vue components. These types are inferred based on where the [fallthrough attributes](https://vuejs.org/guide/components/attrs) are passed.
 
 As with the earlier examples, the Vue components provide a simple and declarative interface for developers.
 
@@ -237,7 +240,7 @@ In Svelte, we'll need to use 2 files:
 <script lang="ts">
   import { onMount } from "svelte";
   import type { HTMLComboboxFieldAttributes } from "svelte/elements";
-  import type {} from "@itenthusiasm/custom-elements/Combobox/types/svelte.d.ts";
+  import type {} from "@itenthusiasm/custom-elements/Combobox/types/svelte";
 
   let { children, ...rest }: HTMLComboboxFieldAttributes = $props();
 
@@ -282,7 +285,7 @@ In Svelte, we'll need to use 2 files:
 
 > Note: Importing our library's `svelte.d.ts` file enables you to import the Custom Element attribute types from the `svelte/elements` module.
 
-Unfortunately, although Svelte supports Custom Elements like the other popular frameworks, it struggles even more than React when it comes to handling the `selected` attribute. Similar to React, Svelte translates the `selected` prop on the `<Option>` component to a property instead of an attribute when rendering the `<combobox-option>`. However, unlike React, which supports the `defaultSelected` property, Svelte _does not_ support `defaultSelected` either because it translates the camel case property into a lowercase property (which doesn't exist on the `ComboboxOption` at all).
+Unfortunately, although Svelte supports Custom Elements like other popular frameworks, it struggles even more than React when it comes to handling the `selected` attribute. Similar to React, Svelte translates the `selected` prop on the `<Option>` component to a property instead of an attribute when rendering the `<combobox-option>`. However, unlike React, which supports the `defaultSelected` property, Svelte _does not_ support `defaultSelected` either because it translates the camel case property into a lowercase property (which doesn't exist on the `ComboboxOption` at all).
 
 This is why client-side JS was added to the `<Option>` Svelte component shown above. It gives the `<combobox-option>` the correct default-selected state when it is mounted to the DOM. Note that the `selected` attribute will always be applied properly to the `<option>` element during SSR. So users lacking access to JS will still be able to see the correct default value for the form control.
 
@@ -309,4 +312,4 @@ This is why client-side JS was added to the `<Option>` Svelte component shown ab
 
 The process for applying Select Enhancement to the `Combobox` component in other JS frameworks is the same as what you saw above: Simply create `<Select>/<Option>` components which render the native `<select>/<option>` elements during SSR, and which render the Custom Elements for the `Combobox` component _after_ your framework has mounted your `<Select>`/`<Option>` components to the DOM.
 
-If you want to support default values for your form control, then you must also ensure that the `selected` _attribute_ is used to determine the default `<option>` during SSR. On the client's side, when the `Combobox` component is mounted to the DOM, you must also ensure that the `selected` attribute is applied to the proper `<combobox-option>`. (You can do this through the literal `selected` attribute. Or, if your framework doesn't support the attribute, you may use the `defaultSelected` property to toggle this attribute instead.)
+If you want to support default values for your form control, then you must also ensure that the `selected` _attribute_ is used to determine the default `<option>` during SSR. On the client's side, when the `Combobox` component is mounted to the DOM, you must additionally ensure that the `selected` attribute is applied to the proper `<combobox-option>`. (You can do this through the literal `selected` attribute. Or, if your framework doesn't support the attribute, you may use the `defaultSelected` property to toggle this attribute instead.)
