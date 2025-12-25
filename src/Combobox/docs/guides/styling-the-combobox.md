@@ -348,6 +348,33 @@ This approach has several benefits over the [other one](#using-your-own-markup).
 
 The only downside to this approach is that it's a little bit unusual. :&rpar; It's [sufficienlty] simple, it's framework-agnostic, it's fully-functional, and it's fully-reliable. But subjectively, some people might not prefer approaches that are different from what they're used to. So pick whichever approach feels best to you.
 
+### Providing a Placeholder
+
+Placeholder text [_is not_](https://www.w3.org/WAI/tutorials/forms/instructions#placeholder-text) a replacement for an accessible [`<label>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/label). However, you may occasionally find it helpful to add a placeholder to your accessibly-labeled form controls.
+
+Typically, "placeholders" are implemented with an Empty Value Option (e.g., <code>&lt;combobox-option&nbsp;value=""&gt;Pick an Option&lt;/combobox-option&gt;</code>) when using the [`<select>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select) element or the `Combobox` component. If you are using a `Combobox` component in Filter Mode, then there is an additional way that you can add placeholder text:
+
+```css
+select-enhancer {
+  & > [role="combobox"] {
+    position: relative;
+
+    &[filter]:empty::after {
+      display: block;
+      content: attr(aria-placeholder) / "";
+      position: absolute;
+      cursor: text;
+    }
+  }
+}
+```
+
+> Note: You might not need `position: absolute` and `position: relative`, depending on the browsers that you choose to support. If you _do_ need those CSS properties, you can position the placeholder text as needed with additional CSS. Hopefully, you shouldn't need anything more than what is shown above, however.
+
+The CSS `content` property here is hidden from Screen Readers to prevent the form control's details from being read incorrectly. Visual Users will still be able to see/read the text, and Screen Readers should still announce the [`aria-placeholder`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-placeholder) attribute that you apply to the `ComboboxField`.
+
+The only benefit of this approach is that it saves you from having to use an Empty Value Option when rendering a list of options to the UI for a `clearable` or `anyvalue` `ComboboxField`. (This approach doesn't make sense for `unclearable` `ComboboxField`s since they always require a valid option to be selected.) _Remember that this approach only works if the `Combobox` component is in Filter Mode._
+
 <!--
 TODO: Link to example of styling our `combobox` to look like GitHub's or ShadcnUI's. Maybe put it alongside an example of another styling approach.
 
