@@ -413,7 +413,7 @@ class ComboboxField extends HTMLElement {
     for (let option = this.listbox.firstElementChild; option; option = /** @type {any} */ (option.nextElementSibling)) {
       if (!this.optionMatchesFilter(option)) option.filteredOut = true;
       else {
-        if (option.textContent === search) autoselectableOption = option;
+        if (option.textContent === search && !option.disabled) autoselectableOption = option;
 
         option.filteredOut = false;
         this.#matchingOptions[matches++] = option;

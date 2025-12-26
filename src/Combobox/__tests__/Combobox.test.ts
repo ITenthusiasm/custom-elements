@@ -5201,7 +5201,7 @@ for (const { mode } of testConfigs) {
                 const combobox = page.getByRole("combobox");
                 await expect(combobox).toHaveSyncedComboboxValue({ label: testOptions[0], value: "0" });
 
-                // `combobox` starts without auto-selectable `option`
+                // `combobox` starts without an auto-selectable `option`
                 await expect(combobox).toHaveJSProperty("autoselectableOption", null);
 
                 // Entering a filter that only matches part of an `option` doesn't make it auto-selectable
@@ -5219,6 +5219,29 @@ for (const { mode } of testConfigs) {
                 // Updating the filter to something without a matching `option` deletes the auto-selectable, however
                 const third = testOptions[2];
                 await combobox.press(third[0]);
+                await expect(combobox).toHaveJSProperty("autoselectableOption", null);
+              });
+
+              it("Does not expose disabled `option`s", async ({ page }) => {
+                await page.goto(url);
+                await renderHTMLToPage(page)`
+                  <select-enhancer>
+                    <select ${getFilterAttrs("unclearable")}>
+                      ${testOptions.map((o, i) => `<option ${i === 1 ? "disabled" : ""}>${o}</option>`).join("")}
+                    </select>
+                  </select-enhancer>
+                `;
+
+                const combobox = page.getByRole("combobox");
+                await expect(combobox).toHaveSyncedComboboxValue({ label: testOptions[0] });
+
+                // A filter that exactly matches a DISABLED `option` DOES NOT make the `option` auto-selectable
+                const second = testOptions[1];
+                const secondOption = page.getByRole("option", { name: second, disabled: true });
+                await combobox.pressSequentially(second);
+
+                await expect(secondOption).toBeVisible();
+                await expect(combobox).toHaveText((await secondOption.textContent()) as string);
                 await expect(combobox).toHaveJSProperty("autoselectableOption", null);
               });
 
