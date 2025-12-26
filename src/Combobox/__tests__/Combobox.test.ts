@@ -7626,7 +7626,7 @@ for (const { mode } of testConfigs) {
               await form.evaluate((f: HTMLFormElement) => f.reset());
 
               if (valueis === "anyvalue" || valueis === "clearable") {
-                await it.step("When an Empty String Option is NOT available", async () => {
+                await it.step("When an Empty Value Option is NOT available", async () => {
                   await expect(combobox).toHaveText("");
                   await expect(combobox).toHaveComboboxValue("", { form: true });
 
@@ -7641,8 +7641,8 @@ for (const { mode } of testConfigs) {
               }
 
               if (valueis !== "anyvalue" && valueis !== "clearable") return;
-              await it.step("When an Empty String Option IS available", async () => {
-                // Add an Empty String Option to the `combobox`
+              await it.step("When an Empty Value Option IS available", async () => {
+                // Add an Empty Value Option to the `combobox`
                 const emptyOptionData = { label: "Choose Something", value: "" } as const;
                 const emptyOptionElement = options.and(page.locator('[value=""]'));
                 await expect(emptyOptionElement).not.toBeAttached();
@@ -7663,9 +7663,13 @@ for (const { mode } of testConfigs) {
                   { form: true, matchingLabel: true },
                 );
 
-                // Reset Form Value. Empty String `option` should be selected.
+                // Reset Form Value. Empty Value `option` SHOULD NOT be selected.
                 await form.evaluate((f: HTMLFormElement) => f.reset());
-                await expect(combobox).toHaveSyncedComboboxValue(emptyOptionData, { form: true, matchingLabel: true });
+                await expect(combobox).toHaveText("");
+                await expect(combobox).toHaveComboboxValue("", { form: true });
+
+                const selectedOption = page.getByRole("option", { selected: true, includeHidden: true });
+                await expect(selectedOption).not.toBeAttached();
               });
             });
           });
