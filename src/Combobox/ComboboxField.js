@@ -118,16 +118,19 @@ class ComboboxField extends HTMLElement {
         oldValue === "anyvalue" || oldValue === "unclearable" ? oldValue : "clearable";
       if (trueNewValue === trueOldValue && !filterModeIsBeingDisabled) return;
 
+      const hasOptions = this.listbox.children.length !== 0;
+
       // `anyvalue` activated
       if (trueNewValue === "anyvalue" && !filterModeIsBeingDisabled) {
         if (this.text.data === "") return this.forceEmptyValue();
-        if (this.getAttribute(attrs["aria-expanded"]) !== String(true)) return; // A valid value should already exist
+        if (this.getAttribute(attrs["aria-expanded"]) !== String(true) && hasOptions) return; // A valid value should already exist
 
         if (this.#autoselectableOption) this.value = this.#autoselectableOption.value;
         else this.value = this.text.data;
       }
       // `clearable` activated (default when `filter` mode is ON)
       else if (trueNewValue === "clearable" && !filterModeIsBeingDisabled) {
+        if (!hasOptions && trueOldValue === "anyvalue") return this.#forceNullValue();
         if (this.text.data === "") return this.forceEmptyValue();
         if (trueOldValue !== "anyvalue") return; // A valid value should already exist
 
@@ -136,6 +139,7 @@ class ComboboxField extends HTMLElement {
       }
       // `unclearable` activated (default when `filter` mode is OFF)
       else {
+        if (!hasOptions && (trueOldValue === "anyvalue" || filterModeIsBeingDisabled)) return this.#forceNullValue();
         /** @type {ComboboxOption | null | undefined} */ let option;
 
         if (trueOldValue !== "unclearable" && this.text.data === "") option = this.getOptionByValue("");
@@ -179,6 +183,10 @@ class ComboboxField extends HTMLElement {
         this.setAttribute("contenteditable", String(!this.disabled));
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- This is due to our own TS Types. :\
         this.#matchingOptions ??= Array.from(this.listbox?.children ?? []);
+
+        if (this.#value === null && this.valueIs === "anyvalue") {
+          this.attributeChangedCallback("valueis", /** @satisfies {this["valueIs"]} */ ("unclearable"), this.valueIs);
+        }
 
         if (this.isConnected) {
           if (/** @type {Document | ShadowRoot} */ (this.getRootNode()).activeElement === this) {
@@ -523,6 +531,25 @@ class ComboboxField extends HTMLElement {
     this.#internals.setFormValue(this.#value);
     this.#autoselectableOption = null;
     if (prevOption?.selected) prevOption.selected = false;
+    this.#validateRequiredConstraint();
+  }
+
+  /**
+   * Coerces the `combobox`'s value to `null` and empties its text content.
+   *
+   * **NOTE: This method should only be called when an `(un)clearable` `combobox` is found to have no `option`s during
+   * a non-trivial state transition.**
+   * @returns {void}
+   */
+  #forceNullValue() {
+    // NOTE: This error is only intended to help with internal development. If it causes problems for devs, remove it.
+    if (this.listbox.children.length || this.valueIs === "anyvalue") {
+      throw new TypeError("Method can only be called when an `(un)clearable` `combobox` has no `option`s");
+    }
+
+    this.#value = null;
+    this.#internals.setFormValue(null);
+    this.text.data = "";
     this.#validateRequiredConstraint();
   }
 
@@ -1138,12 +1165,7 @@ class ComboboxField extends HTMLElement {
 
     if (!this.listbox.children.length) {
       if (!nullable) this.value = textNode.data;
-      else {
-        this.#value = null;
-        this.#internals.setFormValue(null);
-        textNode.data = "";
-        this.#validateRequiredConstraint();
-      }
+      else this.#forceNullValue();
 
       if (this.filter) this.#filterOptions(); // Clean up internal data and show "No Matches" Message
       return;

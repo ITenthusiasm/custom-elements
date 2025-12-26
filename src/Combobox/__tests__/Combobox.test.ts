@@ -4800,6 +4800,50 @@ for (const { mode } of testConfigs) {
 
               /**
                * Executes a test which verifies that, when transitioning the `valueis` attribute (or combobox state)
+               * from `options.from` to `anyvalue`, the `combobox` will adopt its text content as its new value
+               * _if the `combobox` has no `option`s_.
+               */
+              function testNullValueToFilterValueConversion(options: {
+                from: Extract<ValueIs, "clearable" | "unclearable"> | typeof nonFilterMode;
+              }) {
+                it("Adopts its text content as its value if no `option`s are available", async ({ page }) => {
+                  /* ---------- Setup ---------- */
+                  const name = "my-combobox";
+                  await page.goto(url);
+                  await renderHTMLToPage(page)`
+                    <form aria-label="Test Form">
+                      <select-enhancer>
+                        <select name="${name}" ${options.from === nonFilterMode ? "" : getFilterAttrs(options.from)}>
+                        </select>
+                      </select-enhancer>
+                    </form>
+                  `;
+
+                  const combobox = page.getByRole("combobox");
+                  await expect(combobox).toHaveComboboxValue(null, { form: true });
+                  await expect(combobox).toHaveText("");
+
+                  /* ---------- Assertions ---------- */
+                  // Type into the `combobox`
+                  const search = String(Math.random());
+                  await combobox.pressSequentially(search);
+                  await expect(combobox).toHaveText(options.from === nonFilterMode ? "" : search);
+
+                  // Transition `combobox` to `anyvalue` mode
+                  // NOTE: Order of Operations is INTENTIONAL to surface a sneaky bug
+                  await combobox.evaluate((node: ComboboxField) => (node.valueIs = "anyvalue"));
+                  if (options.from === nonFilterMode) {
+                    await combobox.evaluate((node: ComboboxField) => (node.filter = true));
+                  }
+
+                  const newValue = options.from === nonFilterMode ? "" : search;
+                  await expect(combobox).toHaveComboboxValue(newValue, { form: true });
+                  await expect(combobox).toHaveText(newValue);
+                });
+              }
+
+              /**
+               * Executes a test which verifies that, when transitioning the `valueis` attribute (or combobox state)
                * from `options.from` to `options.to`, the value of the `combobox` will be _reset_
                * if an `option` corresponding to the current `combobox` value cannot be found.
                */
@@ -4885,7 +4929,7 @@ for (const { mode } of testConfigs) {
                  * (if one exists).
                  */
                 function testPreservationOfAutoselectableValues(options: {
-                  to: Extract<ValueIs, "clearable" | "unclearable"> | "non-filter mode";
+                  to: Extract<ValueIs, "clearable" | "unclearable"> | typeof nonFilterMode;
                 }): void {
                   it("Preserves values that correspond to the current `autoselectableOption`", async ({ page }) => {
                     /* ---------- Setup ---------- */
@@ -4943,8 +4987,56 @@ for (const { mode } of testConfigs) {
                   });
                 }
 
+                /**
+                 * Executes a test which verifies that, when transitioning the `valueis` attribute (or combobox state)
+                 * from `anyvalue` to `options.to`, the value of the `combobox` will be _coerced_ to `null` and
+                 * its text content will be emptied _if the `combobox` has no `option`s_.
+                 */
+                function testComboboxNullValueCoercion(options: {
+                  to: Extract<ValueIs, "clearable" | "unclearable"> | typeof nonFilterMode;
+                }) {
+                  it("Coerces the value to `null` if no `option`s are available", async ({ page }) => {
+                    /* ---------- Setup ---------- */
+                    const name = "my-combobox";
+                    await page.goto(url);
+                    await renderHTMLToPage(page)`
+                      <form aria-label="Test Form">
+                        <select-enhancer>
+                          <select name="${name}" ${getFilterAttrs("anyvalue")}>
+                            <option value="" selected>Select Something</option>
+                            ${testOptions.map((o, i) => `<option value="${i}">${o}</option>`).join("")}
+                          </select>
+                        </select-enhancer>
+                      </form>
+                    `;
+
+                    const combobox = page.getByRole("combobox");
+                    await expect(combobox).toHaveSyncedComboboxValue(
+                      { label: "Select Something", value: "" },
+                      { form: true, matchingLabel: true },
+                    );
+
+                    /* ---------- Assertions ---------- */
+                    // Remove all `option`s
+                    await combobox.evaluate((node: ComboboxField) => node.listbox.replaceChildren());
+                    await expect(combobox).toHaveComboboxValue("Select Something", { form: true });
+                    await expect(combobox).toHaveText("Select Something");
+
+                    // Change the component's `valueis`/`filter` state appropriately
+                    if (options.to !== nonFilterMode) {
+                      await combobox.evaluate((node: ComboboxField, state) => (node.valueIs = state), options.to);
+                    } else {
+                      await combobox.evaluate((node: ComboboxField) => node.removeAttribute("filter"));
+                    }
+
+                    await expect(combobox).toHaveComboboxValue(null, { form: true });
+                    await expect(combobox).toHaveText("");
+                  });
+                }
+
                 it.describe(`to \`${"clearable" satisfies ValueIs}\``, () => {
                   testPreservationOfAutoselectableValues({ to: "clearable" });
+                  testComboboxNullValueCoercion({ to: "clearable" });
                   testEmptyFilterToEmptyValueCoercion({ from: "anyvalue", to: "clearable" });
                   testComboboxValueResets({ from: "anyvalue", to: "clearable" });
                 });
@@ -4952,6 +5044,7 @@ for (const { mode } of testConfigs) {
                 for (const to of ["unclearable" satisfies ValueIs, nonFilterMode] as const) {
                   it.describe(`to ${to === "unclearable" ? `\`${to}\`` : to}`, () => {
                     testPreservationOfAutoselectableValues({ to });
+                    testComboboxNullValueCoercion({ to });
                     testEmptyValueToOptionConversion({ from: "anyvalue", to });
                     testComboboxValueResets({ from: "anyvalue", to });
                   });
@@ -4962,6 +5055,7 @@ for (const { mode } of testConfigs) {
                 it.describe(`Transitions from \`${from}\``, () => {
                   it.describe(`to \`${"anyvalue" satisfies ValueIs}\``, () => {
                     testEmptyFilterToEmptyValueCoercion({ from, to: "anyvalue" });
+                    testNullValueToFilterValueConversion({ from });
 
                     it("Preserves the currently-selected `option` if the `combobox` is collapsed", async ({ page }) => {
                       /* ---------- Setup ---------- */
@@ -5102,6 +5196,36 @@ for (const { mode } of testConfigs) {
 
                       await expect(combobox).toHaveText(subtext);
                       await expect(combobox).toHaveTextSelection({ anchor: 2, focus: 2 });
+                    });
+                  });
+
+                  it.describe(`to ${nonFilterMode}`, () => {
+                    it("Empties its text content if no `option`s are available", async ({ page }) => {
+                      /* ---------- Setup ---------- */
+                      const name = "my-combobox";
+                      await page.goto(url);
+                      await renderHTMLToPage(page)`
+                        <form aria-label="Test Form">
+                          <select-enhancer>
+                            <select name="${name}" ${getFilterAttrs(from)}></select>
+                          </select-enhancer>
+                        </form>
+                      `;
+
+                      const combobox = page.getByRole("combobox");
+                      await expect(combobox).toHaveComboboxValue(null, { form: true });
+                      await expect(combobox).toHaveText("");
+
+                      /* ---------- Assertions ---------- */
+                      // Provide a filter for the `combobox`
+                      const search = "Psalm 84:11";
+                      await combobox.pressSequentially(search);
+                      await expect(combobox).toHaveText(search);
+
+                      // Transition `combobox` out of `filter` mode
+                      await combobox.evaluate((node: ComboboxField) => (node.filter = false));
+                      await expect(combobox).not.toHaveText(search);
+                      await expect(combobox).toHaveText("");
                     });
                   });
                 });
@@ -5257,6 +5381,8 @@ for (const { mode } of testConfigs) {
               it.describe(`Transitions from ${nonFilterMode}`, () => {
                 for (const to of ["anyvalue", "clearable", "unclearable"] as const satisfies ValueIs[]) {
                   it.describe(`to \`${to}\``, () => {
+                    if (to === "anyvalue") testNullValueToFilterValueConversion({ from: nonFilterMode });
+
                     it("Preserves the currently-selected `option` and highlights the `combobox` text (if focused)", async ({
                       page,
                     }) => {
