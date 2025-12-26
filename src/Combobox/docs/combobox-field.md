@@ -450,7 +450,7 @@ As a Custom Element, the <code>ComboboxField</code> supports all of the events f
       You can consider this event to be analogous to the native <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/input_event"><code>input</code></a> event if the <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select"><code>&lt;select&gt;</code></a> and <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input"><code>&lt;input&gt;</code></a> elements were merged into a single element. However, there are two things to note:
     </p>
     <ol>
-      <li>This event is not cancelable.</li>
+      <li>Just like the native event, this event is not cancelable.</li>
       <li>
         The dispatched event is only guaranteed to be an <a href="https://developer.mozilla.org/en-US/docs/Web/API/InputEvent"><code>InputEvent</code></a> if the value change was caused by a filter update (similar to the <code>&lt;input&gt;</code> element). If the value change was caused by selecting an option, then the event will be a regular <a href="https://developer.mozilla.org/en-US/docs/Web/API/Event"><code>Event</code></a> (similar to the <code>&lt;select&gt;</code> element).
       </li>

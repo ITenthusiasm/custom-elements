@@ -369,7 +369,6 @@ class ComboboxField extends HTMLElement {
     if (prevOption?.selected) prevOption.selected = false;
     this.#validateRequiredConstraint();
 
-    // TODO: We might want to document that this `InputEvent` is not cancelable (and why)
     combobox[editingKey] = true;
     combobox.dispatchEvent(
       new InputEvent("input", {
