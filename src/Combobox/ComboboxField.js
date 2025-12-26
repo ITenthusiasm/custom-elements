@@ -916,6 +916,19 @@ class ComboboxField extends HTMLElement {
     }
 
     if (event.key === " ") {
+      /*
+       * TODO: Right now, we only support blocking `SpaceBar` and `Enter`. Should we support blocking ALL event keys?
+       * Doing so would require us to allow blocking the `typeahead` functionality as well (to keep things consistent).
+       * (Note: Filtering can already be blocked today because `beforeinput` handlers don't run if the `keydown` event
+       * is prevented.)
+       *
+       * If we decide to support blocking ALL keys, then we'll have to refactor the way we're using `#handleTypeahead`.
+       * More than likely, we'd have to call it inside `#handleKeydown` to make sure that SpaceBar searching doesn't
+       * break when `event.preventDefault()` is called from within the `#handleKeydown` event handler.
+       *
+       * But before we start rearranging method calls, we need to know if devs actually care about this kind of feature.
+       */
+      if (event.defaultPrevented) return;
       if (combobox.filter) return; // Defer to `#handleSearch` instead
       event.preventDefault(); // Don't scroll
 
@@ -928,6 +941,7 @@ class ComboboxField extends HTMLElement {
     }
 
     if (event.key === "Enter") {
+      if (event.defaultPrevented) return;
       // Prevent `#handleSearch` from triggering
       if (combobox.filter) event.preventDefault();
 

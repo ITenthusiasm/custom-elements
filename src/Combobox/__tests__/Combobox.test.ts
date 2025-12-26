@@ -902,6 +902,51 @@ for (const { mode } of testConfigs) {
           });
         }
 
+        // TODO: It's not practical to support this right now, but it might be in the future depending on developer needs.
+        //       If developers request this feature in the future, we can support it. Otherwise, remove this test.
+        it.skip("Supports preventing user-initiated keyboard interactions", async ({ page }) => {
+          /* ---------- Setup ---------- */
+          const first = testOptions[0];
+          const second = testOptions[1];
+          const tenth = testOptions[9];
+
+          await renderComponent(page, { initialValue: tenth });
+          const combobox = page.getByRole("combobox");
+          await expect(combobox).toHaveSyncedComboboxValue({ label: tenth }, { matchingLabel: true });
+
+          /* ---------- Assertions ---------- */
+          // Expand the `combobox`
+          await combobox.press("Home");
+          await expect(combobox).toBeExpanded({ options: "all" });
+          await expect(combobox).toHaveActiveOption(first);
+          if (mode === "Filterable") await expect(combobox).toHaveTextSelection("full");
+
+          // Disable Keyboard Interactions
+          // Note: Event Capturing could have been avoided if the listener was attached before mounting the component.
+          await combobox.evaluate((node) => node.addEventListener("keydown", (event) => event.preventDefault(), true));
+
+          // Navigation keys now do nothing
+          await combobox.press("End");
+          await expect(combobox).toHaveActiveOption(first);
+          await expect(combobox).not.toHaveActiveOption(tenth);
+
+          // Value-selection keys now do nothing
+          await combobox.press("Enter");
+          await expect(combobox).toBeExpanded({ options: "all" });
+          await expect(combobox).toHaveSyncedComboboxValue({ label: tenth }, { matchingLabel: true });
+          await expect(combobox).not.toHaveSyncedComboboxValue({ label: first }, { matchingLabel: true });
+
+          // Typeahead/Filtering Keys now do nothing
+          const S = second.charAt(0) as "S";
+          await combobox.press(S);
+          await expect(combobox).not.toHaveText(new RegExp(S));
+          await expect(combobox).not.toHaveActiveOption(second);
+
+          await expect(combobox).toHaveText(tenth);
+          await expect(combobox).toHaveActiveOption(first);
+          await expect(combobox).toBeExpanded({ options: "all" });
+        });
+
         it.describe("ArrowDown", () => {
           it("Shows the `option`s (selected `option` is `active`)", async ({ page }) => {
             // Setup
@@ -1362,6 +1407,32 @@ for (const { mode } of testConfigs) {
               await expectOptionToBeSelected(page, { label: newValue });
               await expectOptionToBeSelected(page, { label: initialValue }, false);
             });
+
+            // TODO: Remove this test if we choose to support preventing ALL event keys (because it will be redundant).
+            it("Supports preventing user-initiated option selection", async ({ page }) => {
+              // Setup
+              const first = testOptions[0];
+              const tenth = testOptions[9];
+
+              await renderComponent(page, { initialValue: first });
+              const combobox = page.getByRole("combobox");
+              await expect(combobox).toHaveSyncedComboboxValue({ label: first }, { matchingLabel: true });
+
+              // Expand the `combobox`
+              await combobox.press("End");
+              await expect(combobox).toBeExpanded({ options: "all" });
+              await expect(combobox).toHaveActiveOption(tenth);
+
+              // Disable Keyboard Interactions
+              // Note: Event Capturing could have been avoided if the listener was attached before mounting the component.
+              await combobox.evaluate((node) => node.addEventListener("keydown", (e) => e.preventDefault(), true));
+
+              // Value-selection with `SpaceBar` is now disabled
+              await combobox.press(" ");
+              await expect(combobox).toBeExpanded({ options: "all" });
+              await expect(combobox).toHaveSyncedComboboxValue({ label: first }, { matchingLabel: true });
+              await expect(combobox).not.toHaveSyncedComboboxValue({ label: tenth }, { matchingLabel: true });
+            });
           }
 
           it("Prevents unwanted page scrolling", async ({ page }) => {
@@ -1609,6 +1680,32 @@ for (const { mode } of testConfigs) {
 
             // Form was NOT submitted
             await expect(page.getByRole("form")).toHaveAttribute(submissionCountAttr, String(0));
+          });
+
+          // TODO: Remove this test if we choose to support preventing ALL event keys (because it will be redundant).
+          it("Supports preventing user-initiated option selection", async ({ page }) => {
+            // Setup
+            const first = testOptions[0];
+            const tenth = testOptions[9];
+
+            await renderComponent(page, { initialValue: first });
+            const combobox = page.getByRole("combobox");
+            await expect(combobox).toHaveSyncedComboboxValue({ label: first }, { matchingLabel: true });
+
+            // Expand the `combobox`
+            await combobox.press("End");
+            await expect(combobox).toBeExpanded({ options: "all" });
+            await expect(combobox).toHaveActiveOption(tenth);
+
+            // Disable Keyboard Interactions
+            // Note: Event Capturing could have been avoided if the listener was attached before mounting the component.
+            await combobox.evaluate((node) => node.addEventListener("keydown", (e) => e.preventDefault(), true));
+
+            // Value-selection with `Enter` is now disabled
+            await combobox.press("Enter");
+            await expect(combobox).toBeExpanded({ options: "all" });
+            await expect(combobox).toHaveSyncedComboboxValue({ label: first }, { matchingLabel: true });
+            await expect(combobox).not.toHaveSyncedComboboxValue({ label: tenth }, { matchingLabel: true });
           });
 
           if (mode === "Filterable") {
