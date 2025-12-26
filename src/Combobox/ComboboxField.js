@@ -31,10 +31,6 @@ const attrs = Object.freeze({
  * @typedef {Pick<HTMLInputElement, "name" | "required" | "disabled" | "setCustomValidity">} FieldPropertiesAndMethods
  */
 
-/*
- * TODO: Some of our functionality requires (or recommends) CSS to be properly implemented (e.g., hiding `listbox`,
- * properly showing white spaces, etc.). We should probably explain all such things to developers.
- */
 /** @implements {ExposedInternals} @implements {FieldPropertiesAndMethods} */
 class ComboboxField extends HTMLElement {
   /* ------------------------------ Custom Element Settings ------------------------------ */

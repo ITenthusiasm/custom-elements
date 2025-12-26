@@ -78,6 +78,8 @@ select-enhancer {
 select-enhancer {
   & > [role="combobox"] {
     /* `ComboboxField` Styles */
+    white-space: pre;
+    overflow-x: auto;
 
     &[filter] {
       /* Styles when in Filter Mode */
@@ -89,6 +91,10 @@ select-enhancer {
   }
 }
 ```
+
+Note that the [`white-space`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/white-space) CSS property is needed to show all of the whitespace characters which the user has typed into the element. Without this CSS property, the browser will try to collapse all successive whitespace characters in the element, which will be confusing for users who have entered more than one blank space into the filter.
+
+As for the [`overflow-x`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/overflow-x) CSS property, it enables horizontal scrolling on the `ComboboxField` if the user types too much text into it (similar to a regular `<input>` element). Ideally, you won't need it. But it can be useful for covering all your bases.
 
 ### Styling the `ComboboxListbox`
 
