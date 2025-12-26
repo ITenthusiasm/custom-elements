@@ -4039,7 +4039,7 @@ for (const { mode } of testConfigs) {
                 expect(await form.evaluate((f: HTMLFormElement, n) => new FormData(f).get(n), name)).toBe(null);
 
                 // Attempting to empty the value by using `forceEmptyValue()`
-                await combobox.evaluate((node: ComboboxField) => node.forceEmptyValue()).catch(() => {});
+                await combobox.evaluate((node: ComboboxField) => node.forceEmptyValue());
 
                 await expect(combobox).toHaveText("");
                 await expect(combobox).toHaveJSProperty("value", null);
@@ -5806,10 +5806,8 @@ for (const { mode } of testConfigs) {
               /* ---------- Setup ---------- */
               const name = "my-combobox";
               const combobox = page.getByRole("combobox");
-
               const badValueIsError =
                 'Method requires `filter` mode to be on and `valueis` to be "anyvalue" or "clearable"';
-              const nullValueError = 'Cannot coerce value to `""` for a `clearable` `combobox` that owns no `option`s';
 
               await page.goto(url);
               await renderHTMLToPage(page)`
@@ -5862,17 +5860,22 @@ for (const { mode } of testConfigs) {
               expect(errorDetails2?.message).toBe(badValueIsError);
               await expect(combobox).toHaveSyncedComboboxValue({ label: second }, { form: true, matchingLabel: true });
 
-              // In `clearable` mode, when uninitialized
+              // In `clearable` mode, when uninitialized (Fails Forgivingly)
               await combobox.evaluate((node: ComboboxField) => (node.valueIs = "clearable"));
               await combobox.evaluate((node: ComboboxField) => node.listbox.replaceChildren());
               await expect(combobox).toHaveComboboxValue(null, { form: true });
               await expect(combobox).toHaveText("");
 
-              const errorDetails3 = await tryForceEmptyValue(combobox);
-              expect(errorDetails3?.instance).toBe(TypeError.name);
-              expect(errorDetails3?.message).toBe(nullValueError);
+              let error: Error | undefined;
+              const trackEmittedError = (e: Error) => (error = e);
+              page.once("pageerror", trackEmittedError);
+
+              await combobox.evaluate((node: ComboboxField) => node.forceEmptyValue());
               await expect(combobox).toHaveComboboxValue(null, { form: true });
               await expect(combobox).toHaveText("");
+
+              expect(error).toBe(undefined);
+              page.off("pageerror", trackEmittedError);
             });
           });
 

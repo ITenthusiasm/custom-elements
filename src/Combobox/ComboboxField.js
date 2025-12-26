@@ -512,9 +512,8 @@ class ComboboxField extends HTMLElement {
     if (this.valueIs !== "anyvalue" && this.valueIs !== "clearable") {
       throw new TypeError('Method requires `filter` mode to be on and `valueis` to be "anyvalue" or "clearable"');
     }
-    if (this.valueIs === "clearable" && this.#value === null) {
-      throw new TypeError('Cannot coerce value to `""` for a `clearable` `combobox` that owns no `option`s');
-    }
+    // Cannot coerce value to `""` for a `clearable` `combobox` that owns no `option`s
+    if (this.valueIs === "clearable" && this.#value === null) return;
 
     const prevOption = this.#value == null ? null : this.getOptionByValue(this.#value);
 
@@ -755,9 +754,8 @@ class ComboboxField extends HTMLElement {
     const defaultOption = listbox.querySelector(":scope [role='option']:nth-last-child(1 of [selected])");
 
     if (defaultOption) this.value = defaultOption.value;
-    else if (this.valueIs === "anyvalue" || this.valueIs === "clearable") {
-      if (this.valueIs === "anyvalue" || this.#value !== null) return this.forceEmptyValue();
-    } else if (listbox.firstElementChild) this.value = listbox.firstElementChild.value;
+    else if (this.valueIs === "anyvalue" || this.valueIs === "clearable") this.forceEmptyValue();
+    else if (listbox.firstElementChild) this.value = listbox.firstElementChild.value;
   }
 
   /**
