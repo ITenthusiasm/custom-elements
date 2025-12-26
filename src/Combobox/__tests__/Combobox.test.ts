@@ -3842,6 +3842,37 @@ for (const { mode } of testConfigs) {
                 expect(await form.evaluate((f: HTMLFormElement, n) => new FormData(f).get(n), name)).toBe("");
                 expect(await combobox.evaluate((node: ComboboxField) => node.reportValidity())).toBe(false);
               });
+
+              it("It coerces any values that it receives to a `string`", async ({ page }) => {
+                // Setup
+                const name = "my-combobox";
+                await page.goto(url);
+                await renderHTMLToPage(page)`
+                  <form aria-label="Test Form">
+                    <select-enhancer>
+                      <select name="${name}" ${getFilterAttrs(filtertype)}>
+                        ${testOptions.map((o, i) => `<option value="${i}">${o}</option>`).join("")}
+                      </select>
+                    </select-enhancer>
+                  </form>
+                `;
+
+                // Assertions
+                const seven = 7;
+                expect(seven).not.toEqual(expect.any(String));
+                const expectedOption = Object.freeze({ label: testOptions[seven], value: `${seven}` });
+
+                const combobox = page.getByRole("combobox");
+                await expect(combobox).not.toHaveSyncedComboboxValue(expectedOption, { form: true });
+
+                // Manually apply a valid, non-`string` value to the `combobox` field
+                // @ts-expect-error -- Intentionally setting the `string` property to a `number`
+                await combobox.evaluate((node: ComboboxField, value) => (node.value = value), seven);
+
+                // @ts-expect-error -- Intentionally checking that the `combobox` value DID NOT become numeric
+                await expect(combobox).not.toHaveComboboxValue(seven);
+                await expect(combobox).toHaveSyncedComboboxValue(expectedOption, { form: true, matchingLabel: true });
+              });
             });
 
             createFilterTypeDescribeBlocks(["unclearable", "clearable"], "both", (filtertype) => {
@@ -7948,6 +7979,65 @@ for (const { mode } of testConfigs) {
 
               await expect(combobox).toHaveSyncedComboboxValue(
                 { ...option, value: option.label },
+                { form: true, matchingLabel: true },
+              );
+            });
+
+            it("It coerces any values that it receives to a `string`", async ({ page }) => {
+              /* ---------- Setup ---------- */
+              const name = "my-combobox";
+              const option = Object.freeze({ label: "My Value", value: "my-value" });
+              await page.goto(url);
+              await renderHTMLToPage(page)`
+                <form aria-label="Test Form">
+                  <select-enhancer>
+                    <select name="${name}" ${getFilterAttrs("unclearable")}>
+                      <option value="${option.value}" selected>${option.label}</option>
+                    </select>
+                  </select-enhancer>
+                </form>
+              `;
+
+              const combobox = page.getByRole("combobox");
+              await expect(combobox).toHaveSyncedComboboxValue(option, { form: true, matchingLabel: true });
+
+              /* ---------- Assertions ---------- */
+              // Display Options
+              await combobox.click();
+              const comboboxId = (await combobox.getAttribute("id")) as string;
+              const optionEl = page.getByRole("option");
+              await expect(optionEl).toBeVisible();
+
+              // Update option value to a `number`
+              // @ts-expect-error -- Intentionally testing coercion of values to `string` type
+              await optionEl.evaluate((node: ComboboxOption) => (node.value = 7));
+              await expect(optionEl).not.toHaveJSProperty("value", 7);
+              await expect(optionEl).toHaveJSProperty("value", String(7));
+              await expect(optionEl).toHaveId(`${comboboxId}-option-${7}`);
+              await expect(combobox).toHaveSyncedComboboxValue(
+                { ...option, value: String(7) },
+                { form: true, matchingLabel: true },
+              );
+
+              // Update option value to `null`
+              // @ts-expect-error -- Intentionally testing coercion of values to `string` type
+              await optionEl.evaluate((node: ComboboxOption) => (node.value = null));
+              await expect(optionEl).not.toHaveJSProperty("value", null);
+              await expect(optionEl).toHaveJSProperty("value", String(null));
+              await expect(optionEl).toHaveId(`${comboboxId}-option-${null}`);
+              await expect(combobox).toHaveSyncedComboboxValue(
+                { ...option, value: String(null) },
+                { form: true, matchingLabel: true },
+              );
+
+              // Update option value to `undefined`
+              // @ts-expect-error -- Intentionally testing coercion of values to `string` type
+              await optionEl.evaluate((node: ComboboxOption) => (node.value = undefined));
+              await expect(optionEl).not.toHaveJSProperty("value", undefined);
+              await expect(optionEl).toHaveJSProperty("value", String(undefined));
+              await expect(optionEl).toHaveId(`${comboboxId}-option-${undefined}`);
+              await expect(combobox).toHaveSyncedComboboxValue(
+                { ...option, value: String(undefined) },
                 { form: true, matchingLabel: true },
               );
             });

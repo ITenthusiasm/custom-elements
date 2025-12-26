@@ -37,7 +37,7 @@ declare module "preact" {
       defaultSelected?: Signalish<ComboboxOption["defaultSelected"] | undefined>;
       disabled?: Signalish<ComboboxOption["disabled"] | undefined>;
       selected?: Signalish<ComboboxOption["selected"] | undefined>;
-      value?: Signalish<ComboboxOption["value"] | undefined>;
+      value?: Signalish<ComboboxOption["value"] | number | undefined>;
     }
   }
 }

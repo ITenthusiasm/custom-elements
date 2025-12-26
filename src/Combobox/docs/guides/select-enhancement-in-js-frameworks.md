@@ -55,7 +55,7 @@ export default function MyForm() {
     <form>
       <Select name="ranking" filter>
         {options.map((rank, i) => (
-          <Option key={rank} value={`${i + 1}`} defaultSelected={i === 2}>
+          <Option key={rank} value={i + 1} defaultSelected={i === 2}>
             {rank}
           </Option>
         ))}
@@ -127,7 +127,7 @@ export default function MyForm() {
       <Select name="ranking" filter>
         <For each={options}>
           {(rank, i) => (
-            <Option value={`${i() + 1}`} bool:selected={i() === 2}>
+            <Option value={i() + 1} bool:selected={i() === 2}>
               {rank}
             </Option>
           )}
@@ -216,7 +216,7 @@ const options = ["First", "Second", "Third", "Fourth", "Fifth"];
 <template>
   <form>
     <Select name="ranking" filter>
-      <Option v-for="(rank, i) in options" :value="`${i + 1}`" :selected="i === 2">
+      <Option v-for="(rank, i) in options" :value="i + 1" :selected="i === 2">
         {{ rank }}
       </Option>
     </Select>
@@ -300,7 +300,7 @@ This is why client-side JS was added to the `<Option>` Svelte component shown ab
 <form>
   <Select name="ranking" filter>
     {#each options as rank, i}
-      <Option value={`${i + 1}`} selected={i === 2}>
+      <Option value={i + 1} selected={i === 2}>
         {rank}
       </Option>
     {/each}

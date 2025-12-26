@@ -7,7 +7,7 @@ const options = ["First", "Second", "Third", "Fourth", "Fifth"];
 
 <template>
   <Select name="ranking" filter>
-    <Option v-for="(rank, i) in options" :value="`${i + 1}`" :selected="i === 2">
+    <Option v-for="(rank, i) in options" :value="i + 1" :selected="i === 2">
       {{ rank }}
     </Option>
   </Select>

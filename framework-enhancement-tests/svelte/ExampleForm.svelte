@@ -1,7 +1,7 @@
 <form>
   <Select name="ranking" filter>
     {#each options as rank, i}
-      <Option value={`${i + 1}`} selected={i === 2}>
+      <Option value={i + 1} selected={i === 2}>
         {rank}
       </Option>
     {/each}

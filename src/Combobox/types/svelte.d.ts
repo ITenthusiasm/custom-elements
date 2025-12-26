@@ -38,6 +38,6 @@ declare module "svelte/elements" {
     defaultSelected?: ComboboxOption["defaultSelected"] | null;
     disabled?: ComboboxOption["disabled"] | null;
     selected?: ComboboxOption["selected"] | null;
-    value?: ComboboxOption["value"] | null;
+    value?: ComboboxOption["value"] | number | null;
   }
 }

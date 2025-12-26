@@ -65,7 +65,7 @@ declare module "vue" {
     defaultSelected?: ComboboxOption["defaultSelected"];
     disabled?: ComboboxOption["disabled"];
     selected?: ComboboxOption["selected"];
-    value?: ComboboxOption["value"];
+    value?: ComboboxOption["value"] | number;
   }
 
   interface ComboboxOptionVueSFCType extends ComboboxOption {

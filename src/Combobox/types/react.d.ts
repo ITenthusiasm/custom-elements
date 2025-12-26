@@ -31,7 +31,7 @@ declare module "react" {
     defaultSelected?: ComboboxOption["defaultSelected"];
     disabled?: ComboboxOption["disabled"];
     selected?: ComboboxOption["selected"];
-    value?: ComboboxOption["value"];
+    value?: ComboboxOption["value"] | number;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace -- Necessary for type declaration merging

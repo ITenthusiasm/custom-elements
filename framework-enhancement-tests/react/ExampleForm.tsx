@@ -7,7 +7,7 @@ export default function ExampleForm() {
     <form>
       <Select name="ranking" filter>
         {options.map((rank, i) => (
-          <Option key={rank} value={`${i + 1}`} defaultSelected={i === 2}>
+          <Option key={rank} value={i + 1} defaultSelected={i === 2}>
             {rank}
           </Option>
         ))}

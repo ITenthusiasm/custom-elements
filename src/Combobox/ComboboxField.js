@@ -477,8 +477,9 @@ class ComboboxField extends HTMLElement {
     return this.#value;
   }
 
-  /** @param {string} v */
-  set value(v) {
+  /** @param {string} V */
+  set value(V) {
+    const v = typeof V === "string" ? V : String(V);
     const newOption = this.getOptionByValue(v);
     if (v === this.#value && newOption?.selected === true) return;
 

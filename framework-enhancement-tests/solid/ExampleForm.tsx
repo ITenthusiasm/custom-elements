@@ -9,7 +9,7 @@ export default function ExampleForm() {
     <Select name="ranking" filter>
       <For each={options}>
         {(rank, i) => (
-          <Option value={`${i() + 1}`} bool:selected={i() === 2}>
+          <Option value={i() + 1} bool:selected={i() === 2}>
             {rank}
           </Option>
         )}
