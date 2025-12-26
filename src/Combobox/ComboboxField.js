@@ -627,10 +627,7 @@ class ComboboxField extends HTMLElement {
    * - `anyvalue`: The field's `value` can be any string, and it will automatically be set to
    * whatever value the user types. (Requires enabling `filter` mode.)
    *
-   * <!--
-   * TODO: Link to Documentation for More Details (like TS does for MDN). The deeper details of the behavior
-   * are too sophisticated to place them all in a JSDoc, which should be [sufficiently] clear and succinct
-   * -->
+   * [API Reference](https://github.com/ITenthusiasm/custom-elements/blob/main/src/Combobox/docs/combobox-field.md#attributes-valueis)
    *
    * @returns {"unclearable" | "clearable" | "anyvalue"}
    */
@@ -663,7 +660,7 @@ class ComboboxField extends HTMLElement {
    * Returns the `option` whose `label` matches the user's most recent filter input (if one exists).
    *
    * Value will be `null` if:
-   * - The user's filter didn't match any `option`s
+   * - The user's filter didn't match any (enabled) `option`s
    * - The `combobox`'s text content was altered by a `value` change
    * - The `combobox` was just recently expanded
    * @returns {ComboboxOption | null}
