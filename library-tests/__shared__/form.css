@@ -1,14 +1,19 @@
 /* These are just simple styles intended to make testing forms more convenient */
 /* -------------------- General Styles -------------------- */
 :root {
-  --color: rgba(255, 255, 255, 0.87);
+  --color: #ffffff;
+  --field-background: #3b3b3b;
+  --border-color: rgb(133, 133, 133);
 
   color-scheme: light dark;
   color: var(--color);
   background-color: #242424;
 
   @media (prefers-color-scheme: light) {
-    --color: #213547;
+    --color: #000000;
+    --field-background: #ffffff;
+    --border-color: rgb(118, 118, 118);
+
     background-color: #ffffff;
   }
 }
@@ -55,10 +60,11 @@ form {
       &:where(label) + :is(input, textarea, select),
       &:where(label) + select-enhancer > [role="combobox"] {
         padding: 8px;
-        border-width: 1px;
-        border-style: solid;
+        border: 1px solid var(--border-color);
         border-radius: 4px;
         text-align: left;
+        color: var(--color);
+        background-color: var(--field-background);
 
         &:focus-visible {
           border-color: dodgerblue;
@@ -89,8 +95,14 @@ form {
 
   select-enhancer :is([role="combobox"], [role="option"]),
   :where([role="combobox"][data-bad-filter]) + [role="listbox"]::before {
-    color: fieldtext;
-    background-color: field;
+    color: var(--color);
+    background-color: var(--field-background);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    select-enhancer > [role="combobox"] + [role="listbox"] > [role="option"][data-active]:not([aria-selected="true"]) {
+      background-color: midnightblue;
+    }
   }
 
   fieldset {
