@@ -464,6 +464,12 @@ class ComboboxField extends HTMLElement {
    * @returns {void}
    */
   #resetOptions() {
+    /*
+     * TODO: If we ever decide to create a public, overridable `getResetOptions()` method, we should consider
+     * using this private internal method to initialize the component's `option`s onMount if no `#matchingOptions`
+     * exist yet. The reason is that doing so will GUARANTEE that the developer's `matchingOption`s will be kept
+     * in sync with ours from the get go.
+     */
     let i = 0;
     for (let option = this.listbox.firstElementChild; option; option = /** @type {any} */ (option.nextElementSibling)) {
       option.filteredOut = false;
