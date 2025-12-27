@@ -287,7 +287,6 @@ class ComboboxField extends HTMLElement {
   #handleTypeahead = (event) => {
     const combobox = /** @type {ComboboxField} */ (event.currentTarget);
     const { listbox } = combobox;
-    // TODO: This will probably be faster with getElementById?
     const activeOption = listbox.querySelector(":scope [role='option'][data-active='true']");
 
     if (event.key.length === 1 && !event.altKey && !event.ctrlKey && !event.metaKey) {
