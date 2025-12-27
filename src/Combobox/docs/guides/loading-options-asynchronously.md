@@ -36,7 +36,7 @@ function MyForm() {
   type OptionData = { label: string; value: string };
   const [options, setOptions] = useState<OptionData[]>([]);
 
-  function handleFilterchange(event: React.ReactEventHandler<ComboboxField>) {
+  function handleFilterchange(event: React.SyntheticEvent<ComboboxField>) {
     event.preventDefault();
     const comboboxField = event.currentTarget;
     const search = comboboxField.text.data;
@@ -106,7 +106,7 @@ function MyForm() {
   const [options, setOptions] = useState<OptionData[]>([]);
   const cachedOptions = useRef(new Map<string, OptionData[]>());
 
-  function handleFilterchange(event: React.ReactEventHandler<ComboboxField>) {
+  function handleFilterchange(event: React.SyntheticEvent<ComboboxField>) {
     event.preventDefault();
     const comboboxField = event.currentTarget;
     const search = comboboxField.text.data;
@@ -170,7 +170,7 @@ document.querySelector("combobox-field").addEventListener("filterchange", async 
 In React:
 
 ```ts
-function handleFilterchange(event: React.ReactEventHandler<ComboboxField>) {
+function handleFilterchange(event: React.SyntheticEvent<ComboboxField>) {
   event.preventDefault();
   const comboboxField = event.currentTarget;
   const search = comboboxField.text.data;
