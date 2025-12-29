@@ -91,7 +91,7 @@ class ComboboxField extends HTMLElement {
    * @returns {void}
    */
   attributeChangedCallback(name, oldValue, newValue) {
-    if (name === "id" && newValue !== oldValue) {
+    if (name === "id" && this.#mounted && newValue !== oldValue) {
       this.listbox.id = `${this.id}-listbox`;
       for (let option = this.listbox.firstElementChild; option; option = /** @type {any} */ (option.nextElementSibling))
         option.id = `${this.id}-option-${option.value}`;
