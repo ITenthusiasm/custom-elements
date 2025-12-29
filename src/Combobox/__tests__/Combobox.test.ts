@@ -7414,6 +7414,43 @@ for (const { mode } of testConfigs) {
             });
           });
 
+          createFilterTypeDescribeBlocks(["anyvalue", "clearable"], "filter-only", (valueis) => {
+            it("Does not disrupt the user's filter when new `option`s are added to an empty `listbox`", async ({
+              page,
+            }) => {
+              // Setup
+              await page.goto(url);
+              await renderHTMLToPage(page)`
+                <form aria-label="Test Form">
+                  <select-enhancer>
+                    <select name="my-combobox" ${getFilterAttrs(valueis)}></select>
+                  </select-enhancer>
+                </form>
+              `;
+
+              const second = testOptions[1];
+              const combobox = page.getByRole("combobox");
+              await expect(combobox).toHaveText("");
+              await expect(combobox).toHaveComboboxValue(valueis === "anyvalue" ? "" : null, { form: true });
+
+              // Assertions
+              const search = second.slice(0, 2);
+              await combobox.pressSequentially(search);
+
+              await combobox.evaluate((node: ComboboxField, options) => {
+                const elements = options.map((label) => {
+                  return Object.assign(document.createElement("combobox-option"), { textContent: label });
+                });
+
+                node.listbox.append(...elements);
+              }, testOptions);
+
+              await expect(combobox).toHaveText(search);
+              await expect(combobox).toHaveComboboxValue(valueis === "anyvalue" ? search : "", { form: true });
+              await expect(page.getByRole("option")).toHaveCount(2);
+            });
+          });
+
           it("Rejects Nodes that are not valid `ComboboxOption`s", async ({ page }) => {
             /* ---------- Setup ---------- */
             const initialValue = testOptions[0];

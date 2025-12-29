@@ -1188,7 +1188,7 @@ class ComboboxField extends HTMLElement {
           if (this.valueIs !== "clearable") this.value = node.value;
           else {
             this.#value = "";
-            this.forceEmptyValue();
+            this.#internals.setFormValue("");
           }
         }
       });
