@@ -1194,7 +1194,7 @@ class ComboboxField extends HTMLElement {
       });
 
       mutation.removedNodes.forEach((node) => {
-        if (!(node instanceof ComboboxOption)) return;
+        if (!(node instanceof ComboboxOption) || this.listbox.contains(node)) return;
         if (this.#autoselectableOption === node) this.#autoselectableOption = null;
         if (node.selected) {
           if (nullable) this.formResetCallback();

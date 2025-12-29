@@ -5601,6 +5601,30 @@ for (const { mode } of testConfigs) {
                 // Remove the `autoselectableOption`
                 await combobox.evaluate((node: ComboboxField) => node.autoselectableOption?.remove());
                 await expect(combobox).toHaveJSProperty("autoselectableOption", null);
+
+                // Now enter a filter with a different `autoselectableOption`
+                const ninth = testOptions[8];
+                await combobox.clear();
+                await combobox.pressSequentially(ninth);
+
+                await expect(combobox).toHaveJSProperty("autoselectableOption.value", ninth);
+                await expect(combobox).toHaveJSProperty("autoselectableOption.label", ninth);
+                await expect(combobox).toHaveJSProperty("autoselectableOption.tagName", "COMBOBOX-OPTION");
+                await expect(combobox).toHaveSyncedComboboxValue({ label: first });
+                await expect(combobox).not.toHaveSyncedComboboxValue({ label: ninth });
+
+                // Re-locate the `option` within the DOM
+                await combobox.evaluate((node: ComboboxField, optionValue) => {
+                  const option = node.getOptionByValue(optionValue) as ComboboxOption;
+                  node.listbox.insertAdjacentElement("beforeend", option);
+                }, ninth);
+
+                // The auto-selectable `option` should have been preserved
+                await expect(combobox).toHaveJSProperty("autoselectableOption.value", ninth);
+                await expect(combobox).toHaveJSProperty("autoselectableOption.label", ninth);
+                await expect(combobox).toHaveJSProperty("autoselectableOption.tagName", "COMBOBOX-OPTION");
+                await expect(combobox).toHaveSyncedComboboxValue({ label: first });
+                await expect(combobox).not.toHaveSyncedComboboxValue({ label: ninth });
               });
             });
 
@@ -7228,6 +7252,36 @@ for (const { mode } of testConfigs) {
                 { label: "Two", value: "2" },
                 { form: true, matchingLabel: true },
               );
+            });
+
+            it("Does not update or reset its value if the selected `option` is only relocated", async ({ page }) => {
+              // Setup
+              await page.goto(url);
+              await renderHTMLToPage(page)`
+                <form aria-label="Text Form">
+                  <select-enhancer>
+                    <select name="my-combobox" ${getFilterAttrs(valueis)}>
+                      ${testOptions.map((o, i) => `<option value="${i}">${o}</option>`).join("")}
+                    </select>
+                  </select-enhancer>
+                </form>
+              `;
+
+              const selectedOption = Object.freeze({ label: testOptions[8], value: "8" } satisfies OptionInfo);
+              const combobox = page.getByRole("combobox");
+              await combobox.press("End");
+              await combobox.press("ArrowUp");
+              await combobox.press("Enter");
+              await expect(combobox).toHaveSyncedComboboxValue(selectedOption, { form: true, matchingLabel: true });
+
+              // Re-insert selected `option` at the end of the `listbox`
+              await combobox.evaluate((node: ComboboxField) => {
+                const option = node.getOptionByValue(node.value as string) as ComboboxOption;
+                node.listbox.insertAdjacentElement("beforeend", option);
+              });
+
+              // Value should not have changed
+              await expect(combobox).toHaveSyncedComboboxValue(selectedOption, { form: true, matchingLabel: true });
             });
           });
 
