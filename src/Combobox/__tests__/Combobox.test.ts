@@ -1,3 +1,4 @@
+/* eslint-disable guard-for-in */
 /* eslint-disable max-classes-per-file */
 /* eslint-disable no-inner-declarations */
 /* eslint-disable no-void */
@@ -6621,42 +6622,115 @@ for (const { mode } of testConfigs) {
 
         it.describe("Dispatched Events", () => {
           /**
-           * Tracks the number of times an `event` of the specified `type` is dispatched on the provided `page`.
+           * Tracks the number of times an `event` of the specified `type` is dispatched from a `ComboboxField` on the
+           * page. (_This function assumes that each page only has **one** `ComboboxField`._)
            *
-           * Note: Events are only counted if they bubble all the way up to the owning `Document`.
+           * Note: Events are only counted if they bubble all the way up to the specified `target`.
            *
+           * @param target The element to which the tracking event handler will be attached. If `target` is a `Page`,
+           * then the tracking event handler will be attached to the `Document` instead of an element.
            * @param event
            * @param type
            * @returns An array containing the events that were dispatched. Each item in the array will include
            * the event's data and the event's `constructor.name`.
            */
           async function trackEvents<
-            C extends "Event" | "InputEvent",
-            E extends C extends "InputEvent" ? InputEvent : Event,
-            T extends "input" | "change" | "filterchange",
-          >(page: Page, event: C, type: T): Promise<(E & { constructor: C })[]> {
+            C extends "Event" | "InputEvent" | "ToggleEvent",
+            E extends C extends "InputEvent" ? InputEvent : C extends "ToggleEvent" ? ToggleEvent : Event,
+            T extends "input" | "change" | "filterchange" | "toggle",
+          >(target: Page | Locator, event: C, type: T): Promise<(E & { constructor: C })[]> {
             const events: (E & { constructor: C })[] = [];
             const funcName = `${type.charAt(0).toUpperCase()}${type.slice(1)}` as Capitalize<T>;
             type EnhancedWindow = Window & { [funcName](e: (typeof events)[number]): void };
+            const page = "page" in target ? target.page() : target;
             await page.exposeFunction(funcName, ((e) => events.push(e)) satisfies EnhancedWindow[typeof funcName]);
 
-            await page.evaluate(
-              ([constructor, t, fn]) => {
-                document.addEventListener(t, (e) => {
-                  if (!eval(`e.constructor === ${constructor}`)) return;
-                  if (e.target?.constructor !== customElements.get("combobox-field")) return;
+            // @ts-expect-error -- Not worth the TypeScript headache. We know what we're doing.
+            await target.evaluate(evaluateJS, [event, type, funcName] as const);
+            return events;
 
-                  const props = {} as E;
-                  // @ts-expect-error -- Not worth the effort of correcting the types that we already know are right
-                  // eslint-disable-next-line guard-for-in
-                  for (const key in e) props[key] = e[key as keyof typeof e];
-                  (window as unknown as EnhancedWindow)[fn]({ constructor: constructor as C, ...props });
-                });
+            function evaluateJS(
+              node: Element | typeof pageData,
+              pageData: [typeof event, typeof type, typeof funcName],
+            ) {
+              const realData = node instanceof Element ? pageData : node;
+              const [constructor, t, fn] = realData;
+              (node instanceof Element ? node : document).addEventListener(t, (e) => {
+                if (!eval(`e.constructor === ${constructor}`)) return;
+                if (e.target?.constructor !== customElements.get("combobox-field")) return;
+
+                const props = {} as E;
+                // @ts-expect-error -- Not worth the effort of correcting the types that we already know are right
+                // eslint-disable-next-line guard-for-in
+                for (const key in e) props[key] = e[key as keyof typeof e];
+                (window as unknown as EnhancedWindow)[fn]({ constructor: constructor as C, ...props });
+              });
+            }
+          }
+
+          /**
+           * Generates a helper function which tracks the number of times that an event of the specified `type`
+           * is dispatched by the provided `target` element.
+           *
+           * @param target May be a {@link Page} or a {@link Locator}. If `target` is a `Locator`, then events will
+           * only be counted if the event's target is the same element as the provided `target`. If `target` is a
+           * `Page`, then all events of the specified `type` will be tracked, irrespective of the event's target,
+           * and the event listener will be attached to the `Page`'s `Document`.
+           * @param type The type of DOM event to listen for
+           * @param options A mixture of {@link EventListenerOptions} and some extra options specific to Playwright.
+           * @returns
+           */
+          async function createDOMEventWaiter<T extends keyof DocumentEventMap, E extends DocumentEventMap[T]>(
+            target: Page | Locator,
+            type: T,
+            options?: EventListenerOptions & {
+              /** The **_constructor name_** of the event that you're expecting (e.g., `InputEvent`, `Event`, etc.). */
+              event?: string;
+              /**
+               * Indicates that the tracking event handler should be attached to the `Document` even if
+               * `target` is a `Locator`
+               */
+              document?: boolean;
+              timeout?: number;
+            },
+          ) {
+            const events: E[] = [];
+            const page = "page" in target ? target.page() : target;
+            await page.exposeFunction(`push${type}event`, (e: unknown) => events.push(e as E));
+
+            let resolve: Parameters<ConstructorParameters<typeof Promise<E[]>>[0]>[0];
+            await page.exposeFunction("callNodeResolve", () => resolve(events));
+
+            const locatorUsed = "page" in target;
+            const locator = "page" in target ? target : page.locator("body");
+
+            // Setup tracking event handler
+            await locator.evaluate(
+              (node, [t, lu, opts]) => {
+                const constructor = opts?.event;
+                const nodeWithListener = !lu || opts?.document ? document : node;
+                nodeWithListener.addEventListener(t, handleEvent, opts);
+
+                function handleEvent(evt: Event) {
+                  if (constructor && !eval(`evt.constructor === ${constructor}`)) return;
+                  if (lu && evt.target !== node) return;
+
+                  const props: Record<string, unknown> = { constructor };
+                  for (const key in evt) props[key] = evt[key as keyof typeof evt];
+                  (window as any)[`push${t}event`](props); // eslint-disable-line @typescript-eslint/no-explicit-any
+                  (window as any).callNodeResolve(); // eslint-disable-line @typescript-eslint/no-explicit-any
+                }
               },
-              [event, type, funcName] as const,
+              [type, locatorUsed, options] as const,
             );
 
-            return events;
+            return async function waitForDOMEvent(): Promise<typeof events> {
+              return new Promise((res, reject) => {
+                resolve = res;
+                const timeout = options?.timeout || 2000;
+                setTimeout(reject, timeout, new Error(`Timed out ${timeout}ms waiting for event ${type}.`));
+              });
+            };
           }
 
           for (const event of ["input", "change"] as const) {
@@ -7132,6 +7206,53 @@ for (const { mode } of testConfigs) {
               await expect(combobox).toHaveActiveOption(second);
             });
           }
+
+          it("Dispatches a `toggle` event when expanded or collapsed", async ({ page }) => {
+            await renderComponent(page);
+            const combobox = page.getByRole("combobox");
+            const waitForEvent = await createDOMEventWaiter(combobox, "toggle", { event: "ToggleEvent" });
+
+            // Manually expanding the `combobox`
+            const attribute = attrs["aria-expanded"];
+            const [events] = await Promise.all([
+              waitForEvent(),
+              combobox.evaluate((node: ComboboxField, a) => node.setAttribute(a, `${true}`), attribute),
+            ]);
+            expect(events[0]).toMatchObject({ oldState: "closed", newState: "open" });
+            expect(events).toHaveLength(1);
+
+            // Redundant "expansion" does nothing
+            await combobox.evaluate((node: ComboboxField, a) => node.setAttribute(a, `${true}`), attribute);
+            await combobox.evaluate((node: ComboboxField, a) => node.setAttribute(a, `${true}`), attribute);
+            await combobox.evaluate((node: ComboboxField, a) => node.setAttribute(a, `${true}`), attribute);
+            expect(events).toHaveLength(1);
+
+            // Manually collapsing the `combobox` (with synchronous redundancy)
+            await Promise.all([
+              waitForEvent(),
+              combobox.evaluate((node: ComboboxField, a) => {
+                node.setAttribute(a, `${false}`);
+                node.setAttribute(a, `${false}`);
+              }, attribute),
+            ]);
+            expect(events[1]).toMatchObject({ oldState: "open", newState: "closed" });
+            expect(events).toHaveLength(2);
+
+            // Test `Event Coalescing` by rapidly toggling the expansion state within the same synchronous block
+            await Promise.all([
+              waitForEvent(),
+              combobox.evaluate((node: ComboboxField, a) => {
+                node.setAttribute(a, `${true}`);
+                node.setAttribute(a, `${false}`);
+                node.setAttribute(a, `${true}`);
+                node.setAttribute(a, `${false}`);
+              }, attribute),
+            ]);
+
+            expect(events[2]).toMatchObject({ oldState: "closed", newState: "closed" });
+            expect(events).toHaveLength(3);
+            events.forEach((e) => expect(e).toMatchObject({ bubbles: false, composed: false, cancelable: false }));
+          });
         });
 
         it.describe("Dynamic `option` Management (Complies with Native <select>)", () => {

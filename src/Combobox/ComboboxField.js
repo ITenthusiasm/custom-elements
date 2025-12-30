@@ -231,7 +231,11 @@ class ComboboxField extends HTMLElement {
     // Setup Mutation Observers
     this.#optionNodesObserver.observe(this.listbox, { childList: true });
     this.#textNodeObserver.observe(this, { childList: true });
-    this.#expansionObserver.observe(this, { attributes: true, attributeFilter: [attrs["aria-expanded"]] });
+    this.#expansionObserver.observe(this, {
+      attributes: true,
+      attributeFilter: [attrs["aria-expanded"]],
+      attributeOldValue: true,
+    });
     this.#activeDescendantObserver.observe(this, {
       attributes: true,
       attributeFilter: [attrs["aria-activedescendant"]],
@@ -1057,59 +1061,69 @@ class ComboboxField extends HTMLElement {
    * @returns {void}
    */
   #watchExpansion(mutations) {
-    for (let i = 0; i < mutations.length; i++) {
-      const mutation = mutations[i];
-      const combobox = /** @type {ComboboxField} */ (mutation.target);
-      const expanded = combobox.getAttribute(attrs["aria-expanded"]) === String(true);
+    const combobox = /** @type {ComboboxField} */ (mutations[0].target);
+    const ariaExpanded = combobox.getAttribute(attrs["aria-expanded"]);
 
-      // Open Combobox
-      if (expanded) {
-        /*
-         * NOTE: If the user opens the `combobox` with search/typeahead, then `aria-activedescendant` will already
-         * exist and this expansion logic will be irrelevant. Remember that `MutationObserver` callbacks are run
-         * asynchronously, so this check would happen AFTER the search/typeahead handler completed. It's also
-         * possible for this condition to be met if we redundantly set `aria-expanded`. Although we should be
-         * be able to avoid that, we can't prevent Developers from accidentally doing that themselves.
-         */
-        if (combobox.getAttribute(attrs["aria-activedescendant"]) !== "") return;
+    const oldState = mutations[0].oldValue === String(true) ? "open" : "closed";
+    const newState = ariaExpanded === String(true) ? "open" : "closed";
+    const event = new ToggleEvent("toggle", { newState, oldState });
 
-        /** @type {ComboboxOption | null} */
-        const selectedOption = combobox.value == null ? null : combobox.getOptionByValue(combobox.value);
-        let activeOption = selectedOption ?? combobox.listbox.firstElementChild;
-        if (combobox.filter && activeOption?.filteredOut) [activeOption] = this.#matchingOptions;
-
-        if (combobox.filter) {
-          this.#autoselectableOption = null;
-          this.#activeIndex = activeOption ? this.#matchingOptions.indexOf(activeOption) : -1;
-        }
-
-        if (activeOption) combobox.setAttribute(attrs["aria-activedescendant"], activeOption.id);
-      }
-      // Close Combobox
-      else {
-        combobox.setAttribute(attrs["aria-activedescendant"], "");
-        this.#searchString = "";
-
-        // See if logic _exclusive_ to `filter`ed `combobox`es needs to be run
-        if (!combobox.filter || combobox.value == null) return;
-        this.#resetOptions();
-
-        // Reset `combobox` display if needed
-        // NOTE: `option` CAN be `null` or unselected if `combobox` is `clearable`, empty, and `collapsed` with a non-empty filter
-        const textNode = combobox.text;
-        if (!combobox.acceptsValue(textNode.data)) {
-          const option = combobox.getOptionByValue(combobox.value);
-          if (combobox.valueIs === "clearable" && !combobox.value && !option?.selected) textNode.data = "";
-          else if (textNode.data !== option?.textContent) textNode.data = /** @type {string} */ (option?.textContent);
-        }
-
-        // Reset cursor if `combobox` is still `:focus`ed
-        if (/** @type {Document | ShadowRoot} */ (combobox.getRootNode()).activeElement !== combobox) return;
-
-        const selection = /** @type {Selection} */ (combobox.ownerDocument.getSelection());
-        selection.setBaseAndExtent(textNode, textNode.length, textNode, textNode.length);
-      }
+    if (newState === oldState) {
+      if (mutations.some((m) => m.oldValue !== ariaExpanded)) combobox.dispatchEvent(event);
+      return;
     }
+
+    // Open Combobox
+    /* eslint-disable no-labels, no-restricted-syntax */
+    $: if (newState === "open") {
+      /*
+       * NOTE: If the user opens the `combobox` with search/typeahead, then `aria-activedescendant` will already
+       * exist and this expansion logic will be irrelevant. Remember that `MutationObserver` callbacks are run
+       * asynchronously, so this check would happen AFTER the search/typeahead handler completed. It's also
+       * possible for this condition to be met if we redundantly set `aria-expanded`. Although we should be
+       * be able to avoid that, we can't prevent Developers from accidentally doing that themselves.
+       */
+      if (combobox.getAttribute(attrs["aria-activedescendant"]) !== "") break $;
+
+      /** @type {ComboboxOption | null} */
+      const selectedOption = combobox.value == null ? null : combobox.getOptionByValue(combobox.value);
+      let activeOption = selectedOption ?? combobox.listbox.firstElementChild;
+      if (combobox.filter && activeOption?.filteredOut) [activeOption] = this.#matchingOptions;
+
+      if (combobox.filter) {
+        this.#autoselectableOption = null;
+        this.#activeIndex = activeOption ? this.#matchingOptions.indexOf(activeOption) : -1;
+      }
+
+      if (activeOption) combobox.setAttribute(attrs["aria-activedescendant"], activeOption.id);
+    }
+    // Close Combobox
+    else {
+      combobox.setAttribute(attrs["aria-activedescendant"], "");
+      this.#searchString = "";
+
+      // See if logic _exclusive_ to `filter`ed `combobox`es needs to be run
+      if (!combobox.filter || combobox.value == null) break $;
+      this.#resetOptions();
+
+      // Reset `combobox` display if needed
+      // NOTE: `option` CAN be `null` or unselected if `combobox` is `clearable`, empty, and `collapsed` with a non-empty filter
+      const textNode = combobox.text;
+      if (!combobox.acceptsValue(textNode.data)) {
+        const option = combobox.getOptionByValue(combobox.value);
+        if (combobox.valueIs === "clearable" && !combobox.value && !option?.selected) textNode.data = "";
+        else if (textNode.data !== option?.textContent) textNode.data = /** @type {string} */ (option?.textContent);
+      }
+
+      // Reset cursor if `combobox` is still `:focus`ed
+      if (/** @type {Document | ShadowRoot} */ (combobox.getRootNode()).activeElement !== combobox) break $;
+
+      const selection = /** @type {Selection} */ (combobox.ownerDocument.getSelection());
+      selection.setBaseAndExtent(textNode, textNode.length, textNode, textNode.length);
+    }
+    /* eslint-enable no-labels, no-restricted-syntax */
+
+    combobox.dispatchEvent(event);
   }
 
   /**

@@ -480,6 +480,15 @@ As a Custom Element, the <code>ComboboxField</code> supports all of the events f
       Canceling this event will stop the <code>ComboboxField</code> from applying the user's current filter to the options. For obvious reasons, this is generally discouraged. However, this can be useful if you are loading options asynchronously (because you will prevent the <code>ComboboxField</code> from trying to filter outdated options). For additional tips on loading options asynchronously, see our <a href="./guides/loading-options-asynchronously.md"><em>Loading Options Asynchronously</em></a> guide.
     </p>
   </dd>
+
+  <dt id="events-toggle">
+    <a href="#events-toggle"><code>toggle</code></a>
+  </dt>
+  <dd>
+    <p>
+      Fires whenever the <code>ComboboxField</code> transitions from being collapsed to being expanded (or vice versa). Just like the native <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/toggle_event"><code>toggle</code></a> event, this event does not bubble and is not cancelable. Its type is <a href="https://developer.mozilla.org/en-US/docs/Web/API/ToggleEvent"><code>ToggleEvent</code></a>.
+    </p>
+  </dd>
 </dl>
 
 ## What's Next?
