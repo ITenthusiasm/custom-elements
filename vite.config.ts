@@ -16,10 +16,10 @@ export default defineConfig({
     }),
     solid({ include: ["library-tests/form-observer/solid/**", "framework-enhancement-tests/solid/**"] }),
     svelte({
-      include: ["library-tests/form-observer/svelte/**.svelte", "framework-enhancement-tests/svelte/**.svelte"],
+      include: ["library-tests/form-observer/svelte/**.svelte", "framework-enhancement-tests/svelte/**/*.svelte"],
     }),
     vue({
-      include: ["library-tests/form-observer/vue/**.vue", "framework-enhancement-tests/vue/**.vue"],
+      include: ["library-tests/form-observer/vue/**.vue", "framework-enhancement-tests/vue/**/*.vue"],
       template: { compilerOptions: { isCustomElement: (tag) => tag.includes("-") } },
     }),
     preact({ include: "library-tests/form-observer/preact/**" }),

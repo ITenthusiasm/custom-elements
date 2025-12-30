@@ -1,0 +1,29 @@
+select-enhancer {
+  & > [role="combobox"] {
+    & + [role="listbox"] {
+      &:is([role="combobox"]:is(:empty, :not([data-status="success"])) + [role="listbox"]) {
+        display: none;
+      }
+    }
+  }
+
+  &:has([role="combobox"][aria-expanded="true"][data-status="pending"]) {
+    &::after {
+      display: block;
+      box-sizing: border-box;
+      align-content: center;
+      width: 100%;
+      height: 42px;
+      padding: 8px;
+      border: 2px solid #cecece;
+      border-radius: 4px;
+
+      position: absolute;
+      z-index: 2;
+      content: "Loading...";
+      color: var(--color);
+      background-color: var(--field-background);
+      cursor: auto;
+    }
+  }
+}

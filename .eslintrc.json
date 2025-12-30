@@ -44,7 +44,7 @@
     "default-param-last": "off",
     "@typescript-eslint/default-param-last": "error",
     "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "caughtErrorsIgnorePattern": "^_" }],
 
     // Import
     "import/extensions": "off", // TypeScript drives which extensions are required (due to `moduleResolution: NodeNext`)

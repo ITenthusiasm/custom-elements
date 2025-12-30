@@ -20,12 +20,16 @@ declare module "solid-js" {
       disabled?: ComboboxField["disabled"];
       filter?: ComboboxField["filter"];
       filtermethod?: ComboboxField["filterMethod"];
+      "attr:filtermethod"?: ComboboxField["filterMethod"];
       form?: string;
       name?: ComboboxField["name"];
       nomatchesmessage?: ComboboxField["noMatchesMessage"];
+      "attr:nomatchesmessage"?: ComboboxField["noMatchesMessage"];
       required?: ComboboxField["required"];
       valueis?: ComboboxField["valueIs"];
+      "attr:valueis"?: ComboboxField["valueIs"];
       valuemissingerror?: ComboboxField["valueMissingError"];
+      "attr:valuemissingerror"?: ComboboxField["valueMissingError"];
 
       onFilterchange?: EventHandlerUnion<T, Event>;
       onfilterchange?: EventHandlerUnion<T, Event>;

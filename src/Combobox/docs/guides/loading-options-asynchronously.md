@@ -230,4 +230,4 @@ This will likely be helpful for users because they will always be able to see (a
 
 #### Which Mode to Choose
 
-You're free to use any of the 3 `valueis` modes when loading options asynchronously. However, if you're using a `clearable`/`unclearable` `ComboboxField`, then you should replace everything _except_ the currently-selected option whenever you load new options. This is required to preserve the user's most-recently chosen value. By contrast, `anyvalue` `ComboboxField`s do not have this limitation.
+You're free to use any of the 3 `valueis` modes when loading options asynchronously. However, if you're using a `clearable`/`unclearable` `ComboboxField`, then you should replace everything _except_ the currently-selected option whenever you load new options. This is required to preserve the user's most-recently chosen value. By contrast, `anyvalue` `ComboboxField`s do not have this limitation and will typically be easier to use for async option loading.
