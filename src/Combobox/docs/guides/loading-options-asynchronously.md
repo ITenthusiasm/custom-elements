@@ -1,4 +1,6 @@
-# Loading Options Asynchronously
+# Loading Options Asynchronously (_Advanced_)
+
+> Note: The `Combobox` component intentionally makes no assumptions about how developers want to load their options. This gives you significantly greater flexibility and fine-tuned control over how options are loaded asynchronously. But it requires slightly more effort upfront.
 
 When you're loading options asynchronously for a `combobox`, you're typically loading only the options which match the user's current filter. In that case, there's no filtering that needs to be done on the client's side because the server has already handled it. All you need to do is replace the old options with the new ones.
 
@@ -125,8 +127,6 @@ function MyForm() {
 
 There are additional things that you can do as well, such as [abort your API Request](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal#examples) if the user starts typing again before the last request finishes. Or, if you don't want to worry about interrupting API Requests, then you can prevent the user from sending more option-filtering requests if one is already pending. Whether or not to implement such extra logic is up to each developer.
 
-<!-- TODO: Maybe add a StackBlitz example of loading options asynchronously? -->
-
 ## Additional Considerations
 
 ### Loading Indicators
@@ -194,7 +194,9 @@ Note, however, that it's likely a better UX to let the user see their most-recen
 
 One last note: The code that we just showed primarily had to do with _visibly_ hiding options from users with CSS. You might also want to prevent the old options from being accidentally keyboard-selected while the new ones are loading. This is unlikely to be a practical concern, but it still may be of interest for you.
 
-There are multiple ways to handle this. One way is to disable the `ComboboxField` (or the `ComboboxOption`s) while your new options are loading. (If you do the former, you will need to re-focus the `ComboboxField` after the options finish loading. One nice thing about this approach is that it will guarantee that only 1 filtering API request can go out at a time.) Another option is to block the `Enter` key while options are loading. Still, another option is to [extend](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/extends) the `ComboboxField` and override its functionality. (Yes, there are even more options than these. Choose whatever works best for you.)
+There are multiple ways to handle this. One way is to disable the `ComboboxField` (or the `ComboboxOption`s) while your new options are loading. (If you do this, you will need to re-focus the `ComboboxField` after the options finish loading. One nice thing about this approach is that it will guarantee that only 1 filtering API request can go out at a time.)
+
+Another option is to block the `Enter` key while options are loading. Still, another option is to [extend](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/extends) the `ComboboxField` and override its functionality. (Yes, there are even more options than these. Choose whatever works best for you.)
 
 ### The `valueis` Setting
 
@@ -210,7 +212,7 @@ An `anyvalue` `ComboboxField` will accept whatever the user types as a value. To
 
 In this case, the value of the `ComboboxField` will be the filter that was most-recently typed by the user in Step 2. Thus, the user's previously-selected option/value from Step 1 will have been lost.
 
-To preserve the original option/value from Step 1, you can track the user's most-recently selected option in local state. Then, when the user leaves the `ComboboxField` (or submits the form), you can set its value back to the `label` of the previously-selected option. (If the previously-selected option is still in the currently-loaded list of options, then you can set the `ComboboxField`'s value to the option's `value` instead.) This guarantees you that will always know the async option which the user most-recently chose.
+To preserve the original option/value from Step 1, you can track the user's most-recently selected option in local state. Then, when the user leaves the `ComboboxField` (or submits the form), you can set its value back to the `label` of the previously-selected option. (If the previously-selected option is still in the currently-loaded list of options, then you can set the `ComboboxField`'s value to the option's `value` instead, if you prefer.) This guarantees you that will always know the async option which the user most-recently chose.
 
 #### Using `clearable`/`unclearable` Mode
 
@@ -231,3 +233,5 @@ This will likely be helpful for users because they will always be able to see (a
 #### Which Mode to Choose
 
 You're free to use any of the 3 `valueis` modes when loading options asynchronously. However, if you're using a `clearable`/`unclearable` `ComboboxField`, then you should replace everything _except_ the currently-selected option whenever you load new options. This is required to preserve the user's most-recently chosen value. By contrast, `anyvalue` `ComboboxField`s do not have this limitation and will typically be easier to use for async option loading.
+
+To see an example of loading options asynchronously for an `anyvalue` `ComboboxField`, see our [StackBlitz Demo](https://stackblitz.com/edit/combobox-async-loading?file=index.html).
