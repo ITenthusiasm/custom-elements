@@ -110,16 +110,19 @@ form {
     border: 0;
     margin: 0;
 
-    > legend {
+    > :is(legend, label):first-child {
+      display: block;
+      width: max-content;
       padding: 0;
+      margin-bottom: 8px;
     }
 
-    > :has(> input[type="radio"]) {
+    > :has(> input:is([type="radio"], [type="checkbox"])) {
       display: flex;
       flex-flow: row wrap;
       gap: calc(var(--gap) / 2) calc(var(--gap) / 3);
 
-      > input[type="radio"] {
+      > input:is([type="radio"], [type="checkbox"]) {
         margin: 0;
       }
     }

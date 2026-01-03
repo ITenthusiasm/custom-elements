@@ -2,7 +2,13 @@
 import { render } from "solid-js/web";
 import { createFormValidityObserver } from "@form-observer/solid";
 import type { ValidatableField } from "@form-observer/solid";
-import { SelectEnhancer, ComboboxField, ComboboxListbox, ComboboxOption } from "@itenthusiasm/custom-elements";
+import {
+  CheckboxGroup,
+  SelectEnhancer,
+  ComboboxField,
+  ComboboxListbox,
+  ComboboxOption,
+} from "@itenthusiasm/custom-elements";
 import type {} from "@itenthusiasm/custom-elements/types/solid.d.ts";
 
 function FormValidityObserverSolidTest() {
@@ -202,6 +208,31 @@ function FormValidityObserverSolidTest() {
         <div id="framework-error" role="alert"></div>
       </fieldset>
 
+      {/* Uses Progressive Enhancement Mode */}
+      <div class="form-field">
+        <checkbox-group min="2" max="3">
+          <fieldset aria-describedby="subjects-error">
+            <legend>Favorite Subjects</legend>
+
+            <div>
+              <input id="math" name="subjects" type="checkbox" value="math" />
+              <label for="math">Math</label>
+
+              <input id="bible" name="subjects" type="checkbox" value="bible" checked />
+              <label for="bible">Bible</label>
+
+              <input id="science" name="subjects" type="checkbox" value="science" />
+              <label for="science">Science</label>
+
+              <input id="english" name="subjects" type="checkbox" value="english" />
+              <label for="english">English</label>
+            </div>
+          </fieldset>
+        </checkbox-group>
+
+        <div id="subjects-error" role="alert"></div>
+      </div>
+
       <div class="form-field">
         <label for="bio">Autobiography</label>
         <textarea id="bio" name="bio" minlength="80" maxlength="150" aria-describedby="bio-error"></textarea>
@@ -213,6 +244,7 @@ function FormValidityObserverSolidTest() {
   );
 }
 
+if (!customElements.get("checkbox-group")) customElements.define("checkbox-group", CheckboxGroup);
 if (!customElements.get("combobox-listbox")) customElements.define("combobox-listbox", ComboboxListbox);
 if (!customElements.get("combobox-field")) customElements.define("combobox-field", ComboboxField);
 if (!customElements.get("combobox-option")) customElements.define("combobox-option", ComboboxOption);

@@ -2,7 +2,7 @@
 /* eslint-disable no-void */
 /* eslint-disable prefer-template */
 import { test as it, expect as baseExpect } from "@playwright/test";
-import type { Page, Locator, MatcherReturnType } from "@playwright/test";
+import type { Page, Locator, MatcherReturnType, Dialog } from "@playwright/test";
 import type CheckboxGroup from "../CheckboxGroup.js";
 import type {} from "../types/dom.d.ts";
 
@@ -2615,6 +2615,119 @@ it.describe("Checkbox Group Web Component", () => {
         await expect(textbox).toHaveValue(textboxValue);
         await expect(group).toHaveCustomValue(["math"], { form: true });
       });
+    });
+
+    it.describe("Compatibility with Form Validation Libraries", () => {
+      function getFormObserverLibrary(library: string): `the Form Validity Observer${string}` {
+        if (library === "core") return "the Form Validity Observer";
+        return `the Form Validity Observer's Optional ${library.charAt(0).toUpperCase()}${library.slice(1)} Integration`;
+      }
+
+      const libraries = [
+        { library: getFormObserverLibrary("core"), testUrlPath: "/library-tests/form-observer/index" },
+        { library: getFormObserverLibrary("preact"), testUrlPath: "/library-tests/form-observer/preact/index" },
+        { library: getFormObserverLibrary("react"), testUrlPath: "/library-tests/form-observer/react/index" },
+        { library: getFormObserverLibrary("solid"), testUrlPath: "/library-tests/form-observer/solid/index" },
+        { library: getFormObserverLibrary("svelte"), testUrlPath: "/library-tests/form-observer/svelte/index" },
+        { library: getFormObserverLibrary("vue"), testUrlPath: "/library-tests/form-observer/vue/index" },
+        { library: "React Hook Form", testUrlPath: "/library-tests/react-hook-form/index" },
+      ] as const satisfies { library: string; testUrlPath: string }[];
+
+      for (const { library, testUrlPath } of libraries) {
+        it(`Works with ${library}`, async ({ page }) => {
+          /* -------------------- Setup -------------------- */
+          /*
+           * TODO: Playwright does not yet seem to recognize that `formAssociated` controls are labeled
+           * by `<label>` elements which point to them. We'll add a manual workaround for this for now...
+           * but this is something that needs addressing in the future... We should open a GitHub Issue.
+           */
+          await page.goto(new URL(testUrlPath, url).toString());
+
+          // To help with these tests, make every field EXCEPT the `CheckboxGroup` valid
+          await it.step("Make all non-`CheckboxGroup`s valid", async () => {
+            await page.getByRole("textbox", { name: "Email", exact: true }).fill("person@example.com");
+            await page.getByRole("textbox", { name: "Password", exact: true }).fill("12345678A@c");
+            await page.getByRole("textbox", { name: "Confirm Password", exact: true }).fill("12345678A@c");
+            await page.getByRole("radio", { name: "Svelte", exact: true }).click();
+
+            const comboboxes = page.getByRole("combobox");
+            for (const combobox of await comboboxes.all()) {
+              await combobox.click();
+              const listboxId = (await combobox.getAttribute("aria-controls")) as string;
+              await page.locator(`[id="${listboxId}"]`).getByRole("option").nth(1).click();
+            }
+          });
+
+          // Verify that the `CheckboxGroup` was prepared correctly
+          const group = page.getByRole("group");
+          await expect(group).toHaveJSProperty("manual", false);
+          await expect(group).toHaveJSProperty("labels.length", 1);
+          await expect(group).toHaveJSProperty("labels.0.textContent", "Favorite Subjects");
+          await expect(group).toHaveCustomValue(["bible"], { form: true });
+
+          const min = "2";
+          const max = "3";
+          if (library !== "React Hook Form") {
+            await expect(group).toHaveJSProperty("min", min);
+            await expect(group).toHaveJSProperty("max", max);
+          }
+
+          // Track `alert`s caused by valid form submissions
+          let alerts = 0;
+          page.on("dialog", trackAlerts);
+          async function trackAlerts(dialog: Dialog): Promise<void> {
+            alerts += 1;
+            await dialog.dismiss();
+          }
+
+          /* -------------------- Assertions -------------------- */
+          // Force entire form to undergo validation. This will trigger the `input`-based re-validation.
+          const submitter = page.getByRole("button", { name: "Sign Up", exact: true });
+          await submitter.click();
+          expect(alerts).toBe(0);
+
+          // `min` constraint should have been broken
+          await expect(group).toHaveAttribute("aria-invalid", String(true));
+          await expect(group).toHaveAccessibleDescription(`Please select at least ${min} items.`);
+
+          // Selecting a second `checkbox` should resolve the error
+          const checkboxes = group.locator("fieldset").getByRole("checkbox");
+          await checkboxes.nth(0).click();
+
+          await expect(group).toHaveCustomValue(["bible", "math"], { form: true });
+          await expect(group).toHaveAttribute("aria-invalid", String(false));
+          await expect(group).toHaveAccessibleDescription("");
+
+          await submitter.click();
+          expect(alerts).toBe(1);
+
+          // But selecting more than the maximum allowed number of `checkbox`es will introduce a new error
+          await checkboxes.nth(2).press(" ");
+          await expect(group).toHaveCustomValue(["bible", "math", "science"], { form: true });
+          await expect(group).toHaveAttribute("aria-invalid", String(false));
+          await expect(group).toHaveAccessibleDescription("");
+
+          await checkboxes.nth(3).press(" ");
+          await expect(group).toHaveCustomValue(["bible", "math", "science", "english"], { form: true });
+          await expect(group).toHaveAttribute("aria-invalid", String(true));
+          await expect(group).toHaveAccessibleDescription(`Please select no more than ${max} items.`);
+
+          await submitter.click();
+          expect(alerts).toBe(1);
+
+          // This error can be resolved by staying within the `min`/`max` constraints
+          await checkboxes.nth(0).press(" ");
+          await expect(group).toHaveCustomValue(["bible", "science", "english"], { form: true });
+          await expect(group).toHaveAttribute("aria-invalid", String(false));
+          await expect(group).toHaveAccessibleDescription("");
+
+          await submitter.click();
+          expect(alerts).toBe(2);
+
+          // Cleanup
+          page.off("dialog", trackAlerts);
+        });
+      }
     });
   });
 });

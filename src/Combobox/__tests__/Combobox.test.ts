@@ -9886,6 +9886,15 @@ for (const { mode } of testConfigs) {
           await expect(frameworks).toHaveAttribute("aria-invalid", String(false));
           await expect(frameworks).toHaveAccessibleDescription("");
 
+          /* Favorite Subject */
+          const subjects = page.getByRole("group").and(page.locator("checkbox-group"));
+          await expect(subjects).toHaveAttribute("aria-invalid", String(true));
+          await expect(subjects).toHaveAccessibleDescription("Please select at least 2 items.");
+
+          await subjects.getByRole("checkbox", { name: "Math", exact: true }).click();
+          await expect(subjects).toHaveAttribute("aria-invalid", String(false));
+          await expect(subjects).toHaveAccessibleDescription("");
+
           /* Submit Form */
           await submitter.click();
           expect(alerts).toBe(1);
@@ -10164,6 +10173,15 @@ for (const { mode } of testConfigs) {
           await page.getByRole("radio", { name: "Svelte", exact: true }).click();
           await expect(frameworks).toHaveAttribute("aria-invalid", String(false));
           await expect(frameworks).toHaveAccessibleDescription("");
+
+          /* Favorite Subject */
+          const subjects = page.getByRole("group").and(page.locator("checkbox-group"));
+          await expect(subjects).toHaveAttribute("aria-invalid", String(true));
+          await expect(subjects).toHaveAccessibleDescription("Please select at least 2 items.");
+
+          await subjects.getByRole("checkbox", { name: "Math", exact: true }).click();
+          await expect(subjects).toHaveAttribute("aria-invalid", String(false));
+          await expect(subjects).toHaveAccessibleDescription("");
 
           /* Submit Form */
           await submitter.click();

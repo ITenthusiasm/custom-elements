@@ -231,6 +231,33 @@ export default function FormValidityObserverPreactTest() {
         </div>
       </fieldset>
 
+      {/* Uses Progressive Enhancement Mode */}
+      <div class="form-field">
+        <checkbox-group min="2" max="3">
+          <fieldset aria-describedby="subjects-error">
+            <legend>Favorite Subjects</legend>
+
+            <div>
+              <input id="math" name="subjects" type="checkbox" value="math" />
+              <label for="math">Math</label>
+
+              <input id="bible" name="subjects" type="checkbox" value="bible" checked />
+              <label for="bible">Bible</label>
+
+              <input id="science" name="subjects" type="checkbox" value="science" />
+              <label for="science">Science</label>
+
+              <input id="english" name="subjects" type="checkbox" value="english" />
+              <label for="english">English</label>
+            </div>
+          </fieldset>
+        </checkbox-group>
+
+        <div id="subjects-error" role="alert">
+          {errors.subjects}
+        </div>
+      </div>
+
       <div class="form-field">
         <label for="bio">Autobiography</label>
         <textarea id="bio" name="bio" minlength={80} maxlength={150} aria-describedby="bio-error"></textarea>

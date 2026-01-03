@@ -3,7 +3,13 @@ import { StrictMode, useState, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import { createFormValidityObserver } from "@form-observer/react";
 import type { ValidatableField } from "@form-observer/react";
-import { ComboboxField, ComboboxListbox, ComboboxOption, SelectEnhancer } from "@itenthusiasm/custom-elements";
+import {
+  CheckboxGroup,
+  ComboboxField,
+  ComboboxListbox,
+  ComboboxOption,
+  SelectEnhancer,
+} from "@itenthusiasm/custom-elements";
 import type {} from "@itenthusiasm/custom-elements/types/react.d.ts";
 
 function FormValidityObserverReactTest() {
@@ -238,6 +244,33 @@ function FormValidityObserverReactTest() {
         </div>
       </fieldset>
 
+      {/* Uses Progressive Enhancement Mode */}
+      <div className="form-field">
+        <checkbox-group min="2" max="3">
+          <fieldset aria-describedby="subjects-error">
+            <legend>Favorite Subjects</legend>
+
+            <div>
+              <input id="math" name="subjects" type="checkbox" value="math" />
+              <label htmlFor="math">Math</label>
+
+              <input id="bible" name="subjects" type="checkbox" value="bible" checked />
+              <label htmlFor="bible">Bible</label>
+
+              <input id="science" name="subjects" type="checkbox" value="science" />
+              <label htmlFor="science">Science</label>
+
+              <input id="english" name="subjects" type="checkbox" value="english" />
+              <label htmlFor="english">English</label>
+            </div>
+          </fieldset>
+        </checkbox-group>
+
+        <div id="subjects-error" role="alert">
+          {errors.subjects}
+        </div>
+      </div>
+
       <div className="form-field">
         <label htmlFor="bio">Autobiography</label>
         <textarea id="bio" name="bio" minLength={80} maxLength={150} aria-describedby="bio-error"></textarea>
@@ -251,6 +284,7 @@ function FormValidityObserverReactTest() {
   );
 }
 
+if (!customElements.get("checkbox-group")) customElements.define("checkbox-group", CheckboxGroup);
 if (!customElements.get("combobox-listbox")) customElements.define("combobox-listbox", ComboboxListbox);
 if (!customElements.get("combobox-field")) customElements.define("combobox-field", ComboboxField);
 if (!customElements.get("combobox-option")) customElements.define("combobox-option", ComboboxOption);

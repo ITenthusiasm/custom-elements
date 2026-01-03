@@ -2,7 +2,13 @@
 import { StrictMode, useCallback } from "react";
 import { createRoot } from "react-dom/client";
 import { useForm } from "react-hook-form";
-import { ComboboxField, ComboboxListbox, ComboboxOption, SelectEnhancer } from "@itenthusiasm/custom-elements";
+import {
+  CheckboxGroup,
+  ComboboxField,
+  ComboboxListbox,
+  ComboboxOption,
+  SelectEnhancer,
+} from "@itenthusiasm/custom-elements";
 import type {} from "@itenthusiasm/custom-elements/Combobox/types/react.d.ts";
 
 function ReactHookFormTest() {
@@ -110,7 +116,7 @@ function ReactHookFormTest() {
         </div>
       </div>
 
-      {/* NOTE: React Hook Form does not support the `Select Enhancing Mode` used in SSR due to design its limitations */}
+      {/* NOTE: React Hook Form does not support the `Select Enhancing Mode` used in SSR due to its design limitations */}
       <div className="form-field">
         <label htmlFor="sport">Best Sport</label>
         <select-enhancer>
@@ -255,6 +261,47 @@ function ReactHookFormTest() {
         </div>
       </fieldset>
 
+      {/* NOTE: React Hook Form does not support Progressive Enhancement for the `CheckboxGroup` due to its design limitations. */}
+      {/*
+       * NOTE: RHF also doesn't have good support for automatically validating array values from elements.
+       * so `validate()` (Custom Validation in RHF) is used instead of the typical `min` and `max` props.
+       */}
+      <div className="form-field">
+        <checkbox-group
+          id="subjects"
+          {...register("subjects", {
+            validate(value: string[]) {
+              if (value.length < 2) return "Please select at least 2 items.";
+              if (value.length > 3) return "Please select no more than 3 items.";
+            },
+          })}
+          aria-invalid={`${!!errors.subjects}`}
+          aria-describedby="subjects-error"
+        >
+          <fieldset>
+            <label htmlFor="subjects">Favorite Subjects</label>
+
+            <div>
+              <input id="math" type="checkbox" value="math" />
+              <label htmlFor="math">Math</label>
+
+              <input id="bible" type="checkbox" value="bible" checked />
+              <label htmlFor="bible">Bible</label>
+
+              <input id="science" type="checkbox" value="science" />
+              <label htmlFor="science">Science</label>
+
+              <input id="english" type="checkbox" value="english" />
+              <label htmlFor="english">English</label>
+            </div>
+          </fieldset>
+        </checkbox-group>
+
+        <div id="subjects-error" role="alert">
+          {errors.subjects?.message as string}
+        </div>
+      </div>
+
       <div className="form-field">
         <label htmlFor="bio">Autobiography</label>
         <textarea
@@ -274,6 +321,7 @@ function ReactHookFormTest() {
   );
 }
 
+if (!customElements.get("checkbox-group")) customElements.define("checkbox-group", CheckboxGroup);
 if (!customElements.get("combobox-listbox")) customElements.define("combobox-listbox", ComboboxListbox);
 if (!customElements.get("combobox-field")) customElements.define("combobox-field", ComboboxField);
 if (!customElements.get("combobox-option")) customElements.define("combobox-option", ComboboxOption);

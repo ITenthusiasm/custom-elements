@@ -1,8 +1,15 @@
 import { FormValidityObserver } from "@form-observer/core";
 import type { ValidatableField } from "@form-observer/core";
-import { ComboboxField, ComboboxListbox, ComboboxOption, SelectEnhancer } from "@itenthusiasm/custom-elements";
+import {
+  CheckboxGroup,
+  ComboboxField,
+  ComboboxListbox,
+  ComboboxOption,
+  SelectEnhancer,
+} from "@itenthusiasm/custom-elements";
 import type {} from "@itenthusiasm/custom-elements/types/dom.d.ts";
 
+customElements.define("checkbox-group", CheckboxGroup);
 customElements.define("combobox-listbox", ComboboxListbox);
 customElements.define("combobox-field", ComboboxField);
 customElements.define("combobox-option", ComboboxOption);
