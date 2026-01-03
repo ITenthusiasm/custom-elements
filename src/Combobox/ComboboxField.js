@@ -579,7 +579,7 @@ class ComboboxField extends HTMLElement {
   }
 
   set disabled(value) {
-    this.toggleAttribute("disabled", Boolean(value));
+    this.toggleAttribute("disabled", value);
   }
 
   /** @returns {HTMLInputElement["required"]} */
@@ -588,7 +588,7 @@ class ComboboxField extends HTMLElement {
   }
 
   set required(value) {
-    this.toggleAttribute("required", Boolean(value));
+    this.toggleAttribute("required", value);
   }
 
   /**
@@ -619,7 +619,7 @@ class ComboboxField extends HTMLElement {
   }
 
   set filter(value) {
-    this.toggleAttribute("filter", Boolean(value));
+    this.toggleAttribute("filter", value);
   }
 
   /**
