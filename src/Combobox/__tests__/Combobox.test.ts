@@ -6676,7 +6676,7 @@ for (const { mode } of testConfigs) {
            * only be counted if the event's target is the same element as the provided `target`. If `target` is a
            * `Page`, then all events of the specified `type` will be tracked, irrespective of the event's target,
            * and the event listener will be attached to the `Page`'s `Document`.
-           * @param type The type of DOM event to listen for
+           * @param type The type of DOM event to listen for.
            * @param options A mixture of {@link EventListenerOptions} and some extra options specific to Playwright.
            * @returns
            */
@@ -6688,7 +6688,7 @@ for (const { mode } of testConfigs) {
               event?: string;
               /**
                * Indicates that the tracking event handler should be attached to the `Document` even if
-               * `target` is a `Locator`
+               * `target` is a `Locator`.
                */
               document?: boolean;
               timeout?: number;
@@ -6698,8 +6698,13 @@ for (const { mode } of testConfigs) {
             const page = "page" in target ? target.page() : target;
             await page.exposeFunction(`push${type}event`, (e: unknown) => events.push(e as E));
 
+            /** The timer related to {@link waitForDOMEvent}'s `Promise` rejection callback */
+            let timer: NodeJS.Timeout | undefined;
             let resolve: Parameters<ConstructorParameters<typeof Promise<E[]>>[0]>[0];
-            await page.exposeFunction("callNodeResolve", () => resolve(events));
+            await page.exposeFunction("callNodeResolve", () => {
+              clearTimeout(timer);
+              resolve(events);
+            });
 
             const locatorUsed = "page" in target;
             const locator = "page" in target ? target : page.locator("body");
@@ -6724,13 +6729,14 @@ for (const { mode } of testConfigs) {
               [type, locatorUsed, options] as const,
             );
 
-            return async function waitForDOMEvent(): Promise<typeof events> {
+            return waitForDOMEvent;
+            async function waitForDOMEvent(): Promise<typeof events> {
               return new Promise((res, reject) => {
                 resolve = res;
                 const timeout = options?.timeout || 2000;
-                setTimeout(reject, timeout, new Error(`Timed out ${timeout}ms waiting for event ${type}.`));
+                timer = setTimeout(reject, timeout, new Error(`Timed out ${timeout}ms waiting for event ${type}.`));
               });
-            };
+            }
           }
 
           for (const event of ["input", "change"] as const) {
