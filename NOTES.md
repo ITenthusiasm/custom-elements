@@ -39,6 +39,7 @@
   - https://stackoverflow.com/questions/55791168/initialisation-of-custom-elements-inside-document-fragment/67252742#67252742
   - https://dev.to/mayankav/template-vs-div-3b32 (Especially helps with understanding why `Vue` uses `<template>`)
   - Also read up on [`Document.adoptNode()`](https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptNode) and [`Document.importNode()`](https://developer.mozilla.org/en-US/docs/Web/API/Document/importNode), which are distinct from [`Node.cloneNode()`](https://developer.mozilla.org/en-US/docs/Web/API/Node/cloneNode).
+- Apparently, in some Browsers, the `input.checked` property will still be updated if the `click` event is canceled; however, the value will be reverted _after_ the event has finished processing. This means that if you're trying to manually apply the effects of the `click` event for `checkbox`es, you'll have to be a little more clever/mindful with your approach. See: https://stackoverflow.com/a/32710212/17777687.
 
 ## TypeScript
 

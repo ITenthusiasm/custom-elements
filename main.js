@@ -1,7 +1,14 @@
 // Primary Imports
-import { ComboboxField, ComboboxListbox, ComboboxOption, SelectEnhancer } from "@itenthusiasm/custom-elements";
+import {
+  CheckboxGroup,
+  ComboboxField,
+  ComboboxListbox,
+  ComboboxOption,
+  SelectEnhancer,
+} from "@itenthusiasm/custom-elements";
 
 /* -------------------- "App Logic" -------------------- */
+customElements.define("checkbox-group", CheckboxGroup);
 customElements.define("combobox-listbox", ComboboxListbox);
 customElements.define("combobox-field", ComboboxField);
 customElements.define("combobox-option", ComboboxOption);

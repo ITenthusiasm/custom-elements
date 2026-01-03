@@ -1,4 +1,5 @@
 /** @import {ListboxWithChildren} from "./types/helpers.js" */
+/** @import {ExposedInternals, FieldPropertiesAndMethods} from "../types/helpers.js" */
 import { setAttributeFor } from "../utils/dom.js";
 import ComboboxOption from "./ComboboxOption.js";
 import ComboboxListbox from "./ComboboxListbox.js";
@@ -20,16 +21,6 @@ const attrs = Object.freeze({
   "aria-activedescendant": "aria-activedescendant",
   "aria-expanded": "aria-expanded",
 });
-
-/** 
- * @typedef {Pick<ElementInternals,
-     "labels" | "form" | "validity" | "validationMessage" | "willValidate" | "checkValidity" | "reportValidity"
-   >} ExposedInternals
- */
-
-/**
- * @typedef {Pick<HTMLInputElement, "name" | "required" | "disabled" | "setCustomValidity">} FieldPropertiesAndMethods
- */
 
 /** @implements {ExposedInternals} @implements {FieldPropertiesAndMethods} */
 class ComboboxField extends HTMLElement {

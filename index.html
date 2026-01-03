@@ -124,6 +124,20 @@
           <input id="zip" name="zip" type="text" maxlength="5" autocomplete="postal-code" />
         </div>
 
+        <checkbox-group style="display: block; margin: 12px 0">
+          <fieldset>
+            <legend>Subjects</legend>
+            <input id="math" name="subjects" type="checkbox" value="math" />
+            <labek for="math">Math</labek>
+
+            <input id="science" name="subjects" type="checkbox" value="science" checked />
+            <labek for="science">Science</labek>
+
+            <input id="english" name="subjects" type="checkbox" value="english" />
+            <labek for="english">English</labek>
+          </fieldset>
+        </checkbox-group>
+
         <button type="submit">Submit</button>
         <button type="reset">Reset</button>
       </form>
