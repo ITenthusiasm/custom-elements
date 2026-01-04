@@ -2,18 +2,6 @@
 
 A group of robust, extendable and stylable [Web Components](https://developer.mozilla.org/en-US/docs/Web/API/Web_components) which work together to function as an accessible [`combobox`](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).
 
-## Features and Benefits
-
-- **Framework Agnostic**: Because this component simply uses custom `HTMLElement`s, it works seamlessly in all JS Frameworks (and in pure-JS applications if that's what you fancy).
-- **Integrates with Native Web Forms**: This component [integrates](https://web.dev/articles/more-capable-form-controls) with the web's native `<form>` element, meaning that its value will be seen in the form's [`FormData`](https://developer.mozilla.org/en-US/docs/Web/API/FormData) and will be automatically [sent to the server](https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Sending_and_retrieving_form_data) when the form is submitted &mdash; all without writing a single line of JS.
-- **Works with Various Form Libraries**: The component emits standard DOM events like [`input`](https://developer.mozilla.org/en-US/docs/Web/API/Element/input_event) and [`change`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/change_event), enabling it to work naturally with reputable form libraries (e.g., the [`Form Observer`](https://github.com/enthusiastic-js/form-observer), [`Conform`](https://conform.guide/), and [`React Hook Form`](https://react-hook-form.com/)).
-- **Progressive Enhacement**: When used in [`Select Enhacing Mode`](#select-enhancing-mode), the component will fallback to a regular `<select>` element if JS is disabled or unavailable for your users. This means your forms will _always_ be fully usable and accessible.
-- **Highly Customizable**: The component is flexible enough to work with whatever CSS you provide, and its functionality can be enhanced or overriden through [class extension](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/extends).
-- **Performant**: Unlike many other alternatives, this component has been cleverly designed to work without complex state management tools or aggressive DOM Tree manipulation. This makes it a fast and memory-efficient solution.
-- **No Dependencies**: The component is built on the native web platform instead of extending other frameworks or libraries, guaranteeing your bundle size remains as small as possible.
-
-<!-- TODO: Link to article explaining how progressively-enhanced Form Controls _greatly_ simplify frontend code. -->
-
 ## Install
 
 ```
@@ -218,6 +206,19 @@ import type {} from "@itenthusiasm/custom-elements/Combobox/types/react";
 // For Svelte: import type {} from "@itenthusiasm/custom-elements/Combobox/types/svelte";
 // For Vue: import type {} from "@itenthusiasm/custom-elements/Combobox/types/vue";
 // etc. ...
+```
+
+The component also ships with types that enhance the native DOM methods if you need them:
+
+```ts
+import type {} from "@itenthusiasm/custom-elements/types/dom";
+// Or more specifically, import type {} from "@itenthusiasm/custom-elements/Combobox/types/dom";
+
+// These variables will be properly typed by TypeScript now, instead of just being general `Element` types.
+const combobox = document.querySelector("combobox-field");
+const listbox = document.querySelector("combobox-listbox");
+const options = document.querySelectorAll("combobox-option");
+const selectEnhancer = document.querySelector("select-enhancer");
 ```
 
 ### Restyling the Component

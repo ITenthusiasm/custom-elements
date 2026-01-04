@@ -374,7 +374,7 @@ In addition to the methods that exist on the [`HTMLElement`](https://developer.m
   </dt>
   <dd>
     <p>
-      Same as the <code>setCustomValidity()</code> method found on native form controls like the <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLSelectElement/setCustomValidity"><code>&lt;select&gt;</code></a> element: Marks the element as invalid by giving it a custom error message. This error state/message takes precedent over all other error states/messages (such as the <code>required</code> error state/message). Note that any form control which has a custom error message will always fail constraint validation. (This is also true for native form controls.) To remove the error, call this method with an empty string.
+      Same as the <code>setCustomValidity()</code> method found on native form controls like the <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLSelectElement/setCustomValidity"><code>&lt;select&gt;</code></a> element: Marks the element as invalid by giving it a custom error message. This error state/message takes precedence over all other error states/messages (such as the <code>required</code> error state/message). Note that any form control which has a custom error message will always fail constraint validation. (This is also true for native form controls.) To remove the error, call this method with an empty string.
     </p>
   </dd>
 
