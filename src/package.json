@@ -50,6 +50,10 @@
       "types": "./Combobox/index.d.ts",
       "default": "./Combobox/index.js"
     },
+    "./CheckboxGroup": {
+      "types": "./CheckboxGroup/index.d.ts",
+      "default": "./CheckboxGroup/index.js"
+    },
     "./*": {
       "types": "./*.d.ts",
       "default": "./*.js"
