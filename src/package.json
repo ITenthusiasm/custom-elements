@@ -1,7 +1,7 @@
 {
   "name": "@itenthusiasm/custom-elements",
   "type": "module",
-  "version": "0.7.0",
+  "version": "0.9.0",
   "sideEffects": false,
   "license": "MIT",
   "description": "Robust, accessible, and progressively-enhanceable Web Components for common developer needs",
