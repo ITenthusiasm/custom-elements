@@ -44,5 +44,8 @@ Below are the components that this library currently provides. Each component ha
     <p>
       Wraps a semantic group of checkbox <code>&lt;input&gt;</code> elements, progressively enhancing them with convenient features like group-level form validation and value management. The <code>CheckboxGroup</code> component behaves just like the native form controls, meaning that it dispatches the standard <code>input</code>/<code>change</code> events, is <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/elements">associated</a> with its owning form, and automatically participates in all form activity, <a href="https://web.dev/articles/more-capable-form-controls">including form submission</a>.
     </p>
+    <p>
+      <a href="https://stackblitz.com/edit/custom-elements-checkbox-group?file=register-custom-elements.js,index.html">Stackblitz Demo</a>
+    </p>
   </dd>
 </dl>

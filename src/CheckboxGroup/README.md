@@ -549,4 +549,4 @@ As a Custom Element, the <code>CheckboxGroup</code> supports all of the events f
 
 ## What's Next?
 
-You've learned everything that you need to know about the `CheckboxGroup` component. Now, it's time for you to try it out in one of your own applications!
+You've learned everything that you need to know about the `CheckboxGroup` component. Now, it's time for you to try it out in one of your own applications! We've provided a [StackBlitz Demo](https://stackblitz.com/edit/custom-elements-checkbox-group?file=register-custom-elements.js,index.html) to help you get more familiar with the component as well if needed.
