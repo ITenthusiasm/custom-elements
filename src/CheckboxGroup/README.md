@@ -172,6 +172,8 @@ export default function CheckboxGroup({ label, children, ...rest }: CheckboxGrou
 
 Notice the [`manual`](#attributes-manual) attribute that was applied to the `<checkbox-group>`. This tells the component _not_ to remove or add any children on its own, giving developers the freedom to make such modifications themselves. Note that the `CheckboxGroup` will still perform other automated actions unrelated to DOM insertion/removal in this mode, such as altering the `name` and `form` attributes of every `checkbox` inserted into it. These other actions are all safe for JS frameworks.
 
+If your application is a SPA, then you don't need to be concerned about progressive enhancement, and you can just structure your code in a manner similar to what was shown at the [beginning](#quickstart) of this document.
+
 ## TypeScript Usage in JS Frameworks
 
 Many JS frameworks, such as Svelte and React, often define their own "Element Namespaces". Because of this, most frameworks are not able (on their own) to recognize the correct attributes, properties, and event listeners that belong to the Custom Elements which you use. Thankfully, our library ships with TypeScript types that tell the various JS Frameworks about the existence and shape of our Custom Elements. To define _all_ of our library's Custom Elements within a Framework's "Element Namespace", simply import the appropriate type definition file:
@@ -544,3 +546,7 @@ As a Custom Element, the <code>CheckboxGroup</code> supports all of the events f
     <p>Identical to the <a href="#events-input"><code>input</code></a> event, but fired <em>after</em> the <code>input</code> event.</p>
   </dd>
 </dl>
+
+## What's Next?
+
+You've learned everything that you need to know about the `CheckboxGroup` component. Now, it's time for you to try it out in one of your own applications!
