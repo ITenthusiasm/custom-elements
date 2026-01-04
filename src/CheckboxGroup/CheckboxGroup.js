@@ -283,7 +283,9 @@ class CheckboxGroup extends HTMLElement {
     else if (rangeUnderflow) message = this.rangeUnderflowError;
     else if (valueMissing) message = this.valueMissingError;
     else if (rangeOverflow) message = this.rangeOverflowError;
-    this.#internals.setValidity({ valueMissing, rangeUnderflow, rangeOverflow, customError }, message);
+
+    const anchor = message ? /** @type {HTMLInputElement} */ (this.fieldset.elements[0]) : undefined;
+    this.#internals.setValidity({ valueMissing, rangeUnderflow, rangeOverflow, customError }, message, anchor);
   }
 
   /* ------------------------------ Form Control Callbacks ------------------------------ */
