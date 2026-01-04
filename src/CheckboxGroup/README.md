@@ -147,8 +147,8 @@ Some JS frameworks (such as React) may get confused if you remove elements from 
 
 ```tsx
 import { useState, useEffect } from "react";
-import type {} from "@itenthusiasm/custom-elements/react";
-// Or import type {} from "@itenthusiasm/custom-elements/CheckboxGroup/react";
+import type {} from "@itenthusiasm/custom-elements/types/react";
+// Or import type {} from "@itenthusiasm/custom-elements/CheckboxGroup/types/react";
 
 interface CheckboxGroupProps extends React.ComponentProps<"checkbox-group"> {
   label?: string;
