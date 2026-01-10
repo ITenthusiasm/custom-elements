@@ -1185,9 +1185,11 @@ class ComboboxField extends HTMLElement {
       const mutation = mutations[i];
 
       // Handle added nodes first. This keeps us from running redundant Deselect Logic if a newly-added node is `selected`.
-      mutation.addedNodes.forEach((node, j) => {
-        if (!(node instanceof ComboboxOption)) return node.parentNode?.removeChild(node);
+      mutation.addedNodes.forEach((n, j) => {
+        if (!(n instanceof ComboboxOption) && n instanceof Element) return n.parentNode?.removeChild(n);
 
+        // TODO: TypeScript fails to derive the correct type from the above check. Open a GitHub Issue.
+        const node = /** @type {ComboboxOption} */ (n);
         if (node.defaultSelected) this.value = node.value;
         else if (nullable && this.#value === null && j === 0) {
           if (this.valueIs !== "clearable") this.value = node.value;

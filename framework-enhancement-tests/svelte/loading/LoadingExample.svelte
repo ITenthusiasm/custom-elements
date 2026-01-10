@@ -2,6 +2,8 @@
   import type { ComboboxField } from "@itenthusiasm/custom-elements";
   import { fetchPokemon, defaultTimeout } from "./data/pokemon.js";
   import type { Pokemon } from "./data/pokemon.js";
+  import Select from "../Select.svelte";
+  import Option from "../Option.svelte";
 
   /* -------------------- Manage Async Options -------------------- */
   let options = $state.raw<Pokemon[]>([]);
@@ -78,29 +80,21 @@
 <form>
   <div class="form-field">
     <label for="pokemon">Pokemon</label>
-    <select-enhancer>
-      <!-- NOTE: For some reason, Svelte struggles with dynamic Custom Elements rendered from components. -->
-      <!-- React and Solid do not have this problem. Maybe raise a GitHub Issue. -->
+    <Select
+      id="pokemon"
+      name="pokemon"
+      filter
+      valueis="anyvalue"
+      onchange={handleChange}
+      ontoggle={handleToggle}
+      onkeydown={handleKeydown}
+      onfilterchange={handleFilterchange}
+    >
 
-      <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <!-- svelte-ignore element_invalid_self_closing_tag -->
-      <combobox-field
-        id="pokemon"
-        name="pokemon"
-        filter
-        valueis="anyvalue"
-        onchange={handleChange}
-        ontoggle={handleToggle}
-        onkeydown={handleKeydown}
-        onfilterchange={handleFilterchange}
-      />
-
-      <combobox-listbox>
-        {#each options as pokemon (pokemon.id)}
-          <combobox-option value={pokemon.id}>{pokemon.name}</combobox-option>
-        {/each}
-      </combobox-listbox>
-    </select-enhancer>
+      {#each options as { id, name } (id)}
+        <Option value={id}>{name}</Option>
+      {/each}
+    </Select>
   </div>
 
   <div class="form-field">

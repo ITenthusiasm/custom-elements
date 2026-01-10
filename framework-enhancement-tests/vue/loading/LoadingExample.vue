@@ -3,6 +3,8 @@ import { ref } from "vue";
 import type { ComboboxField } from "@itenthusiasm/custom-elements";
 import { fetchPokemon, defaultTimeout } from "./data/pokemon.js";
 import type { Pokemon } from "./data/pokemon.js";
+import Select from "../Select.vue";
+import Option from "../Option.vue";
 
 /* -------------------- Manage Async Options -------------------- */
 const options = ref<Pokemon[]>([]);
@@ -79,25 +81,19 @@ function handleKeydown(event: KeyboardEvent): void {
 <template>
   <form>
     <div class="form-field">
-      <!-- NOTE: For some reason, Vue struggles with dynamic Custom Elements rendered from components. -->
-      <!-- React and Solid do not have this problem. Maybe raise a GitHub Issue. -->
       <label for="pokemon">Pokemon</label>
-      <select-enhancer>
-        <combobox-field
-          id="pokemon"
-          name="pokemon"
-          filter
-          valueis="anyvalue"
-          @change="handleChange"
-          @toggle="handleToggle"
-          @keydown="handleKeydown"
-          @filterchange="handleFilterchange"
-        />
-
-        <combobox-listbox>
-          <combobox-option v-for="{ id, name } in options" :key="id" :value="id">{{ name }}</combobox-option>
-        </combobox-listbox>
-      </select-enhancer>
+      <Select
+        id="pokemon"
+        name="pokemon"
+        filter
+        valueis="anyvalue"
+        @change="handleChange"
+        @toggle="handleToggle"
+        @keydown="handleKeydown"
+        @filterchange="handleFilterchange"
+      >
+        <Option v-for="{ id, name } in options" :key="id" :value="id">{{ name }}</Option>
+      </Select>
     </div>
 
     <div class="form-field">
