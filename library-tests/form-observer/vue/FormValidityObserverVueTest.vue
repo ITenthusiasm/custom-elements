@@ -3,7 +3,7 @@ import { createFormValidityObserver } from "@form-observer/vue";
 import type { ValidatableField } from "@form-observer/vue";
 import type { ComboboxField } from "@itenthusiasm/custom-elements";
 
-const { autoObserve, configure, validateFields } = createFormValidityObserver("focusout", {
+const { vAutoObserve, configure, validateFields } = createFormValidityObserver("focusout", {
   revalidateOn: "input",
   defaultErrors: {
     required(field: ValidatableField) {
@@ -29,8 +29,7 @@ async function handleSubmit(event: SubmitEvent) {
 <template>
   <!-- NOTE: Vue's TS types fail to properly type the `:ref` callback with an `HTMLFormElement` parameter -->
   <!-- See: https://github.com/vuejs/core/issues/13969 -->
-  <!-- @vue-expect-error -- See Note above. -->
-  <form :ref="autoObserve()" @submit="handleSubmit">
+  <form v-auto-observe @submit="handleSubmit">
     <h1>Example Form</h1>
 
     <div class="form-field">
