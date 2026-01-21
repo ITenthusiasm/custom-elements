@@ -132,11 +132,19 @@ class ComboboxOption extends HTMLElement {
     if (!this.#combobox) return;
     const combobox = this.#combobox;
 
-    if (this.selected && combobox.value !== this.value) combobox.value = this.value;
-    else if (!this.selected && combobox.value === this.value) {
-      if (combobox.text.data && combobox.acceptsValue(combobox.text.data)) return;
-      if (combobox.acceptsValue("")) return combobox.forceEmptyValue();
-      combobox.formResetCallback();
+    // Selection
+    if (this.selected) {
+      if (combobox.value !== this.value) combobox.value = this.value;
+      else if (this.value === "" && combobox.text.data !== this.label) combobox.text.data = this.label;
+    }
+    // Deslection
+    else {
+      if (combobox.value !== this.value) return;
+
+      if (combobox.text.data && combobox.acceptsValue(combobox.text.data)) {
+        if (combobox.value !== combobox.text.data) combobox.value = combobox.text.data;
+      } else if (combobox.acceptsValue("")) combobox.forceEmptyValue();
+      else combobox.formResetCallback();
     }
   }
 }

@@ -8546,7 +8546,7 @@ for (const { mode } of testConfigs) {
                 const name = "my-combobox";
                 const first = testOptions[0];
                 const tenth = testOptions.at(-1) as GetLast<typeof testOptions>;
-                const defaultValue = getRandomOption(testOptions.slice(1, -1));
+                const defaultOptionLabel = testOptions[1];
 
                 await page.goto(url);
                 await renderHTMLToPage(page)`
@@ -8554,7 +8554,12 @@ for (const { mode } of testConfigs) {
                     <select-enhancer>
                       <select name="${name}" ${getFilterAttrs(valueis)}>
                         <option value="">Select Something</option>
-                        ${testOptions.map((o) => `<option ${o === defaultValue ? "selected" : ""}>${o}</option>`).join("")}
+                        <option value="1">${testOptions[0]}</option>
+                        <option value="2" selected>${defaultOptionLabel}</option>
+                        ${testOptions
+                          .slice(2)
+                          .map((o, i) => `<option value="${i + 3}">${o}</option>`)
+                          .join("")}
                       </select>
                     </select-enhancer>
                   </form>
@@ -8568,10 +8573,13 @@ for (const { mode } of testConfigs) {
                 expect(await getResetCount()).toBe(0);
 
                 // Verify correct default value
-                await expect(combobox).not.toHaveSyncedComboboxValue({ label: first }, { form: true });
-                await expect(combobox).not.toHaveSyncedComboboxValue({ label: tenth }, { form: true });
+                await expect(combobox).not.toHaveComboboxValue("", { form: true });
+                await expect(combobox).not.toHaveComboboxValue("1", { form: true });
+                await expect(combobox).not.toHaveComboboxValue(first, { form: true });
+                await expect(combobox).not.toHaveComboboxValue("10", { form: true });
+                await expect(combobox).not.toHaveComboboxValue(tenth, { form: true });
                 await expect(combobox).toHaveSyncedComboboxValue(
-                  { label: defaultValue },
+                  { label: defaultOptionLabel, value: "2" },
                   { form: true, matchingLabel: true },
                 );
 
@@ -8582,6 +8590,11 @@ for (const { mode } of testConfigs) {
                 // Select last `option`, then deselect it
                 const lastOption = page.getByRole("option", { name: tenth });
                 await lastOption.evaluate((node: ComboboxOption) => (node.selected = true));
+                await expect(combobox).toHaveSyncedComboboxValue(
+                  { label: tenth, value: "10" },
+                  { form: true, matchingLabel: true },
+                );
+
                 await lastOption.evaluate((node: ComboboxOption) => (node.selected = false));
                 const selectedOption = page.getByRole("option", { selected: true, includeHidden: true });
 
@@ -8597,15 +8610,16 @@ for (const { mode } of testConfigs) {
                   // `combobox` value should have been reset
                   expect(await getResetCount()).toBe(1);
 
-                  const defaultOption = page.getByRole("option", { name: defaultValue });
+                  const defaultOption = page.getByRole("option", { name: defaultOptionLabel });
                   await expect(defaultOption).toHaveJSProperty("selected", true);
                   await expect(combobox).toHaveSyncedComboboxValue(
-                    { label: defaultValue },
+                    { label: defaultOptionLabel, value: "2" },
                     { form: true, matchingLabel: true },
                   );
 
                   await expect(lastOption).toHaveJSProperty("selected", false);
-                  await expect(combobox).not.toHaveSyncedComboboxValue({ label: tenth }, { form: true });
+                  await expect(combobox).not.toHaveComboboxValue("10", { form: true });
+                  await expect(combobox).not.toHaveComboboxValue(tenth, { form: true });
 
                   // Resets still function properly if the `defaultOption` is de-selected
                   await defaultOption.evaluate((node: ComboboxOption) => (node.selected = false));
@@ -8613,10 +8627,67 @@ for (const { mode } of testConfigs) {
                   expect(await getResetCount()).toBe(2);
                   await expect(defaultOption).toHaveJSProperty("selected", true);
                   await expect(combobox).toHaveSyncedComboboxValue(
-                    { label: defaultValue },
+                    { label: defaultOptionLabel, value: "2" },
                     { form: true, matchingLabel: true },
                   );
                 }
+              });
+            });
+
+            createFilterTypeDescribeBlocks(["anyvalue", "clearable"], "filter-only", (valueis) => {
+              it("Updates the `combobox`'s text if an Empty Value Option is selected (Regression)", async ({
+                page,
+              }) => {
+                /* ---------- Setup ---------- */
+                const name = "my-combobox";
+                const emptyOptionLabel = "Select Something";
+
+                await page.goto(url);
+                await renderHTMLToPage(page)`
+                  <form aria-label="Test Form">
+                    <select-enhancer>
+                      <select name="${name}" ${getFilterAttrs(valueis)}>
+                        <option value="">${emptyOptionLabel}</option>
+                        ${testOptions.map((o) => `<option>${o}</option>`).join("")}
+                      </select>
+                    </select-enhancer>
+                  </form>
+                `;
+
+                const combobox = page.getByRole("combobox");
+                await expect(combobox).toHaveJSProperty("valueIs", valueis);
+                await expect(combobox).toHaveText("");
+                await expect(combobox).toHaveComboboxValue("", { form: true });
+
+                const selectedOption = page.getByRole("option", { selected: true, includeHidden: true });
+                await expect(selectedOption).not.toBeAttached();
+
+                /* ---------- Assertions ---------- */
+                // Selecing the Empty Value Option
+                const emptyOption = page.getByRole("option", { name: emptyOptionLabel, includeHidden: true });
+
+                await emptyOption.evaluate((node: ComboboxOption) => (node.selected = true));
+                await expect(emptyOption.and(selectedOption)).toBeAttached();
+                await expect(combobox).toHaveSyncedComboboxValue(
+                  { label: emptyOptionLabel, value: "" },
+                  { form: true, matchingLabel: true },
+                );
+
+                // De-selecing the Empty Value Option
+                const valueAfterDeslection = valueis === "anyvalue" ? emptyOptionLabel : "";
+
+                await emptyOption.evaluate((node: ComboboxOption) => (node.selected = false));
+                await expect(selectedOption).not.toBeAttached();
+                await expect(combobox).toHaveText(valueAfterDeslection);
+                await expect(combobox).toHaveComboboxValue(valueAfterDeslection, { form: true });
+
+                // Re-selecing the Empty Value Option
+                await emptyOption.evaluate((node: ComboboxOption) => (node.selected = true));
+                await expect(emptyOption.and(selectedOption)).toBeAttached();
+                await expect(combobox).toHaveSyncedComboboxValue(
+                  { label: emptyOptionLabel, value: "" },
+                  { form: true, matchingLabel: true },
+                );
               });
             });
           });
