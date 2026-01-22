@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.2
+
+### Bug Fixes
+
+- When an `option` belonging to an `anyvalue` `combobox` is _programmatically_ deselected, cause the `combobox`'s value to correctly fallback to its text content. ([0b0a3cf](https://github.com/ITenthusiasm/custom-elements/commit/0b0a3cffc07e007feb35ecc64bb6a07b88a094e4))
+- When an Empty Value Option is selected for a `clearable`/`anyvalue` `combobox` whose value and text content are _both_ an empty string (`""`), ensure that the `combobox`'s text content is still updated to match the newly-selected option. ([0b0a3cf](https://github.com/ITenthusiasm/custom-elements/commit/0b0a3cffc07e007feb35ecc64bb6a07b88a094e4))
+
 ## 1.0.1
 
 ### Bug Fixes
