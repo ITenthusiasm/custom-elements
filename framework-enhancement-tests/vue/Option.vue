@@ -7,7 +7,11 @@ const mounted = inject(mountedKey);
 </script>
 
 <template>
-  <combobox-option v-if="mounted" v-bind="$attrs" :selected.attr="$attrs.selected ? true : undefined">
+  <combobox-option
+    v-if="mounted"
+    v-bind="$attrs"
+    :selected.attr="$attrs.selected == null || $attrs.selected === false ? undefined : true"
+  >
     <slot></slot>
   </combobox-option>
   <option v-else v-bind="$attrs">
