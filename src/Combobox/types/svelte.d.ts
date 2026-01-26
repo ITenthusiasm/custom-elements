@@ -31,8 +31,10 @@ declare module "svelte/elements" {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- This is required to support ComboboxField attrs
-  interface HTMLSelectAttributes
-    extends Omit<HTMLComboboxFieldAttributes<HTMLSelectElement>, "onfilterchange" | "on:filterchange"> {}
+  interface HTMLSelectAttributes extends Omit<
+    HTMLComboboxFieldAttributes<HTMLSelectElement>,
+    "onfilterchange" | "on:filterchange"
+  > {}
 
   interface HTMLComboboxOptionAttributes extends HTMLAttributes<ComboboxOption> {
     defaultSelected?: ComboboxOption["defaultSelected"] | null;

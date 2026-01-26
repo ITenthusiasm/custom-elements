@@ -37,8 +37,10 @@ declare module "solid-js" {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- This is required to support ComboboxField props
-    interface SelectHTMLAttributes<T>
-      extends Omit<ComboboxFieldHTMLAttributes<T>, "onFilterchange" | "onfilterchange" | "on:filterchange"> {}
+    interface SelectHTMLAttributes<T> extends Omit<
+      ComboboxFieldHTMLAttributes<T>,
+      "onFilterchange" | "onfilterchange" | "on:filterchange"
+    > {}
 
     interface ComboboxOptionHTMLAttributes<T> extends HTMLAttributes<T> {
       disabled?: ComboboxOption["disabled"];

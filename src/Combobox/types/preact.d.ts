@@ -30,8 +30,10 @@ declare module "preact" {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- This is required to support ComboboxField props
-    interface SelectHTMLAttributes<T extends EventTarget = HTMLSelectElement>
-      extends Omit<ComboboxFieldHTMLAttributes<T>, "onfilterchange"> {}
+    interface SelectHTMLAttributes<T extends EventTarget = HTMLSelectElement> extends Omit<
+      ComboboxFieldHTMLAttributes<T>,
+      "onfilterchange"
+    > {}
 
     interface ComboboxOptionHTMLAttributes<T extends EventTarget = ComboboxOption> extends HTMLAttributes<T> {
       defaultSelected?: Signalish<ComboboxOption["defaultSelected"] | undefined>;
