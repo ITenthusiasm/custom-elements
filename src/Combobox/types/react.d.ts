@@ -22,8 +22,10 @@ declare module "react" {
     onfilterchangeCapture?: ReactEventHandler<T>;
   }
 
-  interface SelectHTMLAttributes<T>
-    extends Omit<ComboboxFieldHTMLAttributes<T>, "filter" | "onfilterchange" | "onfilterchangeCapture"> {
+  interface SelectHTMLAttributes<T> extends Omit<
+    ComboboxFieldHTMLAttributes<T>,
+    "filter" | "onfilterchange" | "onfilterchangeCapture"
+  > {
     filter?: "";
   }
 
