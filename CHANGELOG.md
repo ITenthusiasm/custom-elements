@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.3
+
+### Changes
+
+- Skip `attributeChangedCallback` if no `<fieldset>` exists ([db1aadd](https://github.com/ITenthusiasm/custom-elements/commit/db1aadd0753d0bf5eeaef9fb72916e563296667f))
+  - This helps React in scenarios where it creates the `<checkbox-group>` and alters one of its observed attributes _before_ attaching the mandatory `<fieldset>` to it.
+
 ## 1.0.2
 
 ### Bug Fixes
