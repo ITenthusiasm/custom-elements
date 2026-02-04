@@ -40,6 +40,7 @@ class CheckboxGroup extends HTMLElement {
    */
   attributeChangedCallback(_name, _oldValue, _newValue) {
     // NOTE: If we're only watching constraint-related attributes, then we only need to re-run validation here.
+    if (!this.fieldset) return; // eslint-disable-line @typescript-eslint/no-unnecessary-condition -- Check needed here.
     this.#validateConstraints();
   }
 
