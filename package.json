@@ -43,7 +43,7 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-hook-form": "^7.71.1",
-    "solid-js": "^1.9.10",
+    "solid-js": "^1.9.11",
     "svelte": "^5.47.1",
     "svelte-check": "^4.3.5",
     "typescript": "^5.9.3",
