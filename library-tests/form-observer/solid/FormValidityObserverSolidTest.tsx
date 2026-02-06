@@ -61,20 +61,19 @@ function FormValidityObserverSolidTest() {
             pattern: {
               render: true,
               value: "(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}",
-              message({ value }: HTMLInputElement) {
-                return `
-                  <div style="color: var(--color)">
-                    <div>Password Requirements</div>
-                    <ul>
-                      <li data-password-requirement-valid="${/[a-z]/.test(value)}">One lowercase letter</li>
-                      <li data-password-requirement-valid="${/[A-Z]/.test(value)}">One uppercase letter</li>
-                      <li data-password-requirement-valid="${/\d/.test(value)}">One number</li>
-                      <li data-password-requirement-valid="${/[@$!%*?&]/.test(value)}">One special character</li>
-                      <li data-password-requirement-valid="${value.length >= 8}">8 characters minimum</li>
-                    </ul>
-                  </div>
-                `;
-              },
+              // NOTE: For some reason `@once` isn't being picked up here. Likely a build issue since it works in other apps.
+              message: ({ value }: HTMLInputElement) => (
+                <div style="color: var(--color)">
+                  <div>Password Requirements</div>
+                  <ul>
+                    <li data-password-requirement-valid={/* @once */ /[a-z]/.test(value)}>One lowercase letter</li>
+                    <li data-password-requirement-valid={/* @once */ /[A-Z]/.test(value)}>One uppercase letter</li>
+                    <li data-password-requirement-valid={/* @once */ /\d/.test(value)}>One number</li>
+                    <li data-password-requirement-valid={/* @once */ /[@$!%*?&]/.test(value)}>One special character</li>
+                    <li data-password-requirement-valid={/* @once */ value.length >= 8}>8 characters minimum</li>
+                  </ul>
+                </div>
+              ),
             },
           })}
         />

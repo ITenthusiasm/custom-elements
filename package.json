@@ -17,12 +17,12 @@
     "format": "prettier --ignore-path .gitignore --write ."
   },
   "devDependencies": {
-    "@form-observer/core": "^1.0.0",
-    "@form-observer/preact": "^1.0.0",
-    "@form-observer/react": "^1.0.0",
-    "@form-observer/solid": "^1.0.0",
-    "@form-observer/svelte": "^1.0.0",
-    "@form-observer/vue": "^1.0.0",
+    "@form-observer/core": "^1.0.1",
+    "@form-observer/preact": "^1.0.1",
+    "@form-observer/react": "^1.0.1",
+    "@form-observer/solid": "^1.0.1",
+    "@form-observer/svelte": "^1.0.1",
+    "@form-observer/vue": "^1.0.1",
     "@playwright/test": "^1.57.0",
     "@preact/preset-vite": "^2.10.2",
     "@sveltejs/vite-plugin-svelte": "^6.2.4",
