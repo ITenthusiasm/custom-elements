@@ -205,39 +205,6 @@ import type {} from "@itenthusiasm/custom-elements/types/dom";
 const checkboxGroup = document.querySelector("checkbox-group");
 ```
 
-## Accessibility
-
-For accessibility purposes, it is recommended to render your grouped `checkbox`es using HTML that semantic and clear. Instead of using the generic and vague `<div>` element, prefer using the list-related elements such as `<ul>` and `<li>`:
-
-```html
-<form>
-  <checkbox-group min="2" max="4">
-    <fieldset>
-      <legend>Toppings</legend>
-
-      <ul>
-        <li>
-          <input id="pepperoni" name="toppings" type="checkbox" value="pepperoni" checked />
-          <label for="pepperoni">Pepperoni</label>
-        </li>
-
-        <li>
-          <input id="sausage" name="toppings" type="checkbox" value="sausage" />
-          <label for="sausage">Sausage</label>
-        </li>
-
-        <li>
-          <input id="onions" name="toppings" type="checkbox" value="onions" />
-          <label for="onions">Onions</label>
-        </li>
-      </ul>
-    </fieldset>
-  </checkbox-group>
-</form>
-```
-
-This is recommended because it will enable Screen Readers to see and announce the number of `checkbox`es in a list if the markup structure shown above is used. This helps your users know where they are, and what they should expect.
-
 ## CSS Styles
 
 Because the `<checkbox-group>` is simply a wrapper around the `<fieldset>` element, it does not need any custom CSS. Therefore, the library does not ship any custom CSS for this component. You can style the `<checkbox-group>`, `<fieldset>`, and other elements as usual.
