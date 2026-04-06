@@ -20,7 +20,7 @@ Here are some examples of these already-solved problems:
 
 [^1]: Yes, the astute among you will note that there are some limitations with the browser's native form validation. I will address that concern later in this article. Stay with me.
 
-By attempting to solve the **_state management_** problem which browsers have _already solved_, form libraries end up re-inventing the wheel: Instead of using `FormData`, they re-create and manage the entire form's state in a separate JS object; instead of leveraging a field's `ValidityState`, they re-create and track their own error messages; and so on. Unfortunately, this means many form libraries bring more overhead and bundle size bloat than they're worth. And in some cases, their [wheel](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/disabled) reinvention produces [unexpected bugs](https://github.com/react-hook-form/react-hook-form/issues/6690).
+By attempting to solve the **_state management_** problem which browsers have _already solved_, form libraries end up re-inventing the wheel: Instead of using `FormData`, they re-create and manage the entire form's state in a separate JS object; instead of leveraging a field's `ValidityState`, they re-create and track their own error messages; and so on. Unfortunately, this means many form libraries bring more overhead and bundle size bloat than they're worth. And in some cases, their [wheel reinvention](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/disabled) produces [unexpected bugs](https://github.com/react-hook-form/react-hook-form/issues/6690).
 
 So why are all of these form libraries re-inventing the wheel? Well, it's because they're trying to solve the _real_ problem the _wrong_ way. **_The real problem isn't that developers need more-sophsiticated form state management libraries. Rather, it's that they need custom components which can integrate directly with native forms._** When developers attempt to solve this problem by creating form state management libraries, they are _forced_ to re-invent what browsers already do, often leading to edge-case bugs, more verbose code, and unnecessary bundle size bloat.
 
@@ -56,7 +56,7 @@ export default function SignUpForm() {
 }
 ```
 
-The browser will validate these form fields whenever the user attempts to submit the form. Assuming that the regexes which you supply to the [`pattern`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/pattern) attributes are correct, the browser will prevent form submission as long as the `email` and `password` fields are empty or malformed. Additionally, it will display an error message for any field that is invalid. Once the user has corrected the form data, the browser will allow the user to submit it to `<MY_URL>`.
+The browser will validate these form fields whenever the user attempts to submit the form. Assuming that the regexes which you supply to the [`pattern`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/pattern) attributes are correct, the browser will prevent form submission if the `email` and `password` fields are empty or malformed. Additionally, it will display an error message for any field that is invalid. Once the user has corrected the form data, the browser will allow the user to submit it to `<MY_URL>`.
 
 If you prefer to handle the validation manually, you can give the `<form>` element the [`novalidate`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#novalidate) attribute and perform the validation in a `submit` handler.[^2]
 
@@ -76,7 +76,7 @@ export default function SignUpForm() {
 }
 ```
 
-[^2]: Again, the astute among you will know of the limitations of [`HTMLFormElement.reportValidity()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/reportValidity), as well as the limitations of _overly-complex_ `pattern` settings. As I said before, we will address these concerns later. For now, let's assume that `reportValidity()` meets every developer's error messaging needs, and that `pattern` is sufficient. And let's stay focused on the topic of _why_ native form controls are what developers _really_ need.
+[^2]: Again, the astute among you will know of the limitations of [`HTMLFormElement.reportValidity()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/reportValidity), as well as the inconveniences of _overly-complex_ `pattern` settings. As I said before, we will address these concerns later. For now, let's assume that `reportValidity()` meets every developer's error messaging needs, and that `pattern` is sufficient. And let's stay focused on the topic of _why_ native form controls are what developers _really_ need.
 
 And if you prefer to perform the API request manually as well, you're welcome to do so:
 
@@ -146,7 +146,7 @@ Assuming that you're trying to meet the accessibility requirements for `combobox
 
 > Note: We won't be doing a deep dive on accessibility attributes or [`data-*` attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/How_to/Use_data_attributes) here. To learn more about accessible `combobox`es, see [MDN's Documentation](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/combobox_role).
 
-Of course, the `<Select>` component will have to implement the JS logic needed to make it work properly. This includes implementing the logic for option navigation, tracking the currently-selected value, and updating the option label displayed by the `div[role="combobox"]`.
+Of course, the `<Select>` component will have to implement the JS logic needed to make the component function properly. This includes implementing the logic for option navigation, tracking the currently-selected value, and updating the option label displayed by the `div[role="combobox"]`.
 
 Unfortunately, the value that the `<Select>` component maintains internally _will not_ be visible to the native `HTMLFormElement`. And this is where things start to go **_horribly_** wrong.[^3]
 
@@ -231,7 +231,7 @@ Thanks to the power of [event delegation](https://gomakethings.com/why-is-javasc
 
 Although the solution above may look clever, there are two noteworthy problems with it:
 
-**_First, custom React components like the `<Select>` component DO NOT have a real [`ValidityState`](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState) that the native `<form>` element can run validation against when `form.reportValidity()` is called._** This means that we're stuck in a similar situation as before: Our error states are spilt between the real form controls and reactive state. And yet again, we'll have to resolve this issue by creating event listeners that pump every native form control's error state into a stateful `error` object.
+**_First, custom React components like the `<Select>` component DO NOT have a real [`ValidityState`](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState) against which the native `<form>` element can run validation when `form.reportValidity()` is called._** This means that we're stuck in a similar situation as before: Our error states are split between the real form controls and reactive state. And yet again, we're forced to resolve this issue by creating event listeners that pump every native form control's browser-managed state into a stateful object in React.
 
 ```tsx
 const [errors, setErrors] = useState<Record<string, string>>({});
@@ -258,17 +258,17 @@ const [errors, setErrors] = useState<Record<string, string>>({});
 
 **_But once you start splitting out nested sub-components, you'll have to use something like [React Context](https://react.dev/learn/scaling-up-with-reducer-and-context) (or [egregious prop drilling](https://kentcdodds.com/blog/prop-drilling)) to ensure that every native form control AND custom React component can properly access/update the entire form's state (including error states, etc.)._**
 
-Both of these concerns are worsened by the fact that you will probably have to work with **_even more_** kinds of custom React Components which are meant to _look_ like form fields yet fail to actually _integrate_ with the native `<form>` element. (And we haven't even addressed how all of this forces decisions on your server's architecture; we don't have time to either.)
+Both of these concerns are worsened by the fact that you will probably have to work with **_even more_** kinds of custom React Components which are meant to _look_ like form fields yet fail to actually _integrate_ with the native `<form>` element. (And we haven't even addressed how all of this forces certain decisions on your server's architecture; we don't have time to either.)
 
-It very quickly becomes apparent to you that this is getting **_way_** out of hand, and you **_don't_** want to write all of the form/error/whatever state management logic yourself. (Who would?) This is likely where you reach for a form library, but most form libraries unfortunately _shove you further_ down the slippery slope instead of helping you escape it. **_Remember: All of these problems originated because our custom React Components DID NOT integrate with the native `<form>` element._**
+It very quickly becomes apparent to you that this is getting **_way_** out of hand, and you **_don't_** want to write all of the form/error/whatever state management logic yourself. (Who would?) This is likely where you reach for a form library. But most form libraries unfortunately _shove you further_ down the slippery slope instead of helping you escape it. **_Remember: All of these problems originated because our custom React Components DID NOT integrate with the native `<form>` element._**
 
-The simple solution to this problem is to create a component which _can_ integrate with the native `<form>` element. For example, instead of using a `<div role="combobox">`, our `<Select>` component could use a [form-associated](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/attachInternals) Custom Element which leverages [`ElementInternals`](https://developer.mozilla.org/en-US/docs/Web/API/ElementInternals) to [set its own form value](https://developer.mozilla.org/en-US/docs/Web/API/ElementInternals/setFormValue) and [`ValidityState`](https://developer.mozilla.org/en-US/docs/Web/API/ElementInternals/setValidity). If this approach was used for the `<Select>` component, then we wouldn't need any of this crazy form state management at all.
+The simple solution to this problem is to create a component which [_can_](https://web.dev/articles/more-capable-form-controls#form-associated_custom_elements) integrate with the native `<form>` element. For example, instead of using a `<div role="combobox">`, our `<Select>` component could use a [form-associated](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/attachInternals) Custom Element which leverages [`ElementInternals`](https://developer.mozilla.org/en-US/docs/Web/API/ElementInternals) to [set its own form value](https://developer.mozilla.org/en-US/docs/Web/API/ElementInternals/setFormValue) and [`ValidityState`](https://developer.mozilla.org/en-US/docs/Web/API/ElementInternals/setValidity). If this approach was used for the `<Select>` component, then we wouldn't need any of this crazy React state management at all.
 
-However, since many form libraries tend to address the **_symptomatic_** form state management problem instead of the **_root_/_causal_** native `<form>` integration problem, they push developers further down the slippery slope of crazy state management. Let's explore what that looks like further...
+Sadly, since many form libraries tend to address the **_symptomatic_** form state management problem instead of the **_root_/_causal_** native `<form>` integration problem, they push developers further down the slippery slope of crazy state management. Let's further explore what that looks like...
 
 ## How Form Libraries Push You _Further_ Down the Slope
 
-We (understandably) acknowledge that we don't want to write our own form state management library. So we download an NPM form library like `React Hook Form` or `TanStack Form`. Let's go with `React Hook Form` since `TanStack Form`'s syntax is egregiously (and likely unnecessarily) verbose. After adopting `React Hook Form`, our code might look something like this:
+We (understandably) acknowledge that we don't want to write our own form state management library. So we download an NPM form library like `React Hook Form` or `TanStack Form`. Let's go with `React Hook Form` since `TanStack Form`'s syntax is unpleasantly (and perhaps unnecessarily) verbose. After adopting `React Hook Form`, our code might look something like this:
 
 ```tsx
 import { useForm, FormProvider } from "react-hook-form";
@@ -370,11 +370,11 @@ export default function SignUpForm() {
 }
 ```
 
-Your custom form fields (e.g., `<Select>`) would have had to integrate with React Hook Form using `useFormContext()` anyway; so you don't feel bad about imposing it everywhere else. However, one thing that is underestimated here is how deeply (and perhaps unhealthily) this couples your application with React Hook Form.
+Your custom form fields (e.g., `<Select>`) would have had to integrate with React Hook Form using `useFormContext()` anyway; so you don't feel bad about imposing that constraint everywhere else. However, one thing that is underestimated here is how deeply (and perhaps unhealthily) this couples your application with React Hook Form.
 
-Now you won't be able to use a single one of your primitive form controls without a `<FormProvider>` from `React Hook Form`. (This is an odd DX.) You're also setting yourself up for a headache if the library ever stops being maintained, or it puts you in a position where you're not able to upgrade other NPM packages easily.
+Now you won't be able to use a single one of your primitive form controls without a `<FormProvider>` from `React Hook Form`. (This is an odd DX.) You're also setting yourself up for a headache if the library ever stops being maintained, or if it puts you in a position where you're not able to upgrade other NPM packages easily.
 
-I encountered the former problem at a large, publicly-traded company (which I cannot disclose). We used [Redux Form](https://redux-form.com/8.3.0/). But Redux Form stopped being maintained because people started realizing its complications and performance issues. Yet all of our components were linked to Redux Form, and we couldn't perform certain critical package upgrades for as long as we kept a dependency on it. So we had to migrate **_all_** of our form controls from Redux Form to another library, _then_ perform the necessary package updates. But... this put us back in a position where we were waiting for the next package migration problem...
+I encountered the former problem at a large, publicly-traded company. We used [Redux Form](https://redux-form.com/8.3.0/). But Redux Form stopped being maintained because people started realizing its complications and performance issues. Yet all of our components were linked to Redux Form, and we couldn't perform certain critical package upgrades for as long as we kept a dependency on it. So we had to migrate **_all_** of our form controls from Redux Form to another library, _then_ perform the necessary package updates. But... this put us back in a position where we were waiting for the next package migration problem...
 
 I encountered the latter problem at a different company. We were using [`@hookform/resolvers`](https://www.npmjs.com/package/@hookform/resolvers) to enable us to use [`zod`](https://zod.dev/) in conjunction with [`react-hook-form`](https://react-hook-form.com/). We were interested in migrating Zod from version 3 to version 4, but that was impossible with our existing version of `react-hook-form`, which we didn't want to upgrade to newer major versions lest we encounter unexpected, application-wide breaking changes. So we were stuck and stayed at Zod 3.
 
@@ -449,25 +449,27 @@ export default function SignUpForm() {
 
 Since the `<Select>` component renders a form control that integrates with the native `<form>` element, we no longer need reactive state or React Context. The `FormData` (and the `HTMLFormElement` itself) will already have access to every `<Select>` component's form value, no matter how deeply nested the form control is. Additionally, `form.reportValidity()` will work again because the form-associated Custom Element used by the `<Select>` component maintains and exposes its own [`ValidityState`](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState).
 
-Now our application is simplier _and_ more performant because: 1&rpar; It no longer requires large reactive state objects, 2&rpar; It doesn't require us to learn a form state management library, and 3&rpar; It doesn't require us to add an entire form library to our application's bundle size. As an added bonus, this also makes our app more resilient because upgrades will no longer be blocked by a form library's deprecation (or other limitations).
+Now our application is simpler _and_ more performant because: 1&rpar; It doesn't require large reactive state objects, 2&rpar; It doesn't require us to learn how to use a form state management library, and 3&rpar; It doesn't require us to add an entire form library to our application's bundle size. As an added bonus, this also makes our app more resilient because package upgrades will no longer be blocked by a form library's deprecation (or other limitations).
 
 ## It's Time to Move Forward
 
-I know that was a lot to read. But hopefully it all gave you deeper insight into what the **_real_** problem with modern web forms is, and why form state management libraries **_are not_** its solution. (That said, I could foresee someone creating a _very-lightweight_ form library that simplifies things by requiring developers to integrate every field with the native web `<form>`.)
+I know that was a lot to read. But hopefully it all gave you deeper insight into what the **_real_** problem with modern web forms is, and why form state management libraries **_are not_** its solution. (That said, I could foresee someone creating a _very-lightweight_ form library which simplifies code by requiring developers to integrate every field with the native web `<form>`.)
 
-React Hook Form was a **_brilliant_** solution back when form-associated Custom Elements weren't yet [`Baseline Widely Available`](https://developer.mozilla.org/en-US/docs/Glossary/Baseline/Compatibility) in browsers. (For stateful form libraries that appeared _after_ we obtained widely-available form-associated Custom Elements... well... they don't really have an excuse. 😅) But times have changed!
+React Hook Form was a **_brilliant_** solution back when form-associated Custom Elements weren't yet [`Baseline Widely Available`](https://developer.mozilla.org/en-US/docs/Glossary/Baseline/Compatibility) in browsers. (And the form state management libraries that appeared _after_ we obtained widely-available form-associated Custom Elements? ... Well... they don't really have an excuse. 😅)
 
-We no longer need to pull everything into reactive state. Why? **_Because now we're able to integrate everything into the native `<form>` element's state instead_**. This saves us from having to partake in any form library's wheel re-inventions (and the unexpected bugs that come from doing so).
+But times have changed! We no longer need to pull everything into reactive state. Why? **_Because now we're able to integrate everything into the native `<form>` element's state instead_**. This saves us from having to partake in any form library's wheel re-inventions (and the unexpected bugs that come from doing so).
 
-When you use a form library, you're forced to build your custom components (like the `<Select>` and `<Input>` shown above) in a way that integrates with your library (e.g., `React Hook Form`). But if you're going to integrate your components with some kind of tool anyway, why not integrate them with the browser's native features instead of a form library? Integrating your components with the browser's `<form>` element will give you all the features you need, but without any bundle size bloat, performance degradation, risks of library deprecation, or any other problems.
+When you use a form library, you're forced to build your custom components (like the `<Select>` and `<Input>` shown above) in a way that integrates with your library (e.g., `React Hook Form`). But if you're going to integrate your components with some kind of tool anyway, why not integrate them with the browser's native features instead of a form library? Integrating your components with the browser's `<form>` element will give you all the features you need, but without any bundle size bloat, performance degradation, risk of library deprecation, or any other problems.
 
 ## Regarding Error Handling...
 
 Okay, now for the elephant in the room: **_Accessible_**, **_User-friendly_** Error handling!
 
-Yes, I will readily admit that the browser's native solutions for error handling are lackluster. Browsers do a great job at managing error states and error messages! But _displaying_ those error messages is where they fall short: Browsers only show error messages to the user for one field at a time (meaning that the user has to submit an invalid form _multiple_ times to know what every field's problem is), and these messages aren't very appealing to the eye.
+Yes, I will readily admit that the browser's native solutions for error handling are lackluster. Browsers do a great job at managing error states and error messages! But _displaying_ those error messages is where they fall short: Browsers only show error messages to the user for one field at a time (meaning that the user has to submit an invalid form _multiple times_ to know what every field's problem is), and these messages aren't very appealing to the eye.
 
-That said, it is a _very trivial matter_ to create a delegated event listener that [looks at each part of an element's `ValidityState` and renders the correct error message to the DOM](https://github.com/enthusiastic-js/form-observer/blob/main/packages/core/FormValidityObserver.js#L337-L358) &mdash; whether by rendering the error directly to the DOM, or by rendering it to a stateful "Errors Object" which in turn renders error strings to the DOM by field name (e.g., `errors.email`). The [`FormValidityObserver`](https://github.com/enthusiastic-js/form-observer/tree/main/docs/form-validity-observer) provided by the [`@form-observer/core`](https://www.npmjs.com/package/@form-observer/core) NPM Package does this for you. But you're welcome to build this yourself if you prefer.
+That said, it is a _very trivial matter_ to create a delegated event listener that [looks at each part of an element's `ValidityState` and renders the correct error message to the DOM](https://github.com/enthusiastic-js/form-observer/blob/main/packages/core/FormValidityObserver.js#L337-L358) &mdash; whether by rendering the error directly to the DOM, or by storing it in a stateful "Errors Object" whose strings can be rendered to the DOM by your JS Framework (e.g., via `errors.email`).
+
+This is logic that you can easily build out yourself. But if you prefer to use an NPM package, the [`FormValidityObserver`](https://github.com/enthusiastic-js/form-observer/tree/main/docs/form-validity-observer) provided by the [`@form-observer/core`](https://www.npmjs.com/package/@form-observer/core) package does this for you.
 
 Below is an example using the `FormValidityObserver`:
 
@@ -476,7 +478,7 @@ import { useState } from "react";
 import { FormValidityObserver } from "@form-observer/core";
 
 // Create an observer which validates fields on `blur`, and re-validates them on `input` after `blur` or `submit`.
-const observer = useMemo(() => new FormValidityObserver("focousout", { revalidateOn: "input" }), []);
+const observer = new FormValidityObserver("focousout", { revalidateOn: "input" });
 
 // React 19 Callback Ref to observe the `<form>` on mount and unobserve it on unMount.
 function autoObserve(element: HTMLFormElement) {
@@ -488,7 +490,7 @@ function autoObserve(element: HTMLFormElement) {
 export default function SignUpForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault(); // Prevent the browser submitting the form at all. We will submit the data manually.
+    event.preventDefault(); // Prevent the browser from submitting the form at all. We will submit the data manually.
     const form = event.currentTarget;
     const valid = observer.validateFields({ focus: true });
     if (!valid) return;
@@ -520,7 +522,7 @@ export default function SignUpForm() {
         type="password"
         pattern="<PASSWORD_REGEX>"
         required
-        aria-describedby="email-error"
+        aria-describedby="password-error"
       />
       <div id="password-error" role="alert"></div>
 
@@ -584,7 +586,7 @@ export default function SignUpForm() {
         id="password"
         type="password"
         required
-        aria-describedby="email-error"
+        aria-describedby="password-error"
         {...configure("password", { pattern: { value: "<PASSWORD_REGEX>", message: "Weak Password..." } })}
       />
       <div id="password-error" role="alert"></div>
@@ -599,9 +601,11 @@ export default function SignUpForm() {
 }
 ```
 
-You'll notice that because `createFormValidityObserver` doesn't rely on any state, it _does not_ have to be created within the React Component (freeing you from having to use `useMemo()` or `useCallback()`). You can simply export the `observer` object and import it directly into the sub components in your forms as needed. The regular `FormValidityObserver` class has the same advantage because it does not rely on reactive state either.
+You'll notice that because `createFormValidityObserver` doesn't rely on any state, it _does not_ have to be created within the React Component. This frees you from having to use hooks like `useMemo()` or `useCallback()`.
 
-By default, the `FormValidityObserver` will render error messages directly to the DOM. This is safe to do both in pure JS applications _and_ in JS Frameworks. However, if you prefer to render your error messages with reactive state, you are welcome to do so. It will just mean you'll have to introduce React Context again to make sure your nested form sections know if they should render any error messages.
+The fact that the observer can be created outside the `<SignUpForm>` also means you can share helper functions more easily. Instead of using React Context, you can simply export the `observer` object from `<SignUpForm>` and import it directly into the sub-sections of your forms as needed (e.g., `<BillingAddressSubForm>`). The regular `FormValidityObserver` class has the same advantage because it does not rely on reactive state either.
+
+By default, the `FormValidityObserver` will render error messages directly to the DOM. This is safe to do both in pure JS applications _and_ in JS Frameworks. However, if you prefer to render your error messages by using reactive state, you are welcome to do so. Just know that doing so will require you to introduce React Context again to ensure that your nested form sections know when they should render error messages.
 
 You can learn more about how to accomplish these feats and more by looking at the [documentation](https://github.com/enthusiastic-js/form-observer/tree/main/docs/form-validity-observer) for the `FormValidityObserver` and its framework-specific convenience wrappers.
 
@@ -609,12 +613,12 @@ You can learn more about how to accomplish these feats and more by looking at th
 
 We're in a new era of web form development in 2026. Now that form-associated Custom Elements are Baseline Widely Available, we can reclaim all of the form state management features that browsers have provided out-of-the box for years. We no longer have to adopt form state management libraries or the baggage/risks which they bring.
 
-If you _must_ reach for a form library, try one that addresses the _remainder_ of the browser's unresolved problems instead of reaching for libraries which effectively re-invent all of the browser's features (and push you down a slippery slope of complex state management in the process). This will give you several benefits, as described above. Some especially useful benefits are:
+If you _must_ reach for a form library, try one that addresses the _remainder_ of your form's needs instead of reaching for libraries which effectively re-invent all of the browser's features (and push you down a slippery slope of complex state management in the process). This will give you several benefits, as described above. Some especially useful benefits are:
 
 1. Simpler code maintenance
 2. Reduced application bundle size
 3. Reduced road blocks to package upgrades (and/or greater pivoting ease if your library becomes deprecated/unusable)
 
-The `@form-observer/core` package (and friends) is one such solution. But you don't have to try the library that I'm shilling. 🙂 You can try another one that does something similar, or write your own delegated event listener if you prefer.
+The `@form-observer/core` package (and friends) is _one_ such solution. But you don't have to try the library that I'm shilling. 🙂 You can try another one that does something similar, or write your own delegated event listener(s).
 
-_P.S.: If you think tools like `React Native` are a reason to reach for libraries like `React Hook Form` or `TanStack Form`, then check out [`Tauri`](https://v2.tauri.app/). It allows you to build mobile apps using a phone's native webview. To oversimplify things, this native webview is a lightweight browser that already exists on users' devices, so you'll still be able to use libraries like the `FormValidityObserver` which rely on the browser's native `<form>` features. And you'll be able to do so in whichever framework you want, not just React!_
+_P.S.: If you think tools like `React Native` are a reason to reach for libraries like `React Hook Form` or `TanStack Form`, then check out [`Tauri`](https://v2.tauri.app/). It allows you to build desktop/mobile apps using a device's native webview. To oversimplify things, this native webview is a lightweight browser that already exists on users' devices; so you'll be able to use a library like the `FormValidityObserver` in desktop/mobile apps even though it relies on the browser's native `<form>` features. And you'll be able to build your native apps in whichever framework you want, not just React!_
