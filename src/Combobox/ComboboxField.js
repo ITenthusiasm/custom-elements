@@ -823,11 +823,12 @@ class ComboboxField extends HTMLElement {
    * @returns {void}
    */
   static #handleMousedown(event) {
+    if (event.button !== 0) return; // Only acknowledge "Primary" clicks
     const combobox = /** @type {ComboboxField} */ (event.currentTarget);
     if (/** @type {Document | ShadowRoot} */ (combobox.getRootNode()).activeElement === combobox) return;
 
     combobox.setAttribute("data-mousedown", "");
-    combobox.addEventListener("mouseup", () => combobox.removeAttribute("data-mousedown"), { once: true });
+    document.addEventListener("mouseup", () => combobox.removeAttribute("data-mousedown"), { once: true });
   }
 
   /**
