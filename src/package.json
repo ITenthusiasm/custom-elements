@@ -27,6 +27,8 @@
     "ui",
     "form",
     "combobox",
+    "checkbox",
+    "menu",
     "html",
     "js",
     "framework-agnostic",
