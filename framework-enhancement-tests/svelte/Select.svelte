@@ -1,16 +1,3 @@
-{#if mounted}
-  <select-enhancer>
-    <combobox-field {...rest}></combobox-field>
-    <combobox-listbox>
-      {@render children?.()}
-    </combobox-listbox>
-  </select-enhancer>
-{:else}
-  <select {...(rest as HTMLComboboxFieldAttributes<HTMLSelectElement>)}>
-    {@render children?.()}
-  </select>
-{/if}
-
 <script lang="ts" module>
   import { createContext } from "svelte";
 
@@ -28,3 +15,16 @@
   setSelectContext(() => mounted);
   onMount(() => (mounted = true));
 </script>
+
+{#if mounted}
+  <select-enhancer>
+    <combobox-field {...rest}></combobox-field>
+    <combobox-listbox>
+      {@render children?.()}
+    </combobox-listbox>
+  </select-enhancer>
+{:else}
+  <select {...rest as HTMLComboboxFieldAttributes<HTMLSelectElement>}>
+    {@render children?.()}
+  </select>
+{/if}

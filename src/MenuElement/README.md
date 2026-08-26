@@ -257,7 +257,7 @@ As a Custom Element, the `MenuElement` inherits all of the methods and propertie
       The <code><a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement">HTMLElement</a></code> referenced by the <a href="#attributes-menubutton"><code>menubutton</code></a> attribute. Returns <code>null</code> if no element is found (e.g., if the attribute does not point to the <code>id</code> of a valid <code>HTMLElement</code>, or if the element is hidden behind a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_shadow_DOM">shadow boundary</a>).
     </p>
   </dd>
-  
+
   <dt id="properties-menuAnchorElement">
     <a href="#properties-menuAnchorElement"><code>menuAnchorElement</code></a>
   </dt>

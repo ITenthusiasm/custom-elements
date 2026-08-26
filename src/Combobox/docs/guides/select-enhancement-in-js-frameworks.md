@@ -257,7 +257,7 @@ In Svelte, we'll need to use 2 files:
     </combobox-listbox>
   </select-enhancer>
 {:else}
-  <select {...(rest as HTMLComboboxFieldAttributes<HTMLSelectElement>)}>
+  <select {...rest as HTMLComboboxFieldAttributes<HTMLSelectElement>}>
     {@render children?.()}
   </select>
 {/if}
@@ -268,7 +268,7 @@ In Svelte, we'll need to use 2 files:
   /* Option.svelte */
   import { onMount } from "svelte";
   import type { HTMLComboboxOptionAttributes } from "svelte/elements";
-  import type { ComboboxOption } from "@itenthusiasm/custom-elements/Combobox"
+  import type { ComboboxOption } from "@itenthusiasm/custom-elements/Combobox";
   import { getSelectContext } from "./Select.svelte";
 
   let { children, ...rest }: HTMLComboboxOptionAttributes = $props();

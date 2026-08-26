@@ -1,3 +1,10 @@
+<script lang="ts">
+  import Select from "./Select.svelte";
+  import Option from "./Option.svelte";
+
+  const options = ["First", "Second", "Third", "Fourth", "Fifth"];
+</script>
+
 <form>
   <Select name="ranking" filter>
     {#each options as rank, i}
@@ -7,10 +14,3 @@
     {/each}
   </Select>
 </form>
-
-<script lang="ts">
-  import Select from "./Select.svelte";
-  import Option from "./Option.svelte";
-
-  const options = ["First", "Second", "Third", "Fourth", "Fifth"];
-</script>

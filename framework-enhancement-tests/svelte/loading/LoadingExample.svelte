@@ -90,7 +90,6 @@
       onkeydown={handleKeydown}
       onfilterchange={handleFilterchange}
     >
-
       {#each options as { id, name } (id)}
         <Option value={id}>{name}</Option>
       {/each}

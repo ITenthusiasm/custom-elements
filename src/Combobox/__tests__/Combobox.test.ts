@@ -6654,7 +6654,7 @@ for (const { mode } of testConfigs) {
            */
           async function trackEvents<
             C extends "Event" | "InputEvent" | "ToggleEvent",
-            E extends C extends "InputEvent" ? InputEvent : C extends "ToggleEvent" ? ToggleEvent : Event,
+            E extends (C extends "InputEvent" ? InputEvent : C extends "ToggleEvent" ? ToggleEvent : Event),
             T extends "input" | "change" | "filterchange" | "toggle",
           >(target: Page | Locator, event: C, type: T): Promise<(E & { constructor: C })[]> {
             const events: (E & { constructor: C })[] = [];

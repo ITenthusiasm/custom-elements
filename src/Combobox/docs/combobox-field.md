@@ -58,7 +58,7 @@ As a Custom Element, the `ComboboxField` supports all of the [global attributes]
     </p>
     <p>This attribute is reflected by the <a href="#properties-filterMethod"><code>ComboboxField.filterMethod</code></a> property.</p>
   </dd>
-  
+
   <dt id="attributes-valueis">
     <a href="#attributes-valueis"><code>valueis</code></a>
   </dt>
@@ -128,7 +128,7 @@ As a Custom Element, the `ComboboxField` supports all of the [global attributes]
     </p>
     <p>This attribute is reflected by the <a href="#properties-required"><code>ComboboxField.required</code></a> property.</p>
   </dd>
-  
+
   <dt id="attributes-name">
     <a href="#attributes-name"><code>name</code></a>
   </dt>
@@ -259,7 +259,7 @@ As a Custom Element, the `ComboboxField` inherits all of the methods and propert
   <dd>
     Same as the <code>name</code> property found on native form controls (e.g., <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/name"><code>&lt;input&gt;</code></a>): It reflects the value of the <a href="#attributes-name"><code>name</code></a> attribute. Type is <code>string</code>.
   </dd>
-  
+
   <dt id="properties-disabled">
     <a href="#properties-disabled"><code>disabled</code></a>
   </dt>

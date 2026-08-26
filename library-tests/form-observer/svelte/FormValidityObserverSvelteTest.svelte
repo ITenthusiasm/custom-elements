@@ -14,12 +14,12 @@
 
         return `${field.labels?.[0].textContent ?? "This field"} is required.`;
       },
-    }
+    },
   });
 
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
-    const form =  (event.currentTarget) as HTMLFormElement;
+    const form = event.currentTarget as HTMLFormElement;
     const success = await validateFields({ focus: true });
     if (success) alert(JSON.stringify(Object.fromEntries(new FormData(form)), null, 2));
   }
@@ -81,7 +81,7 @@
       {...configure("confirm-password", {
         // NOTE: This function DOES NOT need to be async. It's only async for the sake of example.
         async validate(input: HTMLInputElement) {
-          const password =  input.form?.elements.namedItem("password") as HTMLInputElement;
+          const password = input.form?.elements.namedItem("password") as HTMLInputElement;
           if (input.value !== password.value) return Promise.resolve("Passwords do not match.");
         },
       })}

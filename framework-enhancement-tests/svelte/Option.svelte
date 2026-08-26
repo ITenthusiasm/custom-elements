@@ -1,10 +1,6 @@
-<svelte:element this={mounted() ? "combobox-option" : "option"} bind:this={customElement} {...rest}>
-  {@render children?.()}
-</svelte:element>
-
 <script lang="ts">
   import type { HTMLComboboxOptionAttributes } from "svelte/elements";
-  import type { ComboboxOption } from "@itenthusiasm/custom-elements/Combobox"
+  import type { ComboboxOption } from "@itenthusiasm/custom-elements/Combobox";
   import { getSelectContext } from "./Select.svelte";
 
   let { children, ...rest }: HTMLComboboxOptionAttributes = $props();
@@ -16,3 +12,7 @@
     customElement.defaultSelected = Boolean(rest.selected);
   });
 </script>
+
+<svelte:element this={mounted() ? "combobox-option" : "option"} bind:this={customElement} {...rest}>
+  {@render children?.()}
+</svelte:element>
