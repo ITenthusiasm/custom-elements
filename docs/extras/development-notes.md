@@ -2,6 +2,47 @@
 
 A collection of questions/concerns that I thought through while designing some of the Web Components in this repository.
 
+## Design Decisions for the `MenuElement` (2026-08-21)
+
+### 1&rpar; Enabling/Disabling the `#watchChildNodes` `MutationObserver` on Mount/Unmount
+
+Currently, the `MenuElement` normalizes all of its `menuitems` by setting all of their `tabindex`es to `-1` on mount (or re-mount). It also removes any invalid `Node`s. After the component is mounted to the DOM, it starts up a `#watchChildNodes` `MutationObserver` which does the same thing when new elements are added to it.
+
+During development, we realized that we could actually initialize the `#watchChildNodes` `MutationObserver` _at construction time_ and leave it running forever. This would enable normalization/validation to run even if the `MenuElement` was disconnected from the DOM (kind of like the `<select>`/`<option>` elements, but asynchronously). And since the observer would automatically get garbage collected when the owning `MenuElement` got garbage collected, there'd be no risk of memory leaks with this approach; so it seemed like a good idea.
+
+Unfortunately, wiring up the `MutationObserver` permanently would also mean a [likely minor] memory deficit. Memory almost certainly needs to be allocated for the `MutationObserver` to manage its internal state (queues, watched elements, etc.) while it is running. So the _value_ in keeping the observer permanently active would have to outweight the [likely minor] performance costs and the [likely larger] inconvenience of making new code changes and test updates.
+
+As it turns out, a permanently-active observer wasn't valuable enough to implement... because the option didn't yield anything meaningfully beneficial.
+
+Sure, with a permanently-active `MutationObserver`, children would automatically be normalized/validated when added to the `MenuElement` even if such modifications happened _outside_ the `Document`. But since the `MenuElement` is inoperable outside the `Document`, that's effectively irrelevant. All that matters is that the normalization/validation is guaranteed to happen and to be accurate whenever the `MenuElement` is in the DOM. And between the `connectedCallback()` and the only-active-after-mount `MutationObserver`, this _is_ guaranteed.
+
+Now perhaps there would be value in a permanently-active `MutationObserver` if it would allow us to remove the quasi-duplicated normalization/validation logic from the `connectedCallback()`. However, that isn't the case. Why? Because it's theoretically possible that a developer [`upgrade`s](https://developer.mozilla.org/en-US/docs/Web/API/CustomElementRegistry/upgrade) a `MenuElement` that is already in the DOM and that already has child ndoes. In that case, the `#watchChildNodes` `MutationObserver` won't run because no nodes are being newly added to the component.
+
+So... a permanently-active `MutationObserver` can't enable us to remove logic from `connectedCallback()`... plus, it has more memory overhead. Thus, we chose not to have a permanently-active observer at this time.
+
+### 2&rpar; A `<menu-item>` Web Component Is Unnecessary; Use Regular Elements Instead
+
+A `menuitem` only needs to be focusable and clickable. That, and it needs to tell its owning `menu` when a user selects it. These simple requirements make a full-on Web Component overkill. Event Listeners will do just fine here.
+
+### 3&rpar; Use Regular Focus Management Instead of `aria-activedescendant`
+
+The [`aria-activedescendant`](https://w3c.github.io/aria/#aria-activedescendant) attribute is an alternative way to manage focus for the child elements of `listbox`es, `menu`s, and the like. Instead of using [`HTMLElement.focus()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus) to literally move focus between different items/options in response to keyboard actions, `aria-activedescendant` is used to tell Accessibility Tools which item/option "has focus" and will be selected if `Enter`/`SpaceBar` is pressed. This means that instead of calling `ItemOrOptionElement.focus()` to indicate the currently-active item/option, you call `OwningHtmlElement.setAttribute("aria-activedescendant", "active_item_or_option_id")`.
+
+We used this technique for our `combobox` Web Component in https://github.com/ITenthusiasm/custom-elements because [`combobox`es](https://w3c.github.io/aria/#combobox) effectively require you to manage focus in two places simultaneously: the search input and the options `listbox`. The results were quite nice!
+
+Originally, because we had a good experience with `aria-activedescendant` when building the `combobox`, we thought we'd use the same technique for the `menu` Web Component. However, Sarah Higley's article, [_Aria-activedescendant is not focus_](https://sarahmhigley.com/writing/activedescendant/), stopped us in our tracks. Reading the article taught us a few things:
+
+1. You get auto-scrolling for free when you use real focus management. No need for a `MutationObserver` which watches `aria-activedescendant`, updates `data-active` attributes, and performs calculations to scroll an item into view.[^1]
+2. At least as of 2024-10-16 (i.e., the article's publish date), Accessibility Tools generally seemed to perform better with _real_ focus management when compared against `aria-activedescendant`'s behavior. From some brief skimming, it seems like `aria-activedescendant` was still sufficiently functional; but in some edge/special cases, regular focus management seemed to provide a more powerful UX.
+
+Sarah still advocates for using `aria-activedescendant` when you have to manage 2 kinds of focus simultaneously, as the `combobox` requires. But for other cases, she argues that regular focus management produces simpler code and a better UX.
+
+When we wrote the `combobox` component, `aria-activedescendant` seemed like a life saver because the idea of moving focus back and forth between the `textbox` and the `listbox` as the user pressed different keys sounded like a nightmare. How convoluted would the code get? Would accessibility tools be able to sufficiently understand everything? Wouldn't Visual Users be confused to notice that the cursor _disappears_ from the `textbox` the moment they start navigating the `option`s? The `aria-activedescendant` attribute was simpler and much more reliable there.
+
+Even so, after reading Sarah's article, we realized that `menu`s have nowhere near the same amount of complexity as a `combobox`. For a `combobox`, focus needs to exist on the `textbox` _and_ inside the `listbox` at the same time (so to speak). For a `menu`, focus only needs to remain inside the `menu`. Thus, it is safe, reliable and simple to rely solely on regular focus management (i.e., `HTMLElement.focus()`) for such a use case instead.
+
+[^1]: Admittedly, scrolling items into view yourself gives you more _control_ of how the scrolling UX behaves. For example, if a user moves to the next item, and the next item is not visible within the scrollable container, you can scroll that next item into view manually so that its bottom is flush with the bottom of the scroll container. However, if the browser automatically performs the scrolling for you in response to an item being `:focus`ed, it may scroll the item into view such that it appears in the _center_ of the scroll container rather than appearing near or being flush with the bottom. This is a trade-off. You can likely rely on the browser's scrolling to be more performant than yours, and you're also saved from bloating your bundle with extra JS, but this means you can't force the scrolling UX to look exactly how you want. It's worth considering how this might impact user expectations. Ideally, all similarly-looking components would scroll in the same manner. However, if you're using regular focus management on elements which should virtually never need to scroll, like `menu`s, then this isn't a practical concern. Besides, with regular focus management, you should still be able to force your own scrolling behavior with a [`focusin`](https://developer.mozilla.org/en-US/docs/Web/API/Element/focusin_event) event handler if you like (perhaps in conjunction with the [`preventScroll`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus#preventscroll) option of `HTMLElement.focus()`).
+
 ## Why Use IDs for Web Component Accessibility Instead of `ElementInternals`? (2025-11-26)
 
 The [`ElementInternals`](https://developer.mozilla.org/en-US/docs/Web/API/ElementInternals) interface is getting more and more improvements over time. Many of these improvements enable developers to create accessibility relationships between Custom Elements _without_ having to use unique IDs. So why do some of our components still use unique IDs? Well, there are two simple reasons:

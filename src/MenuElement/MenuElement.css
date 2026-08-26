@@ -1,0 +1,54 @@
+:where(:has(> menu-element)) {
+  position: relative;
+}
+
+menu-element {
+  /* Number of `menuitem` blocks to display before needing to scroll. Approximate; does not account for separators. */
+  --blocks: 5;
+  --menu-border: 2px;
+  --item-height: 38px;
+  --item-padding: 8px;
+
+  position: absolute;
+  z-index: 2;
+
+  display: block;
+  box-sizing: border-box;
+  width: min(100%, 200px);
+  max-height: calc(var(--item-height) * var(--blocks) + var(--menu-border) * 2);
+  padding: 0;
+  border: var(--menu-border) solid #cecece;
+  border-radius: 4px;
+  margin: 0;
+
+  overflow: auto;
+  background-color: white;
+
+  &:not([data-open]) {
+    display: none;
+  }
+
+  & > [role="menuitem"] {
+    display: block;
+    box-sizing: border-box;
+    height: var(--item-height);
+    padding: var(--item-padding);
+    align-content: center;
+    cursor: pointer;
+
+    &:focus-visible,
+    &:hover {
+      outline: none;
+      color: white;
+      background-color: #2684ff;
+    }
+
+    &[aria-disabled="true"] {
+      cursor: not-allowed;
+    }
+
+    * {
+      pointer-events: none;
+    }
+  }
+}

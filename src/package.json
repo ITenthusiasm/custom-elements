@@ -54,6 +54,10 @@
       "types": "./CheckboxGroup/index.d.ts",
       "default": "./CheckboxGroup/index.js"
     },
+    "./MenuElement": {
+      "types": "./MenuElement/index.d.ts",
+      "default": "./MenuElement/index.js"
+    },
     "./*": {
       "types": "./*.d.ts",
       "default": "./*.js"

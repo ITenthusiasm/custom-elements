@@ -22,7 +22,7 @@ export default defineConfig({
       include: ["library-tests/form-observer/vue/**.vue", "framework-enhancement-tests/vue/**/*.vue"],
       template: { compilerOptions: { isCustomElement: (tag) => tag.includes("-") } },
     }),
-    preact({ include: "library-tests/form-observer/preact/**" }),
+    preact({ include: ["library-tests/form-observer/preact/**", "framework-enhancement-tests/preact/**"] }),
   ],
   server: {
     headers: {

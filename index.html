@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="./src/Combobox/Combobox.css" />
+    <link rel="stylesheet" href="./src/MenuElement/MenuElement.css" />
     <style>
       /* Used to make some things easier for testing in Playwright */
       select-enhancer > [role="combobox"] {
@@ -15,6 +16,7 @@
 
   <body>
     <div id="app">
+      <!-- Form Controls Demo -->
       <form id="my-form">
         <div>
           <label for="street-address">Street Address</label>
@@ -141,6 +143,30 @@
         <button type="submit">Submit</button>
         <button type="reset">Reset</button>
       </form>
+
+      <!-- Menu Element Demo -->
+      <div id="menudemo" style="display: flex; gap: 16px; align-items: center">
+        <div id="anchor-1">
+          <button id="button-1" type="button" aria-controls="my-menu" aria-expanded="false" aria-haspopup="menu">
+            Open a Menu Here!
+          </button>
+        </div>
+        <div id="anchor-2">
+          <button id="button-2" type="button" aria-controls="my-menu" aria-expanded="false" aria-haspopup="menu">
+            No, No! Here!
+          </button>
+        </div>
+        <div id="anchor-3">
+          <button id="button-3" type="button" aria-controls="my-menu" aria-expanded="false" aria-haspopup="menu">
+            Over Here!
+          </button>
+        </div>
+      </div>
+      <menu-element id="my-menu">
+        <div role="menuitem" data-action="1">Action 1</div>
+        <div role="menuitem" data-action="2">Action 2</div>
+        <div role="menuitem" data-action="3">Action 3</div>
+      </menu-element>
 
       <a href="https://example.com">Example Domain</a>
 
