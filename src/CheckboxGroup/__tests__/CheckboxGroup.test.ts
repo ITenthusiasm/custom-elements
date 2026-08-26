@@ -160,11 +160,11 @@ async function createDOMEventWaiter<T extends keyof DocumentEventMap, E extends 
 
   let i = 0;
   let exposedResolverNameUnavailable = true;
-  let exposedResolverName: `callNodeResolve${number | ""}` = "callNodeResolve";
+  let exposedResolverName: `callNodeJSResolve${number | ""}` = "callNodeJSResolve";
 
   while (exposedResolverNameUnavailable) {
     const nameTaken = await page.evaluate((name) => name in window, exposedResolverName);
-    if (nameTaken) exposedResolverName = `callNodeResolve${++i}`;
+    if (nameTaken) exposedResolverName = `callNodeJSResolve${++i}`;
     else exposedResolverNameUnavailable = false;
   }
 
