@@ -336,7 +336,7 @@ As a Custom Element, the `CheckboxGroup` supports all of the [global attributes]
   </dd>
 </dl>
 
-## Properties
+### Properties
 
 As a Custom Element, the `CheckboxGroup` inherits all of the methods and properties of the [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) interface. The properties which are _specific_ to the `CheckboxGroup` are as follows:
 
@@ -451,7 +451,7 @@ As a Custom Element, the `CheckboxGroup` inherits all of the methods and propert
   </dd>
 </dl>
 
-## Methods
+### Methods
 
 In addition to the methods that exist on the [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) interface, the `CheckboxGroup` defines the instance methods listed below.
 
@@ -484,7 +484,7 @@ In addition to the methods that exist on the [`HTMLElement`](https://developer.m
   </dd>
 </dl>
 
-## Events
+### Events
 
 As a Custom Element, the <code>CheckboxGroup</code> supports all of the events for the <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement"><code>HTMLElement</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element"><code>Element</code></a> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node"><code>Node</code></a> interfaces. Additionally, it supports the events below. You can listen for them by using the <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener">addEventListener()</code></a> method.
 
