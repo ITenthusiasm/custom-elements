@@ -14,7 +14,9 @@
     "prelint": "vue-tsc --build --clean . src",
     "lint": "prettier --ignore-path .gitignore --check . && eslint --ignore-path .gitignore . && vue-tsc --build . src && svelte-check --no-tsconfig",
     "postlint": "vue-tsc --build --clean . src",
-    "format": "prettier --ignore-path .gitignore --write ."
+    "format": "prettier --ignore-path .gitignore --write .",
+    "test": "npx playwright test",
+    "test:ui": "npm run test -- --ui"
   },
   "devDependencies": {
     "@form-observer/core": "^1.0.1",
