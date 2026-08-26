@@ -365,7 +365,7 @@ for (const { mode } of testConfigs) {
           return { name, pass: !this.isNot, message: () => "" };
         } catch (error) {
           const { matcherResult } = error as { matcherResult: MatcherReturnType };
-          return { ...matcherResult, name, pass: this.isNot };
+          return { ...matcherResult, name, pass: this.isNot, message: () => String(matcherResult.message) };
         }
       },
       async toShowNoMatchesMessage(combobox: Locator, expected?: string, options?: { timeout?: number }) {
