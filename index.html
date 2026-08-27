@@ -144,8 +144,8 @@
         <button type="reset">Reset</button>
       </form>
 
-      <!-- Menu Element Demo -->
-      <div id="menudemo" style="display: flex; gap: 16px; align-items: center">
+      <!-- Advanced Menu Example -->
+      <div id="advanced-menu-example" style="display: flex; gap: 16px; align-items: center">
         <div id="anchor-1">
           <button id="button-1" type="button" aria-controls="my-menu" aria-expanded="false" aria-haspopup="menu">
             Open a Menu Here!
@@ -161,12 +161,13 @@
             Over Here!
           </button>
         </div>
+
+        <menu-element id="my-menu">
+          <div role="menuitem" data-action="1">Action 1</div>
+          <div role="menuitem" data-action="2">Action 2</div>
+          <div role="menuitem" data-action="3">Action 3</div>
+        </menu-element>
       </div>
-      <menu-element id="my-menu">
-        <div role="menuitem" data-action="1">Action 1</div>
-        <div role="menuitem" data-action="2">Action 2</div>
-        <div role="menuitem" data-action="3">Action 3</div>
-      </menu-element>
 
       <a href="https://example.com">Example Domain</a>
 

@@ -221,7 +221,7 @@ As a Custom Element, the `MenuElement` supports all of the [global attributes](h
     </p>
     <blockquote>
       <p>
-        <strong>WARNING</strong>: This attribute is only intended to be used in applications using vanilla JavaScript. It is <strong>not</strong> intended to be used inside JavaScript frameworks like React, where the framework expects to have <em>exclusive</em> control over where elements are located in the DOM.
+        <strong>WARNING</strong>: This attribute is only intended to be used in applications using vanilla JavaScript. It is <strong>not</strong> intended to be used inside JavaScript frameworks like React, where the framework expects to have <em>exclusive</em> control over where elements are located in the DOM. (In frameworks which don't require strict DOM control, like Svelte, using <code>menuanchor</code> should be fine.)
       </p>
       <p>
         You <em>may</em> use <code>menuanchor</code> in JavaScript frameworks if you like, but you should do so with caution. A safer approach would be to use something like <a href="https://react.dev/reference/react-dom/createPortal"><code>createPortal</code></a> (in React) or <a href="https://vuejs.org/guide/built-ins/teleport"><code>&lt;Teleport&gt;</code></a> (in Vue).

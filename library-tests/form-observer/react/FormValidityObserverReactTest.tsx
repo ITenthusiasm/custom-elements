@@ -1,5 +1,6 @@
 /** @jsxImportSource react */
 import { StrictMode, useState, useMemo } from "react";
+import type { ReactElement, SyntheticEvent } from "react";
 import { createRoot } from "react-dom/client";
 import { createFormValidityObserver } from "@form-observer/react";
 import type { ValidatableField } from "@form-observer/react";
@@ -13,7 +14,7 @@ import {
 import type {} from "@itenthusiasm/custom-elements/types/react.d.ts";
 
 function FormValidityObserverReactTest() {
-  type ErrorMessage = React.ReactElement | string | null;
+  type ErrorMessage = ReactElement | string | null;
   const [errors, setErrors] = useState<Record<string, ErrorMessage>>({});
 
   const { autoObserve, configure, validateFields } = useMemo(() => {
@@ -37,7 +38,7 @@ function FormValidityObserverReactTest() {
   }, []);
 
   // Submission Handler
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const success = await validateFields({ focus: true });

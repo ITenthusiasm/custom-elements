@@ -1,4 +1,6 @@
+/** @jsxImportSource react */
 import { useState, useRef, useCallback } from "react";
+import type { SyntheticEvent, ChangeEvent, KeyboardEvent, ToggleEvent } from "react";
 import type { ComboboxField } from "@itenthusiasm/custom-elements";
 import Select, { Option } from "../Select.jsx";
 
@@ -11,7 +13,7 @@ export default function LoadingExample() {
 
   const timeout = useRef<number>(undefined);
   const controller = useRef<AbortController>(undefined);
-  const handleFilterchange = useCallback(async (event: React.SyntheticEvent<ComboboxField>): Promise<void> => {
+  const handleFilterchange = useCallback(async (event: SyntheticEvent<ComboboxField>): Promise<void> => {
     event.preventDefault();
     controller.current?.abort(); // Cancel the currently-pending request if one exists
     clearTimeout(timeout.current); // Debounce the event handler
@@ -39,7 +41,7 @@ export default function LoadingExample() {
   }, []);
 
   /** Restores the `combobox` to a proper state on `collapse` */
-  const handleToggle = useCallback((event: React.ToggleEvent<ComboboxField>) => {
+  const handleToggle = useCallback((event: ToggleEvent<ComboboxField>) => {
     if (event.newState !== "closed") return;
 
     // Cancel any pending operations
@@ -88,7 +90,7 @@ export default function LoadingExample() {
 }
 
 /** Tracks the user's most recently-selected value */
-function handleChange(event: React.ChangeEvent<ComboboxField>): void {
+function handleChange(event: ChangeEvent<ComboboxField>): void {
   const comboboxField = event.currentTarget;
   if (comboboxField.text.data === "") return comboboxField.setAttribute("data-last-pokemon", "");
 
@@ -99,7 +101,7 @@ function handleChange(event: React.ChangeEvent<ComboboxField>): void {
 }
 
 /** Blocks the `Enter` key while `option`s are loading */
-function handleKeyDown(event: React.KeyboardEvent<ComboboxField>): void {
+function handleKeyDown(event: KeyboardEvent<ComboboxField>): void {
   const comboboxField = event.currentTarget;
   const status = comboboxField.getAttribute("data-status");
   if (event.key === "Enter" && status !== "success") event.preventDefault();

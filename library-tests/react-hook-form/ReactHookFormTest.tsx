@@ -1,5 +1,6 @@
 /** @jsxImportSource react */
 import { StrictMode, useCallback } from "react";
+import type { SyntheticEvent } from "react";
 import { createRoot } from "react-dom/client";
 import { useForm } from "react-hook-form";
 import {
@@ -24,7 +25,7 @@ function ReactHookFormTest() {
    * that dispatch their own `input` events. A different form library might be better suited for such
    * cases (e.g., the `React Form Validity Observer`).
    */
-  function handleInput(event: React.FormEvent<ComboboxField>): void {
+  function handleInput(event: SyntheticEvent<ComboboxField>): void {
     event.target.dispatchEvent(new Event("change", { bubbles: true }));
   }
 

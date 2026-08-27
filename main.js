@@ -29,25 +29,27 @@ function handleSubmit(event) {
 }
 
 /* ---------- Menu Item Selection ---------- */
-const menudemo = /** @type {HTMLElement} */ (document.getElementById("menudemo"));
-menudemo.addEventListener("click", handleClick);
-menudemo.addEventListener("menuselect", handleMenuSelect);
+const menudemo = /** @type {HTMLElement} */ (document.getElementById("advanced-menu-example"));
+menudemo.addEventListener("click", handleButtonGroupClick);
+menudemo.addEventListener("menuselect", handleMenuselect);
 
 /** @param {PointerEvent} event @returns {void} */
-function handleClick(event) {
-  const button = event.target;
-  if (!(button instanceof HTMLButtonElement) || !button.id.startsWith("button")) return;
+function handleButtonGroupClick(event) {
+  const menubutton = /** @type {HTMLElement} */ (event.target).closest("button");
+  if (!menubutton) return;
 
-  const menuId = /** @type {string} */ (button.getAttribute("aria-controls"));
+  const menuId = /** @type {string} */ (menubutton.getAttribute("aria-controls"));
   const menu = /** @type {MenuElement} */ (document.getElementById(menuId));
-  if (button.nextElementSibling === menu) return;
+  const anchor = /** @type { HTMLElement} */ (menubutton.parentElement);
+  if (anchor.contains(menu)) return; // The `menu` has already been anchored here
 
-  menu.setAttribute("menuanchor", /** @type {HTMLElement} */ (button.parentElement).id);
-  menu.setAttribute("menubutton", button.id);
-  button.ariaExpanded = String(true);
+  // Re-anchor the `menu` and associate it with the new `<button>`.
+  menu.setAttribute("menubutton", menubutton.id);
+  menu.setAttribute("menuanchor", anchor.id);
+  menubutton.ariaExpanded = String(true);
 }
 
 /** @param {CustomEvent<string>} event @returns {void} */
-function handleMenuSelect(event) {
+function handleMenuselect(event) {
   console.log("Action Selected: ", event.detail); // eslint-disable-line no-console
 }

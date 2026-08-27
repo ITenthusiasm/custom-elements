@@ -1,3 +1,4 @@
+/** @jsxImportSource react */
 import Select, { Option } from "./Select.jsx";
 
 export default function ExampleForm() {
