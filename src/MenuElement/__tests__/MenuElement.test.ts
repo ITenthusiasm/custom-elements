@@ -16,6 +16,12 @@ import type {} from "../types/dom.d.ts";
  */
 
 /* ---------------------------------------- Types and Constants ---------------------------------------- */
+// NOTE: The `FlakyAnnotation` types need an improvement to handle Multi-Offender syntax. But this is fine for now.
+type OSAnnotation = "Linux" | "Windows" | "MacOS";
+type BrowserAnnotation = "Chrome" | "Firefox" | "Safari";
+type TestModeAnnotation = "UI" | "Headless";
+type FlakyAnnotation = `FLAKY/${OSAnnotation | "ALL"}/${BrowserAnnotation | "ALL"}/${TestModeAnnotation | "ALL"}`;
+
 /** Retrieves the type of the last item in an array */
 type GetLast<T> = T extends readonly [...unknown[], infer U] ? U : never;
 
@@ -845,23 +851,32 @@ it.describe("Menu Element Web Component", () => {
           await expect(menubutton).not.toBeExpanded();
         });
 
-        it("Prevents unwanted page scrolling", async ({ page }) => {
-          /* ---------- Setup ---------- */
-          await renderDefaultHTMLToPage(page, { testPageScroll: "both" });
-          const menu = page.getByRole("menu", { includeHidden: true });
-          await menu.evaluate((node: MenuElement) => (node.openWithArrows = true));
+        it(
+          "Prevents unwanted page scrolling",
+          {
+            annotation: {
+              type: "FLAKY/Linux/Firefox/ALL" satisfies FlakyAnnotation,
+              description: "Real browser works fine. UI test passes 9 in 10 times. Headless test passes 3 in 10 times.",
+            },
+          },
+          async ({ page }) => {
+            /* ---------- Setup ---------- */
+            await renderDefaultHTMLToPage(page, { testPageScroll: "both" });
+            const menu = page.getByRole("menu", { includeHidden: true });
+            await menu.evaluate((node: MenuElement) => (node.openWithArrows = true));
 
-          const menubutton = page.getByRole("button");
-          await menubutton.evaluate((node) => node.scrollIntoView({ block: "center" }));
-          const initialScrollDistance = await page.evaluate(getWindowScrollDistance);
+            const menubutton = page.getByRole("button");
+            await menubutton.evaluate((node) => node.scrollIntoView({ block: "center" }));
+            const initialScrollDistance = await page.evaluate(getWindowScrollDistance);
 
-          /* ---------- Assertions ---------- */
-          // No scrolling should occur when `ArrowUp` opens the `menu`
-          await menubutton.press("ArrowUp");
-          await expect(menubutton).toBeExpanded();
-          await new Promise((resolve) => setTimeout(resolve, 250)); // Wait for **possible** scrolling to finish
-          expect(await page.evaluate(getWindowScrollDistance)).toStrictEqual(initialScrollDistance);
-        });
+            /* ---------- Assertions ---------- */
+            // No scrolling should occur when `ArrowUp` opens the `menu`
+            await menubutton.press("ArrowUp");
+            await expect(menubutton).toBeExpanded();
+            await new Promise((resolve) => setTimeout(resolve, 250)); // Wait for **possible** scrolling to finish
+            expect(await page.evaluate(getWindowScrollDistance)).toStrictEqual(initialScrollDistance);
+          },
+        );
       });
     });
 
