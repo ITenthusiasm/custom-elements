@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0
+
+### Changes
+
+- Introduce a new `MenuElement` Web Component for creating compliant [ARIA `menu`s](https://w3c.github.io/aria/#menu). (Initial featureset is minimalistic.) See our [documentation](./src/MenuElement/README.md) to learn more about the component. ([f721077](https://github.com/ITenthusiasm/custom-elements/commit/f7210771cab6d54811a773a27988892d5c11ef9a))
+
 ## 1.0.3
 
 ### Changes
