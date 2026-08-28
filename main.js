@@ -40,7 +40,7 @@ function handleButtonGroupClick(event) {
 
   const menuId = /** @type {string} */ (menubutton.getAttribute("aria-controls"));
   const menu = /** @type {MenuElement} */ (document.getElementById(menuId));
-  const anchor = /** @type { HTMLElement} */ (menubutton.parentElement);
+  const anchor = /** @type {HTMLElement} */ (menubutton.parentElement);
   if (anchor.contains(menu)) return; // The `menu` has already been anchored here
 
   // Re-anchor the `menu` and associate it with the new `<button>`.

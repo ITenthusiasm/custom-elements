@@ -57,7 +57,7 @@ Below are the components that this library currently provides. Each component ha
       A Custom Element which satisfies the accessibility requirements of an ARIA <a href="https://w3c.github.io/aria/#menu"><code>menu</code></a>. This is a <em>barebones</em> component which only supports regular <a href="https://w3c.github.io/aria/#menuitem"><code>menuitem</code>s</a> (not <code>menuitemradio</code>s or <code>menuitemcheckbox</code>es), and submenus are not supported at this time.
     </p>
     <p>
-      <a href="https://stackblitz.com/edit/custom-elements-menu-element">Stackblitz Demo</a>
+      <a href="https://stackblitz.com/edit/custom-elements-menu-element?file=register-custom-elements.js,index.html">Stackblitz Demo</a>
     </p>
   </dd>
 </dl>
