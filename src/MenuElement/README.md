@@ -217,7 +217,7 @@ As a Custom Element, the `MenuElement` supports all of the [global attributes](h
       This attribute serves as an alternative to <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Anchor_positioning">CSS Anchor Positioning</a> for applications which must support older browsers. This <strong><em>is not</em></strong> a polyfill for CSS Anchor Positioning. Instead, it's a convenient, lightweight option for developers who need dynamically-placed <code>menu</code>s.
     </p>
     <p>
-      It works by appending the <code>MenuElement</code> to the identified "anchor" element whenever the attribute changes (if the element exists). That way, the menu can be <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/position">positioned</a> with respect to the "anchor" by applying <code>position: relative</code> to the "anchor" and <code>position: absolute</code> to the menu. See our <a href="https://stackblitz.com/edit/custom-elements-menu-element">StackBlitz Demo</a> for more details.
+      It works by appending the <code>MenuElement</code> to the identified "anchor" element whenever the attribute changes (if the element exists). That way, the menu can be <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/position">positioned</a> with respect to the "anchor" by applying <code>position: relative</code> to the "anchor" and <code>position: absolute</code> to the menu. See our <a href="https://stackblitz.com/edit/custom-elements-menu-element?file=register-custom-elements.js,index.html">StackBlitz Demo</a> for more details.
     </p>
     <blockquote>
       <p>
@@ -297,4 +297,4 @@ As a Custom Element, the `MenuElement` supports all of the events for the [`HTML
 
 ## What's Next?
 
-You've learned everything that you need to know about the `MenuElement` component. Now, it's time for you to try it out in one of your own applications! We've provided a [StackBlitz Demo](https://stackblitz.com/edit/custom-elements-menu-element) to help you get more familiar with the component as well if needed.
+You've learned everything that you need to know about the `MenuElement` component. Now, it's time for you to try it out in one of your own applications! We've provided a [StackBlitz Demo](https://stackblitz.com/edit/custom-elements-menu-element?file=register-custom-elements.js,index.html) to help you get more familiar with the component as well if needed.
