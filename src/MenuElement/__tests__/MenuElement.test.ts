@@ -2899,6 +2899,65 @@ it.describe("Menu Element Web Component", () => {
           });
         });
       });
+
+      it.describe("toggle", () => {
+        it("Fires when the `menu` is expanded or collapsed", async ({ page }) => {
+          await renderDefaultHTMLToPage(page);
+          const menubutton = page.getByRole("button");
+          const menu = page.getByRole("menu", { includeHidden: true });
+          const waitForEvent = await createDOMEventWaiter(menu, "toggle", { event: "ToggleEvent" });
+
+          // Manually expanding the `menu`
+          const attribute = attrs["aria-expanded"];
+          const [events] = await Promise.all([
+            waitForEvent(),
+            menubutton.evaluate((node, a) => node.setAttribute(a, `${true}`), attribute),
+          ]);
+          expect(events[0]).toMatchObject({ oldState: "closed", newState: "open" });
+          expect(events).toHaveLength(1);
+
+          // Redundant "expansion" does nothing
+          await menubutton.evaluate((node, a) => node.setAttribute(a, `${true}`), attribute);
+          await menubutton.evaluate((node, a) => node.setAttribute(a, `${true}`), attribute);
+          await menubutton.evaluate((node, a) => node.setAttribute(a, `${true}`), attribute);
+          expect(events).toHaveLength(1);
+
+          // Manually collapsing the `menu` (with synchronous redundancy)
+          await Promise.all([
+            waitForEvent(),
+            menubutton.evaluate((node, a) => {
+              node.setAttribute(a, `${false}`);
+              node.setAttribute(a, `${false}`);
+            }, attribute),
+          ]);
+          expect(events[1]).toMatchObject({ oldState: "open", newState: "closed" });
+          expect(events).toHaveLength(2);
+
+          // Test `Event Coalescing` by rapidly toggling the expansion state within the same synchronous block
+          await Promise.all([
+            waitForEvent(),
+            menubutton.evaluate((node, a) => {
+              node.setAttribute(a, `${true}`);
+              node.setAttribute(a, `${false}`);
+              node.setAttribute(a, `${true}`);
+              node.setAttribute(a, `${false}`);
+            }, attribute),
+          ]);
+          expect(events[2]).toMatchObject({ oldState: "closed", newState: "closed" });
+          expect(events).toHaveLength(3);
+
+          // Expanding the `menu` with a Mouse Interaction
+          await Promise.all([waitForEvent(), menubutton.click()]);
+          expect(events[3]).toMatchObject({ oldState: "closed", newState: "open" });
+          expect(events).toHaveLength(4);
+
+          // Collapsing the `menu` with a Keyboard Interaction
+          await Promise.all([waitForEvent(), page.keyboard.press("Escape")]);
+          expect(events[4]).toMatchObject({ oldState: "open", newState: "closed" });
+          expect(events).toHaveLength(5);
+          events.forEach((e) => expect(e).toMatchObject({ bubbles: false, composed: false, cancelable: false }));
+        });
+      });
     });
 
     it.describe("Dynamic `menuitem` Management", () => {

@@ -293,6 +293,15 @@ As a Custom Element, the `MenuElement` supports all of the events for the [`HTML
       This is a <a href="https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent"><code>CustomEvent</code></a> whose <code>detail</code> property is a <code>string</code> representing the action the user selected. The value of this property matches the <code>data-action</code> attribute of the selected <code>menuitem</code>. Note that the <code>data-action</code> attribute is required for all of the items presented in the <code>MenuElement</code>.
     </p>
   </dd>
+
+  <dt id="events-toggle">
+    <a href="#events-toggle"><code>toggle</code></a>
+  </dt>
+  <dd>
+    <p>
+      Fires whenever the <code>MenuElement</code> transitions from being collapsed to being expanded (or vice versa). Just like the native <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/toggle_event"><code>toggle</code></a> event, this event does not bubble and is not cancelable. Its type is <a href="https://developer.mozilla.org/en-US/docs/Web/API/ToggleEvent"><code>ToggleEvent</code></a>.
+    </p>
+  </dd>
 </dl>
 
 ## What's Next?

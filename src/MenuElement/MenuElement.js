@@ -281,15 +281,21 @@ class MenuElement extends HTMLElement {
   static #watchExpansion(mutations) {
     // NOTE: Callback assumes it is always triggered naturally, NOT programmatically (e.g., for `observer.takeRecords()`).
     const menubutton = /** @type {HTMLElement} */ (mutations[0].target);
-    const oldState = mutations[0].oldValue === String(true) ? "open" : "closed";
-    const newState = menubutton.ariaExpanded === String(true) ? "open" : "closed";
-    if (newState === oldState) return;
-
-    // Update Menu State
     const root = /** @type {Document | DocumentFragment | ShadowRoot} */ (menubutton.getRootNode());
     const menuId = /** @type {string} */ (menubutton.getAttribute("aria-controls"));
     const menu = /** @type {MenuElement} */ (root.getElementById(menuId));
 
+    // Derive Toggle State
+    const oldState = mutations[0].oldValue === String(true) ? "open" : "closed";
+    const newState = menubutton.ariaExpanded === String(true) ? "open" : "closed";
+    const event = new ToggleEvent("toggle", { newState, oldState });
+
+    if (newState === oldState) {
+      if (mutations.some((m) => m.oldValue !== menubutton.ariaExpanded)) menu.dispatchEvent(event);
+      return;
+    }
+
+    // Update Menu State
     if (newState === "closed") {
       menu.removeAttribute(attrs["data-open"]);
       clearTimeout(menu[searchTimeout]);
@@ -301,6 +307,8 @@ class MenuElement extends HTMLElement {
       newlyActiveItem.focus();
       menu[startingActivedescendant] = null;
     }
+
+    menu.dispatchEvent(event);
   }
 
   /* ---------------------------------------- Menu / MenuItem Handlers ---------------------------------------- */
