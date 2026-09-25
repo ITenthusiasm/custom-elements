@@ -48,7 +48,7 @@ class PseudoBackdrop extends HTMLElement {
    * @returns {void}
    */
   #handleDelegatedToggle(event) {
-    const { newState, oldState } = /** @type {{ newState: ToggleState, oldState: ToggleState}} */ (event);
+    const { newState, oldState } = /** @type {{ newState: ToggleState, oldState: ToggleState }} */ (event);
     if (newState === oldState) return;
 
     const pseudoPopover = /** @type {HTMLElement} */ (event.target);
