@@ -64,13 +64,14 @@
   "overrides": [
     { "files": "scripts/**/*.js", "rules": { "no-console": "off" } },
     {
-      "files": ["src/utils/**.js", "framework-enhancement-tests/**"],
+      "files": ["src/utils/**.js", "framework-enhancement-tests/**", "src/__test-utils__/**/*.ts"],
       "rules": { "import/prefer-default-export": "off" } // Usually these files are intended to have named exports only
     },
     {
-      "files": "**/__tests__/**/*.test.ts",
+      "files": ["**/__tests__/**/*.test.ts", "src/__test-utils__/**/*.ts"],
       "rules": {
         "no-eval": "off", // Currently, we have no choice for our Playwright tests, sadly. Cypress would be different.
+        "no-void": "off",
         "no-await-in-loop": "off",
         "no-param-reassign": "off",
         "no-restricted-syntax": "off",

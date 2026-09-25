@@ -1,10 +1,11 @@
-/* eslint-disable guard-for-in */
-/* eslint-disable no-void */
-/* eslint-disable prefer-template */
 import { test as it, expect as baseExpect } from "@playwright/test";
 import type { Page, Locator, JSHandle, MatcherReturnType } from "@playwright/test";
 import type MenuElement from "../MenuElement.js";
 import type {} from "../types/dom.d.ts";
+import { renderHTMLToPage, createMassiveBlock } from "../../__test-utils__/rendering.js";
+import { createDOMEventWaiter, createErrorWatcher, ObservationError } from "../../__test-utils__/watchers.js";
+import { getWindowScrollDistance } from "../../__test-utils__/evaluators.js";
+import type { FlakyAnnotation } from "../../__test-utils__/types.ts";
 
 /*
  * NOTE: Accessibility expectations are guided by the ARIA APG "Menu Button" pattern:
@@ -16,12 +17,6 @@ import type {} from "../types/dom.d.ts";
  */
 
 /* ---------------------------------------- Types and Constants ---------------------------------------- */
-// NOTE: The `FlakyAnnotation` types need an improvement to handle Multi-Offender syntax. But this is fine for now.
-type OSAnnotation = "Linux" | "Windows" | "MacOS";
-type BrowserAnnotation = "Chrome" | "Firefox" | "Safari";
-type TestModeAnnotation = "UI" | "Headless";
-type FlakyAnnotation = `FLAKY/${OSAnnotation | "ALL"}/${BrowserAnnotation | "ALL"}/${TestModeAnnotation | "ALL"}`;
-
 /** Retrieves the type of the last item in an array */
 type GetLast<T> = T extends readonly [...unknown[], infer U] ? U : never;
 
@@ -61,42 +56,6 @@ const testItems = Object.freeze([
   "Ninth",
   "Tenth",
 ] as const);
-
-interface ObservationErrorOptions<T> extends ErrorOptions {
-  /** The amount of time that a process waited for the anticipated event */
-  timeout: number;
-
-  /**
-   * A list containing all of the successful observations which occurred
-   * _before_ the observation failure indicated by this error
-   */
-  observations: T[];
-}
-
-/**
- * Represents an error that occurred because an anticipated event was not observed in the expected amount of time.
- *
- * Typically used in Test Helper Functions like {@link createDOMEventWaiter} and {@link createErrorWatcher}
- * to track when an event was not dispatched (or an error was not thrown) in the expected amount of time.
- */
-class ObservationError<T = unknown> extends Error implements ObservationErrorOptions<T> {
-  #timeout: ObservationErrorOptions<T>["timeout"];
-  #observations: ObservationErrorOptions<T>["observations"];
-
-  constructor(message: string, options: ObservationErrorOptions<T>) {
-    super(message, options);
-    this.#timeout = options.timeout;
-    this.#observations = options.observations.slice();
-  }
-
-  get timeout() {
-    return this.#timeout;
-  }
-
-  get observations() {
-    return this.#observations;
-  }
-}
 
 /* ---------------------------------------- Custom Assertions ---------------------------------------- */
 const expect = baseExpect.extend({
@@ -233,23 +192,6 @@ async function renderDefaultHTMLToPage(
 }
 
 /**
- * Renders the provided HTML template string to the provided `page`, replacing all of the contents
- * of the `body` on that page.
- *
- * @example
- * renderHTMLToPage(page)`
- *   <div>Hello</div>
- *   <div>World</div>
- * `;
- */
-function renderHTMLToPage(page: Page) {
-  return function html(strings: TemplateStringsArray, ...values: string[]): Promise<void> {
-    const markup = String.raw({ raw: strings }, ...values);
-    return page.evaluate((template) => void (document.body.innerHTML = template), markup);
-  };
-}
-
-/**
  * Creates the HTML for a new `menubutton` from the provided options.
  *
  * The returned element is always a `<button>`.
@@ -300,168 +242,11 @@ function createMenuItem(options: {
   return `<div role="menuitem" ${disabled} data-action="${action}">${name}</div>` as const;
 }
 
-/**
- * Produces a massive {@link HTMLDivElement} as a DOM String.
- * Used to force a web page to become scrollable, enabling tests to examine the page's scroll behavior.
- * (For example, you may want to test the scroll-prevention functionality of a web component.)
- */
-function createMassiveBlock(): string {
-  return `
-    <div style="font-size: 3rem; font-weight: bold; text-align: right; background-color: red; height: 500vh;">
-      Container for testing scroll prevention
-    </div>
-  `;
-}
-
 /** Returns a random item from the provided list of {@link items} (which defaults to {@link testItems}). */
 function getRandomItem<T extends ReadonlyArray<string>>(items: T = testItems as unknown as T): T[number] {
   const itemIndex = Math.floor(Math.random() * items.length);
   return items[itemIndex];
 }
-
-/**
- * Generates a helper function which tracks the number of times that an event of the specified `type`
- * is dispatched by the provided `target` element.
- *
- * @param target May be a {@link Page} or a {@link Locator}. If `target` is a `Locator`, then events will
- * only be counted if the event's target is the same element as the provided `target`. If `target` is a
- * `Page`, then all events of the specified `type` will be tracked, irrespective of the event's target,
- * and the event listener will be attached to the `Page`'s `Document`.
- * @param type The type of DOM event to listen for.
- * @param options A mixture of {@link EventListenerOptions} and some extra options specific to Playwright.
- */
-async function createDOMEventWaiter<T extends keyof DocumentEventMap, E extends DocumentEventMap[T]>(
-  target: Page | Locator,
-  type: T,
-  options?: EventListenerOptions & {
-    /** The **_constructor name_** of the event that you're expecting (e.g., `InputEvent`, `Event`, etc.). */
-    event?: string;
-    /**
-     * Indicates that the tracking event handler should be attached to the `Document` even if
-     * `target` is a `Locator`.
-     */
-    document?: boolean;
-    timeout?: number;
-  },
-) {
-  const events: E[] = [];
-  const page = "page" in target ? target.page() : target;
-  const [exposedPusherName] = await tryFunctionExposure(page, `push${type}event`, (e: unknown) => events.push(e as E));
-
-  /** The timer related to {@link waitForDOMEvent}'s `Promise` rejection callback */
-  let timer: NodeJS.Timeout | undefined;
-  let resolve: Parameters<ConstructorParameters<typeof Promise<E[]>>[0]>[0];
-  const [exposedResolverName] = await tryFunctionExposure(page, "callNodeJSResolve", () => {
-    clearTimeout(timer);
-    resolve(events);
-  });
-
-  const locatorUsed = "page" in target;
-  const locator = "page" in target ? target : page.locator("body");
-
-  // Setup tracking event handler
-  await locator.evaluate(
-    (node, [t, lu, opts, pusherName, resolverName]) => {
-      const constructor = opts?.event;
-      const nodeWithListener = !lu || opts?.document ? document : node;
-      nodeWithListener.addEventListener(t, handleEvent, opts);
-
-      function handleEvent(evt: Event) {
-        if (constructor && !eval(`evt.constructor === ${constructor}`)) return;
-        if (lu && evt.target !== node) return;
-
-        const props: Record<string, unknown> = { constructor };
-        for (const key in evt) props[key] = evt[key as keyof typeof evt];
-        (window as any)[pusherName](props); // eslint-disable-line @typescript-eslint/no-explicit-any
-        (window as any)[resolverName](); // eslint-disable-line @typescript-eslint/no-explicit-any
-      }
-    },
-    [type, locatorUsed, options, exposedPusherName, exposedResolverName] as const,
-  );
-
-  return waitForDOMEvent;
-  async function waitForDOMEvent(): Promise<typeof events> {
-    return new Promise((res, reject) => {
-      resolve = res;
-      const timeout = options?.timeout || 2000;
-      const error = new ObservationError(`Timed out ${timeout}ms waiting for event "${type}".`, {
-        timeout,
-        observations: events,
-      });
-
-      timer = setTimeout(reject, timeout, error);
-    });
-  }
-}
-
-/**
- * A more-forgiving version of {@link Page.exposeFunction}.
- *
- * Attempts to expose the provided `callback` on the provided `page`. If the function's `name` is already taken, it
- * will be suffixed with an incremental counter until the suffixed function name is available on the page.
- *
- * For example, if `myFunc` is already exposed, then `myFunc1` will be checked. If `myFunc1` is already exposed, then
- * `myFunc2` will be checked, and so on, until the suffixed function name can be successfully/safely exposed on the page.
- *
- * @returns A tuple containing:
- * - The function name that was successfully exposed on the page
- * - The original result returned from {@link Page.exposeFunction}
- */
-async function tryFunctionExposure<T extends Parameters<Page["exposeFunction"]>[0]>(
-  page: Page,
-  name: T,
-  callback: Parameters<Page["exposeFunction"]>[1],
-): Promise<[`${T}${number | ""}`, Awaited<ReturnType<Page["exposeFunction"]>>]> {
-  let i = 0;
-  let exposedFunctionNameUnavailable = true;
-  let exposedFunctionName = name as `${T}${number | ""}`;
-
-  while (exposedFunctionNameUnavailable) {
-    const nameTaken = await page.evaluate((n) => n in window, exposedFunctionName);
-    if (nameTaken) exposedFunctionName = `${exposedFunctionName}${++i}` as typeof exposedFunctionName;
-    else exposedFunctionNameUnavailable = false;
-  }
-
-  return [exposedFunctionName, await page.exposeFunction(exposedFunctionName, callback)];
-}
-
-/**
- * Generates a helper function which tracks the number of times that a `pageerror` event occurs on the provided `page`.
- * @param page
- * @param options
- */
-function createErrorWatcher(page: Page, options?: { timeout?: number }) {
-  /** The timer related to {@link waitForNextError}'s `Promise` rejection callback */
-  let timer: NodeJS.Timeout | undefined;
-  let resolve: Parameters<ConstructorParameters<typeof Promise<typeof errors>>[0]>[0];
-
-  page.on("pageerror", pushErrors);
-  page.on("close", () => page.off("pageerror", pushErrors));
-
-  const errors: Error[] = [];
-  function pushErrors(error: Error) {
-    clearTimeout(timer);
-    errors.push(error);
-    resolve(errors);
-  }
-
-  return waitForNextError;
-  function waitForNextError(): Promise<typeof errors> {
-    return new Promise((res, reject) => {
-      resolve = res;
-      const timeout = options?.timeout || 2000;
-      const error = new ObservationError(`Timed out ${timeout}ms waiting for a \`pageerror\` to occur.`, {
-        timeout,
-        observations: errors,
-      });
-
-      timer = setTimeout(reject, timeout, error);
-    });
-  }
-}
-
-/** A reusable {@link Page.evaluate} callback used to obtain the `window`'s scrolling dimensions */
-const getWindowScrollDistance = () => ({ x: window.scrollX, y: window.scrollY }) as const;
 
 /* ---------------------------------------- Tests ---------------------------------------- */
 it.describe("Menu Element Web Component", () => {

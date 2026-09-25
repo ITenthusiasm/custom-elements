@@ -13,6 +13,7 @@
     "library-tests",
     "playwright.config.ts",
     "src/**/__tests__/*.test.ts",
+    "src/__test-utils__/**/*.ts",
     "vite.config.ts",
     "svelte.config.js"
   ],
