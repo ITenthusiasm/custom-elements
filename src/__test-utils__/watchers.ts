@@ -70,10 +70,10 @@ export async function createDOMEventWaiter<T extends keyof DocumentEventMap, E e
 
   /** The timer related to {@link waitForDOMEvent}'s `Promise` rejection callback */
   let timer: NodeJS.Timeout | undefined;
-  let resolve: Parameters<ConstructorParameters<typeof Promise<E[]>>[0]>[0];
+  let resolve: Parameters<ConstructorParameters<typeof Promise<E[]>>[0]>[0] | undefined;
   const [exposedResolverName] = await tryFunctionExposure(page, "callNodeJSResolve", () => {
     clearTimeout(timer);
-    resolve(events);
+    resolve?.(events); // Optional chain used in case event(s) occurred before the user called `wait`
   });
 
   const locatorUsed = "page" in target;
@@ -122,7 +122,7 @@ export async function createDOMEventWaiter<T extends keyof DocumentEventMap, E e
 export function createErrorWatcher(page: Page, options?: { timeout?: number }) {
   /** The timer related to {@link waitForNextError}'s `Promise` rejection callback */
   let timer: NodeJS.Timeout | undefined;
-  let resolve: Parameters<ConstructorParameters<typeof Promise<typeof errors>>[0]>[0];
+  let resolve: Parameters<ConstructorParameters<typeof Promise<typeof errors>>[0]>[0] | undefined;
 
   page.on("pageerror", pushErrors);
   page.on("close", () => page.off("pageerror", pushErrors));
@@ -131,7 +131,7 @@ export function createErrorWatcher(page: Page, options?: { timeout?: number }) {
   function pushErrors(error: Error) {
     clearTimeout(timer);
     errors.push(error);
-    resolve(errors);
+    resolve?.(errors); // Optional chain used in case error(s) occurred before the user called `wait`
   }
 
   return waitForNextError;
