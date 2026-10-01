@@ -8,7 +8,7 @@ Today [`::backdrop`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/
 
 ## Additional Terminology
 
-In this document, we refer to "elevatable" and "toggleable" elements. In this document, these are considered to be one and the same.
+In this document, we refer to "elevatable" and "toggleable" elements. These are considered to be one and the same.
 
 When a browser-native `popover` element is opened by a `<button>`, it dispatches a `toggle` event and is placed in the Top Layer. In other words, it is toggled and elevated at the same time. Consequently, _for the purpose of this document's discussion_, we consider "elevatable elements" and "toggleable elements" to be the same thing.
 
@@ -27,7 +27,7 @@ Developers _might_ have the elevated entity close/descend if the backdrop is cli
 
 Now, if these were the only problems that backdrops had to solve, then the `::backdrop` pseudo-element would be sufficient. **_However_**, there are use cases where a developer may want to elevate _multiple_ entities simultaneously. For example, when a user opens a `contextmenu` for a card in a list, a developer may want to elevate _both_ the card's menu _and_ the card itself. This mimics the native `contextmenu` behavior seen on `iOS` devices.
 
-The `::backdrop` element is always rendered alongside its owning `<dialog>` or `popover`, which itself is always rendered _in the Top Layer_ (at least as of 2026-09-11). In the card example, this means that a dimmed `::backdrop` would always appear underneath the card's menu but _above_ the card itself (since the card is not promoted to the Top Layer). Therefore, the multi-element elevation experience described above is impossible to replicate with `::backrop`s. If such an experience is desired, a solution involving regular elements with regular [`z-index`es](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/z-index) is needed instead.
+The `::backdrop` element is always rendered alongside its owning `<dialog>` or `popover`, which itself is always rendered _in the Top Layer_ (at least as of 2026-09-11). In the card example, this means that a dimmed `::backdrop` would always appear underneath the card's menu but _above_ the card itself (since the card is not promoted to the Top Layer). Therefore, the multi-element elevation experience described above is impossible to replicate with `::backdrop`s. If such an experience is desired, a solution involving regular elements with regular [`z-index`es](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/z-index) is needed instead.
 
 ## The Solution's Approach
 
@@ -50,7 +50,7 @@ It is imperative that these actions are taken **_in order_** as seen above to av
 
 [According to MDN](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/toggle_event), a `toggle` event is dispatched when a `popover`, `<dialog>` or `<details>` element is toggled open or closed. And since a `popover`/`<dialog>` is immediately placed in the `Top Layer` when opened (and immediately removed from the `Top Layer` when closed), we can say that **_the `toggle` event is a valid indicator of when an element is elevating or descending_**. Of course, that only holds true for `popover`s and `<dialog>`s. But as of today, those are the only two kinds of elements that can be promoted to the Top Layer anyway. So the statement still holds.
 
-Elements which _aren't_ `popover`s or `<dialog>`s, yet which emulate a "Top Layer" experience through `z-index`es, must also have an opening/closing mechanism. Additionally, if they want to integrate with the `PseudoBackdrop`, they must _communicate_ with the `PseudoBackdrop` when this mechanism is triggered. Given the intersection of these two constraints, we've concluded that it makes sense for the `PseudoBackdrop` to require **_all_** elements which "request elevation + a backdrop" to do so via `ToggleEvent`s that match the browser's native behavior. This constraint is considered reasonable because it enables interop with native `<dialog>`/`popover` elements (in cases where `::backdrop` isn't sufficient), but also allows interop with more generic [Disclosure Widgets](https://adrianroselli.com/2020/05/disclosure-widgets.html) and/or [`<details>` hacks](https://adrianroselli.com/2020/05/disclosure-widgets.html).
+Elements which _aren't_ `popover`s or `<dialog>`s, yet which emulate a "Top Layer" experience through `z-index`es, must also have an opening/closing mechanism. Additionally, if they want to integrate with the `PseudoBackdrop`, they must _communicate_ with the `PseudoBackdrop` when this mechanism is triggered. Given the intersection of these two constraints, we've concluded that it makes sense for the `PseudoBackdrop` to require **_all_** elements which "request elevation + a backdrop" to do so via `ToggleEvent`s that match the browser's native behavior. This constraint is considered reasonable because it enables interop with native `<dialog>`/`popover` elements (in cases where `::backdrop` isn't sufficient), but also allows interop with more generic [Disclosure Widgets](https://adrianroselli.com/2020/05/disclosure-widgets.html) and/or [`<details>` hacks](https://github.com/whatwg/html/issues/10357).
 
 Note that since _any_ element on a page could potentially be toggled to open a `PseudoBackdrop`, the component will need to listen for `toggle` events at the `Document` (or `ShadowRoot`) level. And since the `toggle` event doesn't bubble, the component will need to rely on event capturing rather than event bubbling.
 
@@ -62,9 +62,9 @@ TL;DR:
 
 #### Determining Who Should Dispatch `toggle` Events
 
-For `<dialog>`s and `popover`s opened by `<button>`s via [`popovertarget`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/button#popovertarget) and [`command`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/button#command)/[`commandfor`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/button#commandfor), `ToggleEvent`s are **_always_** dispatched on the _opened_ element, **_not_** on the opening `<button>` element. Thus, for consistency's sake, we should enforce the same rule for other elements which want to communicate with the `PseudoBackdrop`: The _opened_ element (e.g., a card's `contextmenu`) should dispatch the `ToggleEvent`.
+For `<dialog>`s and `popover`s opened by `<button>`s via [`popovertarget`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/button#popovertarget) and [`command`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/button#command)/[`commandfor`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/button#commandfor), `ToggleEvent`s are **_always_** dispatched on the _opened_ element, **_not_** on the controlling `<button>` element. Thus, for consistency's sake, we should enforce the same rule for other elements which want to communicate with the `PseudoBackdrop`: The _opened_ element (e.g., a card's `contextmenu`) should dispatch the `ToggleEvent`.
 
-Admittedly, this might be slightly less convenient for those who want to use the [`<details>` hack](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/button#commandfor). But the simple solution to that problem is to avoid using a hack at all and to instead use a valid Disclosure Widget. Nonetheless, the `<details>` hack can still be used as long as the `<details>` element itself is not _identified_ as an elevatable element (see next section).
+Admittedly, this might be slightly less convenient for those who want to use the [`<details>` hack](https://github.com/whatwg/html/issues/10357). But the simple solution to that problem is to avoid using a hack at all and to instead use a valid Disclosure Widget. Nonetheless, the `<details>` hack can still be used as long as the `<details>` element itself is not _identified_ as an elevatable element (see next section).
 
 TL;DR:
 
@@ -281,7 +281,7 @@ Needless to say... there isn't a clear solution here... so to avoid a mess, we'r
 
 #### 4&rpar; Consumers May Not Want an Animation
 
-It seems highly unlikely that anyone would want a backdrop that doesn't animate when it opens or closes, but it's not impossible or unreasonable for someone to desire this. If users don't want an animation, then the `z-index` changes should be applied immediately as the `PsuedoBackdrop` opens/closes.
+It seems highly unlikely that anyone would want a backdrop that doesn't animate when it opens or closes, but it's not impossible or unreasonable for someone to desire this. If users don't want an animation, then the `z-index` changes should be applied immediately as the `PseudoBackdrop` opens/closes.
 
 Implementation here can be left open to discussion. Perhaps a user can indicate "no animations please" by a custom attribute. Or perhaps a different solution would be better here... In any case, this should be simple to address, so we intentionally won't define a rigid implementation/solution to this problem.
 
@@ -371,6 +371,8 @@ function logTransitionInfo(event) {
 <details>
   <summary><strong><em>Dialog and Popover Removals</strong></em></summary>
 
+Note that the demo below may also be useful for verifying what happens when Popover B is opened while Popover A is already open.
+
 ```html
 <!-- NOTE: You will need to play with these elements in the Developer Console if you want to run accurate experiments on what happens when you spontaneously remove an already-open `popover`/`modal` from the DOM -->
 
@@ -388,7 +390,7 @@ function logTransitionInfo(event) {
 
 ## Other Miscellaneous Design Decisions
 
-### 1&rpar; Developers Can Place As Many `PseudoBackrop`s in the DOM As They Like
+### 1&rpar; Developers Can Place As Many `PseudoBackdrop`s in the DOM As They Like
 
 Although there are _potentially_ some [minor] performance gains that could come from allowing only one `<pseudo-backdrop>` to be in the DOM at a time, it would be hard to enforce and likely lead to a frustrating experience for developers who have valid reasons for adding more than one `PseudoBackdrop` to the DOM. So this is not something we intend to enforce, nor do we think it would be reasonable to enforce.
 

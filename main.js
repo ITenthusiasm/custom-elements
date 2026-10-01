@@ -6,6 +6,7 @@ import {
   ComboboxListbox,
   ComboboxOption,
   SelectEnhancer,
+  PseudoBackdrop,
 } from "@itenthusiasm/custom-elements";
 
 /* -------------------- "App Logic" -------------------- */
@@ -15,6 +16,7 @@ customElements.define("combobox-listbox", ComboboxListbox);
 customElements.define("combobox-field", ComboboxField);
 customElements.define("combobox-option", ComboboxOption);
 customElements.define("select-enhancer", SelectEnhancer);
+customElements.define("pseudo-backdrop", PseudoBackdrop);
 
 /* -------------------- Handlers for Debugging -------------------- */
 /* ---------- Form Submission ---------- */

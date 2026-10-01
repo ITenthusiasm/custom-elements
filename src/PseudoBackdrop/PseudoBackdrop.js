@@ -41,6 +41,7 @@ class PseudoBackdrop extends HTMLElement {
     /** @type {Document} */ (this.#root).removeEventListener("toggle", this.#boundHandleDelegatedToggle, true);
     if (this[lastPseudoPopover]) PseudoBackdrop.#demote(this);
     this.removeAttribute(attrs["data-open"]);
+    this.#root = null;
   }
 
   /**
@@ -69,9 +70,10 @@ class PseudoBackdrop extends HTMLElement {
       /** @type {PseudoBackdrop} */ (backdrop)[lastPseudoPopover] = pseudoPopover;
       /** @type {PseudoBackdrop} */ (backdrop)[lastElevatedSibling] = elevated;
 
-      if (this.animates === "none" || this.animates === "backwards") PseudoBackdrop.#promote(this);
+      // NOTE: A previously-tracked popover means the backdrop is visible, so there's no opening transition to wait for
+      if (previousPopover || this.animates === "none" || this.animates === "backwards") PseudoBackdrop.#promote(this);
       else backdrop.addEventListener("transitionrun", PseudoBackdrop.#handleTransitionrun, { once: true });
-      backdrop.toggleAttribute("data-open", true);
+      backdrop.toggleAttribute(attrs["data-open"], true);
     } else {
       if (this.animates === "none" || this.animates === "forwards") PseudoBackdrop.#demote(this);
       else {
