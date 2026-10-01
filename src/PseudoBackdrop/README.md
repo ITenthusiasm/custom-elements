@@ -6,7 +6,7 @@
 >
 > When we wrote this component, we had _very_ specific use cases in mind. We've tried to implement the component to handle use cases which are slightly broader than the original ones. But nonetheless, the component is still fairly rigid, and it _will_ break unless it is used exactly as required in this document.
 >
-> More insights on how/why the component was designed can be found at [_PseduoBackdrop: Architecture_](https://github.com/ITenthusiasm/custom-elements/tree/main/src/PseudoBackdrop/docs/extras/architecture.md) and [_PseudoBackdrop: Won't Fix_](https://github.com/ITenthusiasm/custom-elements/tree/main/src/PseudoBackdrop/docs/extras/wont-fix.md).
+> More insights on how/why the component was designed can be found at [_PseudoBackdrop: Architecture_](https://github.com/ITenthusiasm/custom-elements/tree/main/src/PseudoBackdrop/docs/extras/architecture.md) and [_PseudoBackdrop: Won't Fix_](https://github.com/ITenthusiasm/custom-elements/tree/main/src/PseudoBackdrop/docs/extras/wont-fix.md).
 
 The `PseudoBackdrop` is a Custom Element which serves as a backdrop for elevated elements. You can think of it as an alternative to the [`::backdrop`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/::backdrop) pseudo-element, but with the ability to promote two elements to a higher layer rather than only one. It does this by applying a high [`z-index`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/z-index) to the elevated element(s) instead of placing them in the [Top Layer](https://developer.mozilla.org/en-US/docs/Glossary/Top_layer).
 
@@ -45,8 +45,25 @@ customElements.define("pseudo-backdrop", PseudoBackdrop);
 
 ```css
 /* CSS */
+/* See Usage Notes for explanation */
+pseudo-backdrop {
+  visibility: hidden;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  background-color: rgb(0 0 0 / 50%);
+
+  &[data-open] {
+    visibility: visible;
+  }
+}
+
+button[popovertarget] {
+  position: relative;
+}
+
 :popover-open::backdrop {
-  pointer-events: none; /* See Usage Notes for explanation. */
+  pointer-events: none; /* See Usage Notes and its accompanying Footnotes for explanation */
 }
 ```
 
@@ -59,6 +76,8 @@ The `PseudoBackdrop` works by interacting with "toggleable" elements which ident
 An element is considered "toggleable" if it dispatches the [`toggle`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/toggle_event) event when it is revealed or hidden. By this definition, the [`<dialog>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog) element and all [`popover`s](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) are considered "toggleable". Additionally, a [Disclosure Widget](https://adrianroselli.com/2020/05/disclosure-widgets.html) which [manually dispatches `toggle` events](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/dispatchEvent) on the element whose display is toggled (_not_ on the controlling `button`) are also considered "toggleable".
 
 When a "toggleable" element which identifies a valid `PseudoBackdrop` is toggled open (as indicated by a dispatched [`ToggleEvent`](https://developer.mozilla.org/en-US/docs/Web/API/ToggleEvent)), the `PseudoBackdrop` promotes that element to a high [Stacking Context](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Positioned_layout/Stacking_context) by setting its `z-index` to `calc(infinity)` (the highest possible value). Similarly, when the `PseudoBackdrop` is closed, it demotes the elevated element by removing its `z-index` entirely. If the `PseudoBackdrop` is animated (e.g., such that it fades in and fades out), then this demotion will not occur until _after_ the _closing_ animation finishes.
+
+> **NOTE**: The `z-index` CSS Property only applies to positioned elements (or to flex/grid items). Therefore, you must make sure that your promoted elements are positioned; otherwise `z-index: calc(infinity)` won't do anything. (This requirement also applies to [Elevated Siblings](#elevated-siblings).)
 
 If an element identifies a `PseudoBackdrop` by ID but _does not_ dispatch any `toggle` events, it will be ignored. If an element dispatches `toggle` events but does not identify a valid `PseudoBackdrop` by ID, it is ignored.
 
@@ -163,6 +182,14 @@ As a Custom Element, the `PseudoBackdrop` supports all of the [global attributes
         <strong>NOTE</strong>: This attribute <strong><em>does not</em></strong> determine whether or not the <code>PseudoBackdrop</code> performs any animations; your CSS is what determines that. Rather, this attribute tells the <code>PseudoBackdrop</code> whether or not <em>you</em> intend to animate it. For example: If you tell the <code>PseudoBackdrop</code> that it <em>won't</em> be animated, then it will apply/remove <code>z-index</code>es immediately when a "toggleable" element is opened/closed; but if you tell the component that you <em>will</em> animate it, then it will intelligently apply/remove <code>z-index</code>es based on when your CSS Transitions start/end.
       </p>
     </blockquote>
+    <blockquote>
+      <p>
+        <strong>NOTE</strong>: If you are using media queries like <code>@media (prefers-reduced-motion)</code> to disable animations for the <code>PseudoBackdrop</code>, you must ensure that the component's <code>animates</code> attribute also takes this into account.
+      </p>
+      <p>
+        One way to handle this would be to add an event listener to a <a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaQueryList"><code>MediaQueryList</code></a> in JavaScript.
+      </p>
+    </blockquote>
     <p>Allowed Values:</p>
     <dl>
       <dt><code>both</code> (Default)</dt>
@@ -217,9 +244,9 @@ As a Custom Element, the `PseudoBackdrop` inherits all of the methods and proper
 
 We will repeat ourselves again and again: _This is an <u>internal</u> component designed for <u>very specific</u> use cases_. We will always keep this documentation up-to-date, but you should only expect this component to be easy to work with if you use it _strictly_ as prescribed in this documentation.
 
-A component this rigid is certain have some gotchas/limitations/pitfalls. We describe them in this section.
+A component this rigid is certain to have some gotchas/limitations/pitfalls. We describe them in this section.
 
-### 1&rpar; Opening Muliple Backdrops Simultaneously May Produce Unexpected Behavior
+### 1&rpar; Opening Multiple Backdrops Simultaneously May Produce Unexpected Behavior
 
 `PseudoBackdrop`s are not aware of each other like `popovers` are. In other words, if Backdrop A is already open, it will not automatically close itself if Backdrop B is newly toggled open.[^2] This means it's possible to have multiple backdrops open at the same time. Although it's possible, this behavior is not recommended, just like it isn't recommended to stack `<dialog>`s on top of each other.
 
