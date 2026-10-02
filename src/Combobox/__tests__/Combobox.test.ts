@@ -4,7 +4,6 @@
 /* eslint-disable no-void */
 /* eslint-disable prefer-template */
 /* eslint-disable func-names */
-import os from "node:os";
 import { test as it, expect as baseExpect } from "@playwright/test";
 import type { Page, Locator, MatcherReturnType, Dialog } from "@playwright/test";
 import type SelectEnhancer from "../SelectEnhancer.js";
@@ -786,21 +785,7 @@ for (const { mode } of testConfigs) {
           });
         }
 
-        it("Clears the `Selection` that contains its text content when blurred", async ({ page, browserName }) => {
-          /*
-           * NOTE: In `@playwright/test@1.57.0`, we experienced no problems with this test in Safari. However,
-           * after upgrading to `@playwright/test@1.62.1`, we found that the `.not.toHaveTextSelection()`
-           * assertions started failing. This makes no sense because a `contenteditable` element that is `blur`ed
-           * should most definitely have text selection stripped from it. So this is yet again either a Safari
-           * bug or a Playwright-Safari bug. When testing on the **_real_** Safari 18.6 on MacOS, text selection
-           * was properly stripped from the `combobox` when it was `blur`ed. So most likely, this is a bug in
-           * Playwright-Safari. (Since MacOS 26 has brought its fair share of ridiculous bugs, it's also possible
-           * that there's a legit bug in Safari 26... But **_real_** MacOS Safari 26.6.2 **_also_** behaved as expected.)
-           *
-           * So... in the meantime we're skipping the `.not.toHaveTextSelection()` assertion, but **_ONLY_** for Safari.
-           * We expect this problem to be fixed in the future (whether by Playwright or by Safari), so for now
-           * we'll have the test throw an error that tells us when our hack/workaround is no longer needed.
-           */
+        it("Clears the `Selection` that contains its text content when blurred", async ({ page }) => {
           await page.goto(url);
           await renderHTMLToPage(page)`
             <select-enhancer>
@@ -829,9 +814,7 @@ for (const { mode } of testConfigs) {
           await combobox.blur();
           await expect(combobox).not.toBeFocused();
           await expect(combobox).not.toBeExpanded();
-          // TODO: `combobox` is expected NOT to have text selection in ALL browsers. Failure here is a new Playwright bug.
-          if (browserName === "webkit" && mode === "Filterable") await expect(combobox).toHaveTextSelection();
-          else await expect(combobox).not.toHaveTextSelection();
+          await expect(combobox).not.toHaveTextSelection();
 
           // Blurring a collapsed `combobox` with fully-selected text
           await page.mouse.move(after5thLetter.x, after5thLetter.y);
@@ -840,30 +823,13 @@ for (const { mode } of testConfigs) {
           const before1stLetter = await getLocationOf(combobox, 0);
           await page.mouse.move(before1stLetter.x, before1stLetter.y);
           await page.mouse.up({ button: "left" });
-          /*
-           * TODO: More Playwright Browser bugs. These assertions work in Playwright WebKit on MacOS, but not on Linux.
-           *
-           * We tested the behavior on Linux Ubuntu 22.04. Oddly enough, the `option`s show up the first time the `combobox`
-           * is expanded. But the second time, all `option`s _except_ the first one have `data-filtered-out` set. WHAT?!?
-           * Also, text selection didn't happen correctly either for some reason. Not sure what's happening there.
-           * Again, the expected behavior works in Real Safari on MacOS. And these assertions pass correctly in
-           * Playwright WebKit on MacOS. So this is another Playwright bug. We need to open a GitHub issue at some point,
-           * but that would require creating a _minimal_ reproduction, which we don't have time for right now.
-           *
-           * This issue is more obscure than the other 2 called out in this test, and it again only started to be a problem
-           * on `@playwright/test@1.62.1`.
-           */
-          if (browserName !== "webkit" || os.platform() !== "linux") {
-            await expect(combobox).toBeExpanded();
-            await expect(combobox).toHaveTextSelection("full");
-          }
+          await expect(combobox).toBeExpanded();
+          await expect(combobox).toHaveTextSelection("full");
 
           await combobox.blur();
           await expect(combobox).not.toBeFocused();
           await expect(combobox).not.toBeExpanded();
-          // TODO: `combobox` is expected NOT to have text selection in ALL browsers. Failure here is a new Playwright bug.
-          if (browserName === "webkit" && mode === "Filterable") await expect(combobox).toHaveTextSelection();
-          else await expect(combobox).not.toHaveTextSelection();
+          await expect(combobox).not.toHaveTextSelection();
         });
       });
 

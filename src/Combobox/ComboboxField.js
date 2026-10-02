@@ -1,6 +1,6 @@
 /** @import {ListboxWithChildren} from "./types/helpers.js" */
 /** @import {ExposedInternals, FieldPropertiesAndMethods} from "../types/helpers.js" */
-import { setAttributeFor } from "../utils/dom.js";
+import { setAttributeFor, selectionIsWithin } from "../utils/dom.js";
 import ComboboxOption from "./ComboboxOption.js";
 import ComboboxListbox from "./ComboboxListbox.js";
 
@@ -855,7 +855,7 @@ class ComboboxField extends HTMLElement {
 
     // Remove text selection from `combobox` if needed
     const selection = /** @type {Selection} */ (document.getSelection());
-    if (selection.containsNode(combobox.text)) selection.empty();
+    if (selectionIsWithin(combobox)) selection.empty();
 
     // Determine if a `change` event should be dispatched (for `clearable` and `anyvalue` mode only)
     const { [valueOnFocusKey]: valueOnFocus, [editingKey]: editing } = combobox;
