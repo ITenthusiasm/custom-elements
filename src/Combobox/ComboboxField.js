@@ -22,6 +22,7 @@ const attrs = Object.freeze({
   "aria-expanded": "aria-expanded",
 });
 
+// TODO: Use `ownerDocument` instead of `document` for robustness. Same for other components.
 /** @implements {ExposedInternals} @implements {FieldPropertiesAndMethods} */
 class ComboboxField extends HTMLElement {
   /* ------------------------------ Custom Element Settings ------------------------------ */
@@ -249,6 +250,7 @@ class ComboboxField extends HTMLElement {
     this.listbox.addEventListener("mouseover", ComboboxField.#handleDelegatedOptionHover, { passive: true });
     this.listbox.addEventListener("click", ComboboxField.#handleDelegatedOptionClick, { passive: true });
     this.listbox.addEventListener("mousedown", ComboboxField.#handleDelegatedMousedown);
+    this.listbox.addEventListener("blur", ComboboxField.#handleListboxBlur);
   }
 
   /** "On Unmount" for Custom Elements @returns {void} */
@@ -272,6 +274,7 @@ class ComboboxField extends HTMLElement {
     this.listbox.removeEventListener("mouseover", ComboboxField.#handleDelegatedOptionHover);
     this.listbox.removeEventListener("click", ComboboxField.#handleDelegatedOptionClick);
     this.listbox.removeEventListener("mousedown", ComboboxField.#handleDelegatedMousedown);
+    this.listbox.removeEventListener("blur", ComboboxField.#handleListboxBlur);
   }
 
   /**
@@ -851,11 +854,15 @@ class ComboboxField extends HTMLElement {
    */
   static #handleBlur(event) {
     const combobox = /** @type {ComboboxField} */ (event.currentTarget);
-    setAttributeFor(combobox, attrs["aria-expanded"], String(false));
 
-    // Remove text selection from `combobox` if needed
-    const selection = /** @type {Selection} */ (document.getSelection());
-    if (selectionIsWithin(combobox)) selection.empty();
+    if (document.hasFocus()) {
+      // Keep `combobox` open if a Screen Reader moves focus to the `listbox`
+      if (event.relatedTarget !== combobox.listbox) setAttributeFor(combobox, attrs["aria-expanded"], String(false));
+
+      // Remove text selection from `combobox` if needed
+      const selection = /** @type {Selection} */ (document.getSelection());
+      if (selectionIsWithin(combobox)) selection.empty();
+    }
 
     // Determine if a `change` event should be dispatched (for `clearable` and `anyvalue` mode only)
     const { [valueOnFocusKey]: valueOnFocus, [editingKey]: editing } = combobox;
@@ -994,6 +1001,19 @@ class ComboboxField extends HTMLElement {
 
   /* -------------------- Listbox Handlers -------------------- */
   /**
+   * Collapses the `combobox` when the user leaves the component from the `listbox`.
+   * @param {FocusEvent} event
+   * @returns {void}
+   */
+  static #handleListboxBlur(event) {
+    const listbox = /** @type {ComboboxListbox} */ (event.currentTarget);
+    const combobox = /** @type {ComboboxField} */ (listbox.previousElementSibling);
+
+    if (event.relatedTarget === combobox || !document.hasFocus()) return; // User returned to `combobox` or left the page
+    setAttributeFor(combobox, attrs["aria-expanded"], String(false));
+  }
+
+  /**
    * @param {MouseEvent} event
    * @returns {void}
    */
@@ -1019,6 +1039,7 @@ class ComboboxField extends HTMLElement {
     if (option.disabled) return;
 
     const combobox = /** @type {ComboboxField} */ (listbox.previousElementSibling);
+    if (/** @type {Document | ShadowRoot} */ (listbox.getRootNode()).activeElement === listbox) combobox.focus();
     combobox.setAttribute(attrs["aria-expanded"], String(false));
 
     if (option.selected) return;

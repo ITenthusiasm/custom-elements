@@ -338,6 +338,7 @@ class MenuElement extends HTMLElement {
   static #handleDelegatedMenuItemFocusout(event) {
     const menuitem = /** @type {HTMLElement} */ (event.target);
     menuitem.tabIndex = -1;
+    if (!document.hasFocus()) return; // User left the page and will return to this `menuitem` when they come back
 
     const menu = /** @type {MenuElement} */ (event.currentTarget);
     const activeElement = /** @type {Element | null} */ (event.relatedTarget);

@@ -2,6 +2,92 @@
 
 A collection of questions/concerns that I thought through while designing some of the Web Components in this repository.
 
+## Special Case Focus Management for the `ComboboxField` and the `MenuElement` (2026-10-02)
+
+### Background
+
+We recently discovered that some browsers (such as [Google Chrome](https://developer.chrome.com/blog/keyboard-focusable-scrollers)) annoyingly make scrollable containers focusable by default (_unless_ they have focusable children).
+
+At a first glance, this sounds like a good idea: This gives Keyboard Users a quasi-guaranteed way to navigate/scroll through scrollable content even if the developer lazily forgot to set `[tabindex="0"]` on an element which they knew could be scrolled. This improves accessibility, right?!? Well, yes... and no...
+
+This "feature" is actually problematic because of what it does to our `Combobox` component... Our component intentionally leverages focus via [`aria-activedescendant`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-activedescendant). This means that neither the `listbox`, _nor_ its children should ever receive focus, because the focusing experience is simulated from / controlled by the `combobox`. (This is a much better experience since it enables users to search and navigate the `option`s from one place.) However, because `combobox`es with too many `option`s end up with scrollable `listbox`es, Chrome (and similar browsers) end up making the `listbox` focusable under said circumstances. :\
+
+Now hopefully, [WICG/webcomponents#762](https://github.com/WICG/webcomponents/issues/762) becomes part of the web standard and provides a way to make the `ComboboxListbox` completely unfocusable in _all_ circumstances. But until that day comes, we're stuck using `[tabindex="-1"]` to disable this behavior. And the problem with _that_ fix is that although it resolves the `listbox`-focusing problem for normal Visual/Keyboard Users, it _creates_ a problem for Screen Reader Users. (Sidenote: It also forces us to use `event.preventDefault()` on `mousedown` events to prevent the `listbox` from ever being focusable by a Mouse.)
+
+If a Screen Reader User navigates _forwards_ from the `combobox` using regular Cursor Motion, the `listbox` will receive focus. Again, ideally this should never happen. But since it can happen, we are forced to account for it. Particularly, we are forced to ensure that the `combobox` _does not_ collapse if it loses focus to its own `listbox`. Otherwise, Screen Reader Users will lose their place in the DOM (because focus went `combobox` -> `listbox` -> `null` due to collapsing), which is an unacceptable UX.
+
+So... The `Combobox` component must support moving focus from the `combobox` to the `listbox` (and vice versa) _without_ collapsing the component. However, if focus leaves the component entirely, then the component should still collapse as normal. Being forced to account for `listbox` focus interestingly forced us to make other design decisions. We've documented all of them below, along with some important notes.
+
+> NOTE: For the same reasons listed above, we also need to return focus from the `listbox` to the `combobox` if a Screen Reader User selects an `option` while the `listbox` has focus. Otherwise, they would lose their place in the `Document` after the `combobox` collapses.
+
+For more specifics beyond what you see below and how we came to hour conclusions, review the `combobox-listbox-focus-1` Claude Code Chat/Discussion.
+
+> NOTE: This will largely be a discourse on the `ComboboxField`. But at the end, you will see how the `MenuElement` ties into all of this.
+
+### Design Decisions
+
+#### The `combobox` Can Still Dispatch `change` Events When Focus Moves from Itself to the `listbox`
+
+Conceptually, the `ComboboxField` should be considered an `<input>` element which acts as the Customizable Select that everyone always wanted. To that extent, since an `<input>` dispatches `change` events _whenever_ it loses focus (including when the user leaves the page), the `ComboboxField` should do the same. And as of today, it does.
+
+However, now that the `listbox` is focusable for Screen Readers, this produces the undesirable behavior of _dispatching_ a `change` event when the Screen Reader's cursor moves from the `combobox` to the `listbox`. In general, this shouldn't be an issue. But for cases where a developer runs form validation on `focusout`, users may receive an error message immediatley after navigating to the `listbox` with the Screen Reader cursor. This is _potentially_ annoying because the user may not have been "done" with the `combobox` yet, and so the error message may appear too early.
+
+At the same time, this is a very niche edge case for a few reasons. First, Mouse/Keyboard Users will never run into this problem. It's strictly limited to Screen Reader Users. Second, Screen Reader Users are _most likely_ to navigate/select `option`s from within the `combobox` because that's where all the A11y Feature/Keyboard Power is. Once they select an `option`, the `combobox` is collapsed and there are no problematic eager-validation experiences that can occur. The likelihood that someone will intentionally _leave_ the `combobox` to navigate `option`s _through_ the `listbox` is slim to none.[^1] Finally, of all the pains which Screen Reader Users experience because of poorly-written sites, this issue is unlikely to be a high agitation for them. It's just an early "fix this field please" notification.
+
+[^1]: This issue _may_ still happen for mobile users if they _need_ to visit the `listbox` to select an `option` though.
+
+Technically speaking, in an ideal world where the `listbox` _can't_ receive focus, the `combobox` would still have focus after the Screen Reader User moves the cursor to the `listbox`. This means that the `change` event wouldn't be dispatched until _after_ the user left the entire component (by leaving both the `combobox` _and_ the `listbox`). We tried working on an implementation that supported this behavior initially, but it got too complicated. Here's the _beginning_ of that rabit hole:
+
+1. Don't dispatch the `change` event if focus moves `combobox` &rarr; `listbox`.
+2. So then, the `listbox` _must_ simulate a `blur`/`focusout` on the `combobox` when _it_ is `blur`rred... but _only_ if focus didn't move _back_ from the `listbox` to the `combobox`. So in this case, we'll register both a `blur` listener and a `focusout` listener using a single function, and the function will call `combobox.dispatchEvent(new FocusEvent(event.type, event))` when appropriate. This will make a fully-realistic `blur`/`focusout` event in all respects with minimal code, except that the event _won't_ be `isTrusted`.
+   - This is a weird decision. And it has the unfortunate consequence of causing developers to receive duplicate `blur`/`focusout` events on the `combobox`: One which is real to the browser but "fake" to the component because it wasn't fully exited yet, and one which is fake to the browser (`event.isTrusted === false`) but "real" to the component because the component was finally exited. This could be annoying for some developers.
+3. But what if the User moves like this: `combobox` &rarr; `listbox` &rarr; `combobox`? In this case, we still haven't dispatched `change` yet. This is intentional. But because the `combobox`'s `focus` handler resets `valueOnFocus` to its current text content, we could actually end up _missing_ a `change` event if the user does `combobox` &rarr; Type New Text which _would_ cause `change` event &rarr; `listbox` &rarr; `combobox` &rarr; focus some other element.
+   - Ultimately, we decided to reset `valueOnFocus` depending on how the `combobox` was `blur`red to try to resolve this problem, since different behavior was needed depending on whether focus was lost to the `listbox` or focus was lost to another Window or Tab or focus was lost to another element on the same page.
+4. Oh, yeah. And how does handling the use case where the user leaves the page and comes back later fit into all of this? Especially if we want the `combobox` to stay open when `blur`red if all that happened was the user leaving the page since the user may come back later? Does that complicate the code at all?
+
+Do you see how unnecessarily complicated this was getting? Life remains significantly simpler when we let `change` be _naturally_ dispatched when the `combobox` loses focus. Complicating the code for a hyper edge case that likely won't be problematic for users is not worthwhile.
+
+We aren't closed off to _trying_ to revisit the idea in the future if it's truly needed, but it doesn't seem needed. Nonetheless, because this is more of a "concession" than a "desire", the `combobox` -> `listbox` = `change` behavior is not something that we _enforce_ in our tests.
+
+#### The `listbox` WILL NOT Transfer Keyboard Actions to the `combobox`
+
+Trying to transfer Keyboard Actions from the `listbox` to the `combobox` adds unnecessary complexity and overhead. If the user moves to the `listbox`, they'll know that they are no longer on the `combobox`. Therefore, it shouldn't be _too_ confusing or surprising that the "Powerful Keyboard Actions" stop working once they've left the `combobox`. So I see no compelling reason to try to support this behavior. And again, most users will probably select an option before their Screen Reader cursor forwards anyway. (And if the user is on mobile, they won't be using a Keyboard to iterate through the `option`s.)
+
+#### Text Selection Will Always Fill the Whole `combobox` When Coming Back to the Page
+
+As we mentioned earlier, `ComboboxField` is supposed to behave like a supercharged `<input>`. When a user navigates to an `<input>`, all of its text is selected. Our `ComboboxField` does the same thing (in `filter` mode), and this is ideal because it enables users to replace the component's _entire_ text with their search input effortlessly.
+
+Additionally, when a user leaves a page with partially-selected `<input>` text, that same text will be selected when the user returns to the page. Unfortunately, the `ComboboxField` does not support this behavior [perfectly].
+
+We wanted the `ComboboxField` to do the _exact_ same thing as the `<input>` in this case, but it couldn't. First, we tried saying, "Only select all of your text on `focus` if you don't already have the page's `Selection` inside of you". This worked on Safari when the user tabbed to the component. But on Chrome, it seems that the browser puts the cursor inside the `ComboboxField` _before_ our `#handleFocus` handler runs; so the proper select-all UX on `focus` would fail when users `Tab`bed into the component. That loss was too big to accept.
+
+So we tried solving this problem from the _other_ end. "What if we select all text by default? But skip selecting all text if the user is coming _back_ to the page?" Unfortunately, although it's possible to know when a user _leaves_ the page in a `blur` event (via [`document.hasFocus()`](https://developer.mozilla.org/en-US/docs/Web/API/Document/hasFocus)), it is _not_ possible to know when a user _returns_ to the page in a `focus` event.
+
+Consequently, we settled for _always_ selecting _all_ of the text in the `ComboboxField` on `focus`, even when the user returns to a page that had _lesser_ text selection on the `ComboboxField`. This isn't the end of the world and is likely an edge case concern.
+
+#### Behavior During Page Navigation
+
+In the past, we neglected to consider how the `ComboboxField` and `MenuElement` components behave when the user _leaves_ the page and later returns.
+
+A native, [_Customizable_ `<select>`](https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Customizable_select) remains expanded if the user leaves the page/tab and comes back. (Tested in Chrome on MacOS.)
+
+On the iOS `Notes` app, the Triple Dot Menu remains open if the user leaves the app and comes back. Similarly, a _`contextmenu`_ that the user has opened (e.g., by long-pressing a note) remains open if the user leaves the app and comes back.
+
+So the consensus [in modern apps] seems to be that a superior UX leaves a `combobox`/`menu` open after the user leaves the app. We implemented this behavior for both the `ComboboxField` and the `MenuElement`. Additionally, since the `<input>` element dispatches a `change` event (if appropriate) when the user leaves the page, the `ComboboxField` now does the same as well.
+
+There is one known bug though: If a Keyboard User does something like navigating to the Browser's Search Bar while a `combobox` is open, and then `Tab`s _back_ into the `Document`, we do not collapse the `combobox`. (Same for the `menu`.) Remember: The `combobox` was kept open on page exit because we _knew_ how focus left the page. But when the user returns to the page by `Tab`bing into a different element, the `combobox` can't _see_ that a different element has been focused and therefore cannot collapse itself. We can resolve this issue by setting up a one-time delegated `focusin` listener when the user leaves the page while the `combobox` (or `menu`) is expanded; but right now, this is likely an uncommon case that shouldn't cause real inconvenience and that we aren't too concerned about.
+
+#### Some Features Must Be Tested Manually
+
+When writing the tests for our new `ComboboxField` features, we discovered that there was no way to simulate focus _leaving_ a given page. Sure, you can hack/monkey-patch the browser's methods and properties, but that doesn't _actually_ prove anything. When it comes to _real_ User Interactions, such testing is impossible. Thus, below is what you should test by hand. A Screen Reader will be necessary here:
+
+- Moving focus `combobox` &rarr; `listbox` keeps the component open. Same in the opposite direction.
+- Selecting an option while the `listbox` has focus returns focus to the `combobox`.
+- Leaving the `listbox`/`combobox` closes the component.
+- Switching apps while the `combobox` is focused keeps the `combobox` open with focus, _and_ it dispatches a `change` event if necessary.
+- Switching apps while the `listbox` is focused keeps focus on the `listbox` and keeps the `combobox` open.
+- Returning focus _back_ to the page by clicking _outside_ the component causes it to collapse.
+
 ## Design Decisions for the `MenuElement` (2026-08-21)
 
 ### 1&rpar; Enabling/Disabling the `#watchChildNodes` `MutationObserver` on Mount/Unmount

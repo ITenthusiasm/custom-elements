@@ -6,6 +6,8 @@
 /* eslint-disable func-names */
 import { test as it, expect as baseExpect } from "@playwright/test";
 import type { Page, Locator, MatcherReturnType, Dialog } from "@playwright/test";
+import { insertAdjacentHTML } from "../../__test-utils__/rendering.js";
+import { createDOMEventWaiter } from "../../__test-utils__/watchers.js";
 import type SelectEnhancer from "../SelectEnhancer.js";
 import type ComboboxField from "../ComboboxField.js";
 import type ComboboxOption from "../ComboboxOption.js";
@@ -719,6 +721,8 @@ for (const { mode } of testConfigs) {
 
           await page.mouse.click(x, y + height / 2);
           await expect(combobox).toBeExpanded({ options: "all" });
+          await expect(combobox).toBeFocused();
+          await expect(listbox).not.toBeFocused();
 
           // Clicking `document.body`
           await page.locator("body").click();
@@ -3456,6 +3460,104 @@ for (const { mode } of testConfigs) {
           await page.keyboard.press("Home");
           await expect(page.getByRole("option").first()).toBeInViewport();
           await expect(page.getByRole("option").last()).not.toBeInViewport();
+        });
+      });
+
+      /*
+       * NOTE: The `listbox` CANNOT be focused by normal User Interactions. This is by design. `[tabindex="-1"]` is applied
+       * to the `listbox` to keep it out of the Keyboard Tabbing Order. (This is necessary to negate Chrome's annoying
+       * behavior of making all scrollable containers focusable by default.) And a `mousedown` event handler prevents the
+       * `listbox` from receiving focus when it (or its content) is clicked. (Otherwise, `tabindex` would enable focus via click.)
+       *
+       * This means that the `listbox` can only be focused by a Screen Reader's Cursor when it sees that it's navigating
+       * to an element which has a valid `tabindex`. But we can't simulate this _real_ User Interaction with Playwright,
+       * so this is the ONE place where we'll use PROGRAMMATIC `listbox.focus()` calls instead of relying on real user
+       * actions alone to drive critical test behavior in our `User Interactions` Describe Block.
+       */
+      it.describe("Focus Transitions within Component", () => {
+        it("Keeps the `combobox` expanded if focus only moves between the component's parts", async ({ page }) => {
+          // Setup
+          await renderComponent(page);
+          await insertAdjacentHTML("beforeend", page)`<button type="button">Ending Button</button>`;
+
+          const combobox = page.getByRole("combobox");
+          const listbox = page.getByRole("listbox", { includeHidden: true });
+          const waitForBlur = await createDOMEventWaiter(page, "blur", { capture: true });
+
+          // Expand the `combobox`
+          await combobox.press("ArrowDown");
+          await expect(combobox).toBeFocused();
+          await expect(combobox).toBeExpanded();
+          if (mode === "Filterable") await expect(combobox).toHaveTextSelection("full");
+
+          // Focusing the `listbox` shouldn't collapse the `combobox`
+          await Promise.all([waitForBlur(), listbox.focus()]);
+          await expect(combobox).not.toHaveTextSelection();
+          await expect(combobox).not.toBeFocused();
+          await expect(combobox).toBeExpanded();
+          await expect(listbox).toBeFocused();
+
+          // And moving focus back to the `combobox` shouldn't cause it to collapse, either
+          await Promise.all([waitForBlur(), page.keyboard.press("Shift+Tab")]);
+          await expect(listbox).not.toBeFocused();
+          await expect(combobox).toBeFocused();
+          await expect(combobox).toBeExpanded();
+          if (mode === "Filterable") await expect(combobox).toHaveTextSelection("full");
+
+          // Now move focus back to the `listbox` one more time
+          await Promise.all([waitForBlur(), listbox.focus()]);
+          await expect(combobox).not.toHaveTextSelection();
+          await expect(combobox).not.toBeFocused();
+          await expect(combobox).toBeExpanded();
+          await expect(listbox).toBeFocused();
+
+          // And show that moving focus AWAY from both the `listbox` AND the `combobox` will remove expansion
+          await Promise.all([waitForBlur(), page.keyboard.press("Tab")]);
+          await expect(listbox).not.toBeFocused();
+          await expect(combobox).not.toBeFocused();
+          await expect(combobox).not.toBeExpanded();
+          await expect(combobox).not.toHaveTextSelection();
+        });
+
+        it("Re-focuses the `combobox` if an `option` was selected while the `listbox` had focus", async ({ page }) => {
+          // Setup
+          await renderComponent(page);
+          const combobox = page.getByRole("combobox");
+          const listbox = page.getByRole("listbox", { includeHidden: true });
+          const waitForInput = await createDOMEventWaiter(page, "input");
+          const waitForChange = await createDOMEventWaiter(page, "change");
+
+          // Expand the `combobox`
+          await combobox.press("ArrowDown");
+          await expect(combobox).toBeFocused();
+          await expect(combobox).toBeExpanded();
+          if (mode === "Filterable") await expect(combobox).toHaveTextSelection("full");
+
+          // Focus the `listbox`
+          await listbox.focus();
+          await expect(combobox).not.toHaveTextSelection();
+          await expect(combobox).not.toBeFocused();
+          await expect(combobox).toBeExpanded();
+          await expect(listbox).toBeFocused();
+
+          // Keyboard actions are intentionally NOT transferred from the `listbox` to the `combobox`
+          await expect(combobox).toHaveActiveOption(testOptions[0]);
+          await page.keyboard.press("ArrowDown");
+          await expect(combobox).toHaveActiveOption(testOptions[0]);
+
+          await page.keyboard.press("Enter");
+          await expect(combobox).toBeExpanded();
+
+          // So we must select an option programmatically to satisfy the test criteria.
+          // NOTE: This test scenario is only possible through a Screen Reader action, which Playwright can't simulate.
+          const index = 3;
+          const option = page.getByRole("option").nth(index);
+          await Promise.all([waitForInput(), waitForChange(), option.evaluate((node: ComboboxOption) => node.click())]);
+
+          await expect(combobox).toBeFocused();
+          await expect(combobox).not.toBeExpanded();
+          if (mode === "Filterable") await expect(combobox).toHaveTextSelection("end");
+          await expect(combobox).toHaveSyncedComboboxValue({ label: testOptions[index] }, { matchingLabel: true });
         });
       });
     });
@@ -6664,77 +6766,6 @@ for (const { mode } of testConfigs) {
                 // eslint-disable-next-line guard-for-in
                 for (const key in e) props[key] = e[key as keyof typeof e];
                 (window as unknown as EnhancedWindow)[fn]({ constructor: constructor as C, ...props });
-              });
-            }
-          }
-
-          /**
-           * Generates a helper function which tracks the number of times that an event of the specified `type`
-           * is dispatched by the provided `target` element.
-           *
-           * @param target May be a {@link Page} or a {@link Locator}. If `target` is a `Locator`, then events will
-           * only be counted if the event's target is the same element as the provided `target`. If `target` is a
-           * `Page`, then all events of the specified `type` will be tracked, irrespective of the event's target,
-           * and the event listener will be attached to the `Page`'s `Document`.
-           * @param type The type of DOM event to listen for.
-           * @param options A mixture of {@link EventListenerOptions} and some extra options specific to Playwright.
-           * @returns
-           */
-          async function createDOMEventWaiter<T extends keyof DocumentEventMap, E extends DocumentEventMap[T]>(
-            target: Page | Locator,
-            type: T,
-            options?: EventListenerOptions & {
-              /** The **_constructor name_** of the event that you're expecting (e.g., `InputEvent`, `Event`, etc.). */
-              event?: string;
-              /**
-               * Indicates that the tracking event handler should be attached to the `Document` even if
-               * `target` is a `Locator`.
-               */
-              document?: boolean;
-              timeout?: number;
-            },
-          ) {
-            const events: E[] = [];
-            const page = "page" in target ? target.page() : target;
-            await page.exposeFunction(`push${type}event`, (e: unknown) => events.push(e as E));
-
-            /** The timer related to {@link waitForDOMEvent}'s `Promise` rejection callback */
-            let timer: NodeJS.Timeout | undefined;
-            let resolve: Parameters<ConstructorParameters<typeof Promise<E[]>>[0]>[0];
-            await page.exposeFunction("callNodeResolve", () => {
-              clearTimeout(timer);
-              resolve(events);
-            });
-
-            const locatorUsed = "page" in target;
-            const locator = "page" in target ? target : page.locator("body");
-
-            // Setup tracking event handler
-            await locator.evaluate(
-              (node, [t, lu, opts]) => {
-                const constructor = opts?.event;
-                const nodeWithListener = !lu || opts?.document ? document : node;
-                nodeWithListener.addEventListener(t, handleEvent, opts);
-
-                function handleEvent(evt: Event) {
-                  if (constructor && !eval(`evt.constructor === ${constructor}`)) return;
-                  if (lu && evt.target !== node) return;
-
-                  const props: Record<string, unknown> = { constructor };
-                  for (const key in evt) props[key] = evt[key as keyof typeof evt];
-                  (window as any)[`push${t}event`](props); // eslint-disable-line @typescript-eslint/no-explicit-any
-                  (window as any).callNodeResolve(); // eslint-disable-line @typescript-eslint/no-explicit-any
-                }
-              },
-              [type, locatorUsed, options] as const,
-            );
-
-            return waitForDOMEvent;
-            async function waitForDOMEvent(): Promise<typeof events> {
-              return new Promise((res, reject) => {
-                resolve = res;
-                const timeout = options?.timeout || 2000;
-                timer = setTimeout(reject, timeout, new Error(`Timed out ${timeout}ms waiting for event ${type}.`));
               });
             }
           }
