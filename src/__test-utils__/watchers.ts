@@ -174,7 +174,7 @@ async function tryFunctionExposure<T extends Parameters<Page["exposeFunction"]>[
 
   while (exposedFunctionNameUnavailable) {
     const nameTaken = await page.evaluate((n) => n in window, exposedFunctionName);
-    if (nameTaken) exposedFunctionName = `${exposedFunctionName}${++i}` as typeof exposedFunctionName;
+    if (nameTaken) exposedFunctionName = `${name}${++i}` as typeof exposedFunctionName;
     else exposedFunctionNameUnavailable = false;
   }
 
