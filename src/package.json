@@ -60,6 +60,10 @@
       "types": "./MenuElement/index.d.ts",
       "default": "./MenuElement/index.js"
     },
+    "./PseudoBackdrop": {
+      "types": "./PseudoBackdrop/index.d.ts",
+      "default": "./PseudoBackdrop/index.js"
+    },
     "./*": {
       "types": "./*.d.ts",
       "default": "./*.js"
