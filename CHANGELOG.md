@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.2.0
+
+### Features
+
+- Introduce a new `PseudoBackdrop` Web Component used to elevate 1-2 elements above a backdrop _at the same time_. Be warned that this is a component designed for use cases for the team's _internal_ applications, so it _will_ have rough edges. Nonetheless, we've provided some [documentation](./src/PseudoBackdrop/README.md) to explain how it can be used. ([1029821](https://github.com/ITenthusiasm/custom-elements/commit/1029821c01ba5e9286094f7ba39e39c2e48f9153))
+- Dispatch a `toggle` event whenever the `MenuElement` is opened/closed. ([3e0f04f](https://github.com/ITenthusiasm/custom-elements/commit/3e0f04fae41ffefcfef54ac6b240eeed79fea30b))
+
+### Bug Fixes
+
+- Correct the `Combobox` component's logic for clearing its `Selection` on `blur`. ([83d2107](https://github.com/ITenthusiasm/custom-elements/commit/83d2107a58ad74b26692dabe08bb1e4127695f12))
+- Keep the `Combobox` component expanded when focus shifts to its `listbox`. ([b7b7e98](https://github.com/ITenthusiasm/custom-elements/commit/b7b7e98e7a5afa18e2da26d30a9ea957dcbfa7dc))
+- Keep the `Combobox` component expanded when the user switches to a different tab/page. ([b7b7e98](https://github.com/ITenthusiasm/custom-elements/commit/b7b7e98e7a5afa18e2da26d30a9ea957dcbfa7dc))
+- Keep the `MenuElement` expanded when the user switches to a different tab/page. ([b7b7e98](https://github.com/ITenthusiasm/custom-elements/commit/b7b7e98e7a5afa18e2da26d30a9ea957dcbfa7dc))
+- In React Type Definitions, expose `toggle` event handlers as `ontoggle` rather than relying strictly on React's `onToggle` prop. ([f2ad212](https://github.com/ITenthusiasm/custom-elements/commit/f2ad21269c5fa226dfd9b5213a2e95258eaa99f2))
+  - For some reason, some versions of React _do not_ support `onToggle` on Web Components and instead require `ontoggle`. This is likely a design flaw in React. Nonetheless, you can now use `ontoggle` if you run into this problem.
+  - Related Components: `ComboboxField` and `MenuElement`.
+
 ## 1.1.0
 
 ### Changes
