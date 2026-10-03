@@ -160,6 +160,82 @@ It's not clear why this behavior exists. It's also not clear why re-ordering cer
   - https://preactjs.com/guide/v10/web-components/
   - [Don't call `render` from inside a component file](https://github.com/preactjs/preact/issues/3393#issuecomment-1005019205)
 
+### JS Framework Gotchas
+
+#### React Ignores Custom `toggle` Events in Some Situations
+
+Although the `onToggle` prop is generally available on all of React's `HTMLElement` tags, some versions of React will _ignore_ the `toggle` event if it is dispatched "unnaturally". For example, you can listen for natural `toggle` events on the `<details>` element or a `[popover]` element just fine. But if you call `div.dispatchEvent(new ToggleEvent("toggle", { ... }))`, an `onToggle` function prop on said `<div>` _will not_ be called.
+
+This is annoying because it means Custom Elements which dispatch their own `toggle` events will not work if `onToggle` is applied to them. Instead _`ontoggle`_ must be applied to Custom Elements in React, which is an odd and potentially-confusing Developer Experience. ("Why do I see both `onToggle` and `ontoggle` in the TypeScript suggestions?") Literally every other noteworthy framework (including Preact) will acknowledge `toggle` events as normal. React deviating from this is peculiar, and I don't think this deviation always existed.
+
+In any case, this is something to be aware of. For now, remember to add explicit `ontoggle` definitions to whichever Custom Elements dispatch their own `toggle` event. If you ever want to _prove_ that a JS Framework does (or doesn't) support the `toggle` event in the "natural framework way", you can run a quick demo. Example:
+
+```tsx
+// React
+function App() {
+  return (
+    <div>
+      <toggleable-element onToggle={console.log}></toggleable-element>
+      <details onToggle={console.log}>
+        <summary>Natively Toggleable</summary>
+        This element will ALWAYS dispatch a <code>toggle</code> event when its &quot;button&quot; is clicked.
+      </details>
+    </div>
+  );
+}
+
+export default App;
+```
+
+```ts
+// Pure JS/TS
+class ToggleableElement extends HTMLElement {
+  #style = document.createElement("style");
+  #button = document.createElement("button");
+  #container = document.createElement("div");
+  #shadowRoot = this.attachShadow({ mode: "closed" });
+
+  constructor() {
+    super();
+    this.#container.id = crypto.randomUUID();
+    this.#container.textContent = "Wonderful!";
+
+    this.#button.type = "button";
+    this.#button.textContent = "Toggle Me!";
+    this.#button.ariaExpanded = String(false);
+    this.#button.setAttribute("aria-controls", this.#container.id);
+
+    this.#style.innerHTML = '[aria-expanded="false"] + * { display: none; }';
+    this.#shadowRoot.append(this.#style, this.#button, this.#container);
+  }
+
+  connectedCallback() {
+    this.#button.addEventListener("click", ToggleableElement.#handleClick, { passive: true });
+  }
+
+  disconnectedCallback() {
+    this.#button.removeEventListener("click", ToggleableElement.#handleClick);
+  }
+
+  static #handleClick(event: PointerEvent) {
+    // Toggle Button State
+    const button = event.currentTarget as HTMLButtonElement;
+    const expanded = button.ariaExpanded === String(true);
+    button.ariaExpanded = String(!expanded);
+
+    // Dispatch Toggle `event`
+    const root = button.getRootNode() as ShadowRoot;
+    const host = root.host as ToggleableElement;
+
+    const oldState = expanded ? "open" : "closed";
+    const newState = expanded ? "closed" : "open";
+    host.dispatchEvent(new ToggleEvent("toggle", { oldState, newState }));
+  }
+}
+
+if (!customElements.get("toggleable-element")) customElements.define("toggleable-element", ToggleableElement);
+```
+
 ## Node Workspaces / TypeScript Project References
 
 - The ordering of your [package `exports`](https://nodejs.org/api/packages.html#exports) rules matters. Always be sure to place more specific export paths **_before_** less specific ones. For example, place `"./*.js": "./*.js"` and especially `".": "./index.js"` **_before_** `"./*": "./*.js"`.

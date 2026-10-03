@@ -13,6 +13,8 @@ declare module "react" {
     menuanchor?: string;
     openwitharrows?: MenuElement["openWithArrows"];
 
+    ontoggle?: ToggleEventHandler<T>;
+    ontoggleCapture?: ToggleEventHandler<T>;
     onmenuselect?(event: CustomEvent<string>): void;
     onmenuselectCapture?(event: CustomEvent<string>): void;
   }

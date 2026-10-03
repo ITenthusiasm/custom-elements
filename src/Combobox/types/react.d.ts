@@ -18,13 +18,15 @@ declare module "react" {
     valueis?: ComboboxField["valueIs"];
     valuemissingerror?: ComboboxField["valueMissingError"];
 
+    ontoggle?: ToggleEventHandler<T>;
+    ontoggleCapture?: ToggleEventHandler<T>;
     onfilterchange?: ReactEventHandler<T>;
     onfilterchangeCapture?: ReactEventHandler<T>;
   }
 
   interface SelectHTMLAttributes<T> extends Omit<
     ComboboxFieldHTMLAttributes<T>,
-    "filter" | "onfilterchange" | "onfilterchangeCapture"
+    "filter" | "ontoggle" | "ontoggleCapture" | "onfilterchange" | "onfilterchangeCapture"
   > {
     filter?: "";
   }

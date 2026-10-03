@@ -69,8 +69,8 @@ export default function LoadingExample() {
           filter
           valueis="anyvalue"
           onChange={handleChange}
-          onToggle={handleToggle}
           onKeyDown={handleKeyDown}
+          ontoggle={handleToggle}
           onfilterchange={handleFilterchange}
         >
           {options.map(({ id, name }) => (
