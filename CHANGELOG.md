@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1
+
+### Changes
+
+- Improve memory performance by converting multiple per-instance Event Handlers and `MutationObserver` Callbacks to per-class versions. ([e8f9851](https://github.com/ITenthusiasm/custom-elements/commit/e8f9851dae54db3d20863dabdc1fa48fd634fb13))
+
 ## 1.2.0
 
 ### Features
