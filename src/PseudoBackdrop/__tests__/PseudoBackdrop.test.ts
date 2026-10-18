@@ -242,7 +242,7 @@ it.describe("Pseudo Backdrop Web Component (Internal)", () => {
   });
 
   // NOTE: We only need to test `Document` event listener removal here, since the `transition*` events are "auto-removed"
-  it("Removes its event listeners when removed from the DOM", async ({ page, browserName }) => {
+  it("Removes its [unused] event listeners when removed from the DOM", async ({ page, browserName }) => {
     // NOTE: Since listener (un)registration behaves identically in every browser, testing Chromium alone is sufficient.
     it.skip(
       browserName !== "chromium",
@@ -270,24 +270,73 @@ it.describe("Pseudo Backdrop Web Component (Internal)", () => {
     const baselineCount = await getToggleListenerCount();
 
     /* ---------- Assertions ---------- */
-    // Mounting registers exactly 1 listener per backdrop
+    // Mounting a `PseudoBackdrop` registers exactly 1 listener PER ROOT
+    const animates = "none" satisfies (typeof animatesOptions)[number];
     await renderHTMLTo(page)`
-      <${tagName} id="backdrop-a"></${tagName}>
-      <${tagName} id="backdrop-b"></${tagName}>
+      ${createPseudoBackdropStyles({ animates })}
+      <button id="button-a" type="button" popovertarget="popover-a">Toggle Popover A</button>
+      <div id="popover-a" popover ${attrs["data-backdrop"]}="backdrop-a" ${attrs["data-elevates"]}="button-a">Popover</div>
+      <${tagName} id="backdrop-a" animates="${animates}"></${tagName}>
     `;
 
     const backdropA = page.locator("#backdrop-a");
     const backdropB = page.locator("#backdrop-b");
+    const popoverA = page.locator(`#popover-a${popoverSelector}`);
+    const popoverB = page.locator(`#popover-b${popoverSelector}`);
+    const buttonA = page.getByRole("button", { name: "Toggle Popover A" });
+    const buttonB = page.getByRole("button", { name: "Toggle Popover B" });
+
+    await expect(buttonA).toBeAttached();
+    await expect(popoverA).toBeAttached();
+    await expect(backdropA).toBeAttached();
+    await expect(buttonB).not.toBeAttached();
+    await expect(popoverB).not.toBeAttached();
+    await expect(backdropB).not.toBeAttached();
+    expect(await getToggleListenerCount()).toBe(baselineCount + 1);
+
+    // (Verify Backdrop A can be opened/closed just fine)
+    await buttonA.click();
+    await expect(backdropA).toHaveAttribute(attrs["data-open"], "");
+    await expect(popoverA).toHaveElevatedZIndex({ timeout: 0 });
+    await expect(buttonA).toHaveElevatedZIndex({ timeout: 0 });
+    await expect(backdropA).toHaveBackdropStateStyles("open");
+
+    await page.keyboard.press("Escape");
+    await expect(backdropA).not.toHaveAttribute(attrs["data-open"]);
+    await expect(popoverA).not.toHaveElevatedZIndex({ timeout: 0 });
+    await expect(buttonA).not.toHaveElevatedZIndex({ timeout: 0 });
+    await expect(backdropA).toHaveBackdropStateStyles("closed");
+
+    // Mounting another backdrop to the SAME ROOT doesn't change the event listener count
+    await insertAdjacentHTML("afterend", backdropA)`
+      <button id="button-b" type="button" popovertarget="popover-b">Toggle Popover B</button>
+      <div id="popover-b" popover ${attrs["data-backdrop"]}="backdrop-b" ${attrs["data-elevates"]}="button-b">Popover</div>
+      <${tagName} id="backdrop-b" animates="${animates}"></${tagName}>
+    `;
     await expect(backdropA).toBeAttached();
     await expect(backdropB).toBeAttached();
-    expect(await getToggleListenerCount()).toBe(baselineCount + 2);
+    expect(await getToggleListenerCount()).toBe(baselineCount + 1);
 
-    // Removing a backdrop removes ONLY its own listener
+    // Removing a backdrop does nothing if other backdrops still need the root-level event listener.
     const backdropAHandle = await backdropA.elementHandle();
     await backdropAHandle.evaluate((node) => node.remove());
     await expect(backdropA).not.toBeAttached();
     expect(await getToggleListenerCount()).toBe(baselineCount + 1);
 
+    // (Verify Backdrop B can still be opened/closed just fine AFTER Backdrop A's removal)
+    await buttonB.click();
+    await expect(backdropB).toHaveAttribute(attrs["data-open"], "");
+    await expect(popoverB).toHaveElevatedZIndex({ timeout: 0 });
+    await expect(buttonB).toHaveElevatedZIndex({ timeout: 0 });
+    await expect(backdropB).toHaveBackdropStateStyles("open");
+
+    await page.keyboard.press("Escape");
+    await expect(backdropB).not.toHaveAttribute(attrs["data-open"]);
+    await expect(popoverB).not.toHaveElevatedZIndex({ timeout: 0 });
+    await expect(buttonB).not.toHaveElevatedZIndex({ timeout: 0 });
+    await expect(backdropB).toHaveBackdropStateStyles("closed");
+
+    // But removing _all_ backdrops for a given root _will_ remove the listener
     await backdropB.evaluate((node) => node.remove());
     await expect(backdropB).not.toBeAttached();
     expect(await getToggleListenerCount()).toBe(baselineCount);

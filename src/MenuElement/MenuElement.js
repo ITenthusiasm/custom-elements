@@ -1,14 +1,5 @@
 import { setAttributeFor } from "../utils/dom.js";
 
-/** Used internally to track the `menuitem` which should **_initally_** receive focus when its owning `menu` is opened */
-const startingActivedescendant = Symbol("startingActivedescendant");
-
-/** Used internally to represent the temporary search string used for `menu`s */
-const searchString = Symbol("searchString");
-
-/** Used internally to represent the `id` of the latest timeout function that will clear the {@link searchString} */
-const searchTimeout = Symbol("searchTimeout");
-
 const attrs = Object.freeze({
   "aria-expanded": "aria-expanded",
   "data-pointerdown": "data-pointerdown",
@@ -29,9 +20,15 @@ class MenuElement extends HTMLElement {
   /** Indicates that the `menu` is currently registered with a valid `menubutton` */ #registered = false;
   /** @type {HTMLButtonElement | null} */ #menuButtonElement = null;
   /** @type {HTMLElement | null} */ #menuAnchorElement = null;
-  /** @private @type {HTMLElement | null} */ [startingActivedescendant] = null;
-  /** @private @type {number | undefined} */ [searchTimeout];
-  /** @private @type {string} */ [searchString] = "";
+
+  /** @type {HTMLElement | null} The `menuitem` which **_initially_** receives focus when its owning `menu` is opened */
+  #startingActivedescendant = null;
+
+  /** The temporary search string used for `menu`s */
+  #searchString = "";
+
+  /** @type {number | undefined} The `id` of the latest timeout function that will clear the `#searchString` */
+  #searchTimeout;
 
   static get observedAttributes() {
     return /** @type {const} */ (["menubutton", "menuanchor", "openwitharrows"]);
@@ -171,8 +168,8 @@ class MenuElement extends HTMLElement {
      */
     menubutton.ariaExpanded = String(false); // eslint-disable-line no-param-reassign
     this.removeAttribute(attrs["data-open"]);
-    clearTimeout(this[searchTimeout]);
-    /** @type {MenuElement} */ (this)[searchString] = ""; // Cast is required to fix an ambiguous TS error. See `NOTES.md`.
+    clearTimeout(this.#searchTimeout);
+    this.#searchString = "";
 
     // Confirm unregistration
     this.#registered = false;
@@ -270,7 +267,7 @@ class MenuElement extends HTMLElement {
     const menu = /** @type {MenuElement} */ (root.getElementById(menuId));
     const activeItem = /** @type {HTMLElement} */ (key === "ArrowUp" ? menu.lastElementChild : menu.firstElementChild);
 
-    menu[startingActivedescendant] = activeItem;
+    menu.#startingActivedescendant = activeItem;
     menubutton.setAttribute(attrs["aria-expanded"], String(true));
   }
 
@@ -298,14 +295,14 @@ class MenuElement extends HTMLElement {
     // Update Menu State
     if (newState === "closed") {
       menu.removeAttribute(attrs["data-open"]);
-      clearTimeout(menu[searchTimeout]);
-      menu[searchString] = "";
+      clearTimeout(menu.#searchTimeout);
+      menu.#searchString = "";
     } else {
       menu.setAttribute(attrs["data-open"], "");
 
-      const newlyActiveItem = /** @type {HTMLElement} */ (menu[startingActivedescendant] ?? menu.firstElementChild);
+      const newlyActiveItem = /** @type {HTMLElement} */ (menu.#startingActivedescendant ?? menu.firstElementChild);
       newlyActiveItem.focus();
-      menu[startingActivedescendant] = null;
+      menu.#startingActivedescendant = null;
     }
 
     menu.dispatchEvent(event);
@@ -404,14 +401,14 @@ class MenuElement extends HTMLElement {
       return menubutton.focus();
     }
 
-    if ((event.key === " " && !menu[searchString]) || event.key === "Enter") {
+    if ((event.key === " " && !menu.#searchString) || event.key === "Enter") {
       event.preventDefault(); // Don't attempt a native click action, and don't scroll
       return activeItem.click();
     }
 
     if (event.key.length === 1 && !event.altKey && !event.ctrlKey && !event.metaKey) {
       if (event.key === " ") event.preventDefault(); // Don't scroll
-      menu[searchString] += event.key;
+      menu.#searchString += event.key;
 
       // Determine next active `menuitem`
       const lastItemToEvaluate = activeItem;
@@ -420,19 +417,19 @@ class MenuElement extends HTMLElement {
       while (nextActiveItem !== null) {
         nextActiveItem = /** @type {HTMLElement} */ (nextActiveItem.nextElementSibling ?? menu.firstElementChild);
         if (nextActiveItem.role !== "menuitem") continue;
-        if (nextActiveItem.textContent.toLowerCase().startsWith(menu[searchString].toLowerCase())) break;
+        if (nextActiveItem.textContent.toLowerCase().startsWith(menu.#searchString.toLowerCase())) break;
         if (nextActiveItem === lastItemToEvaluate) nextActiveItem = null;
       }
 
       // Update Search and active `menuitem`
-      clearTimeout(menu[searchTimeout]);
+      clearTimeout(menu.#searchTimeout);
       if (!nextActiveItem) {
-        menu[searchString] = "";
+        menu.#searchString = "";
         return;
       }
 
       nextActiveItem.focus();
-      menu[searchTimeout] = setTimeout(() => (menu[searchString] = ""), 500);
+      menu.#searchTimeout = setTimeout(() => (menu.#searchString = ""), 500);
     }
   }
 

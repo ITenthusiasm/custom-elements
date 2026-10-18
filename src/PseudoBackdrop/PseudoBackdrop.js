@@ -3,12 +3,6 @@
 /** @typedef {"calc(infinity)"} CSSInfinity */
 /** @typedef {Extract<FillMode, "forwards" | "backwards" | "both" | "none">} AnimatesAttr */
 
-/** Used internally to track the element which was `toggled` open to reveal the {@link PseudoBackdrop} */
-const lastPseudoPopover = Symbol("lastPseudoPopover");
-
-/** Used internally to track the element which the {@link lastPseudoPopover} wanted to elevate alongside itself */
-const lastElevatedSibling = Symbol("lastElevatedSibling");
-
 const attrs = Object.freeze({
   "data-open": "data-open",
   "data-backdrop": "data-backdrop",
@@ -18,9 +12,17 @@ const attrs = Object.freeze({
 class PseudoBackdrop extends HTMLElement {
   #internals = this.attachInternals();
   /** @type {Document | ShadowRoot | null} */ #root = null;
-  #boundHandleDelegatedToggle = this.#handleDelegatedToggle.bind(this);
-  /** @private @type {HTMLElement | null} */ [lastPseudoPopover] = null;
-  /** @private @type {HTMLElement | null} */ [lastElevatedSibling] = null;
+  /**
+   * @type {WeakMap<Document | ShadowRoot, number>} Tracks the Root Nodes to which the {@link PseudoBackdrop} has attached
+   * its `toggle` event listener. Each root points to the number of {@link PseudoBackdrop} instances registered with it.
+   */
+  static #registeredRoots = new WeakMap();
+
+  /** @type {HTMLElement | null} The element which was `toggled` open to reveal the {@link PseudoBackdrop} */
+  #lastPseudoPopover = null;
+
+  /** @type {HTMLElement | null} The element which the `#lastPseudoPopover` wanted to elevate alongside itself */
+  #lastElevatedSibling = null;
 
   constructor() {
     super();
@@ -32,14 +34,24 @@ class PseudoBackdrop extends HTMLElement {
     this.role = "none";
     // NOTE: This is actually `Document | ShadowRoot`, but the TS types for events are incomplete; so we used `Document`.
     this.#root = /** @type {Document} */ (this.getRootNode());
-    this.#root.addEventListener("toggle", this.#boundHandleDelegatedToggle, true);
+    this.#root.addEventListener("toggle", PseudoBackdrop.#handleDelegatedToggle, true);
+
+    const registeredBackdrops = PseudoBackdrop.#registeredRoots.get(this.#root) ?? 0;
+    PseudoBackdrop.#registeredRoots.set(this.#root, registeredBackdrops + 1);
   }
 
   /** "On Unmount" for Custom Elements @returns {void} */
   disconnectedCallback() {
     // NOTE: See note in `connectedCallback()` about `this.#root`'s/getRootNode()`'s TS type
-    /** @type {Document} */ (this.#root).removeEventListener("toggle", this.#boundHandleDelegatedToggle, true);
-    if (this[lastPseudoPopover]) PseudoBackdrop.#demote(this);
+    const root = /** @type {Document} */ (this.#root);
+    const registeredBackdrops = /** @type {number} */ (PseudoBackdrop.#registeredRoots.get(root));
+    if (registeredBackdrops > 1) PseudoBackdrop.#registeredRoots.set(root, registeredBackdrops - 1);
+    else {
+      PseudoBackdrop.#registeredRoots.delete(root);
+      root.removeEventListener("toggle", PseudoBackdrop.#handleDelegatedToggle, true);
+    }
+
+    if (this.#lastPseudoPopover) PseudoBackdrop.#demote(this);
     this.removeAttribute(attrs["data-open"]);
     this.#root = null;
   }
@@ -48,7 +60,7 @@ class PseudoBackdrop extends HTMLElement {
    * @param {ToggleEvent} event
    * @returns {void}
    */
-  #handleDelegatedToggle(event) {
+  static #handleDelegatedToggle(event) {
     const { newState, oldState } = /** @type {{ newState: ToggleState, oldState: ToggleState }} */ (event);
     if (newState === oldState) return;
 
@@ -60,22 +72,23 @@ class PseudoBackdrop extends HTMLElement {
     const root = /** @type {Document | ShadowRoot} */ (pseudoPopover.getRootNode());
     const backdrop = root.getElementById(backdropId);
     const elevated = elevatedId ? root.getElementById(elevatedId) : null;
-    if (backdrop !== this) return;
+    if (!(backdrop instanceof PseudoBackdrop)) return;
 
     if (newState === "open") {
       // If the User rapidly switched to a **different** elevated element, demote the obsolete one first
-      const previousPopover = /** @type {PseudoBackdrop} */ (backdrop)[lastPseudoPopover];
-      if (previousPopover && previousPopover !== pseudoPopover) PseudoBackdrop.#demote(this);
+      const previousPopover = backdrop.#lastPseudoPopover;
+      if (previousPopover && previousPopover !== pseudoPopover) PseudoBackdrop.#demote(backdrop);
 
-      /** @type {PseudoBackdrop} */ (backdrop)[lastPseudoPopover] = pseudoPopover;
-      /** @type {PseudoBackdrop} */ (backdrop)[lastElevatedSibling] = elevated;
+      backdrop.#lastPseudoPopover = pseudoPopover;
+      backdrop.#lastElevatedSibling = elevated;
 
       // NOTE: A previously-tracked popover means the backdrop is visible, so there's no opening transition to wait for
-      if (previousPopover || this.animates === "none" || this.animates === "backwards") PseudoBackdrop.#promote(this);
+      if (previousPopover || backdrop.animates === "none" || backdrop.animates === "backwards")
+        PseudoBackdrop.#promote(backdrop);
       else backdrop.addEventListener("transitionrun", PseudoBackdrop.#handleTransitionrun, { once: true });
       backdrop.toggleAttribute(attrs["data-open"], true);
     } else {
-      if (this.animates === "none" || this.animates === "forwards") PseudoBackdrop.#demote(this);
+      if (backdrop.animates === "none" || backdrop.animates === "forwards") PseudoBackdrop.#demote(backdrop);
       else {
         backdrop.addEventListener("transitionend", PseudoBackdrop.#handleTransitionCompletion);
         backdrop.addEventListener("transitioncancel", PseudoBackdrop.#handleTransitionCompletion);
@@ -104,8 +117,8 @@ class PseudoBackdrop extends HTMLElement {
    * @returns {void}
    */
   static #promote(backdrop) {
-    const pseudoPopover = /** @type {HTMLElement} */ (backdrop[lastPseudoPopover]);
-    const elevatedSibling = backdrop[lastElevatedSibling];
+    const pseudoPopover = /** @type {HTMLElement} */ (backdrop.#lastPseudoPopover);
+    const elevatedSibling = backdrop.#lastElevatedSibling;
 
     pseudoPopover.style.zIndex = /** @satisfies {CSSInfinity} */ ("calc(infinity)");
     if (elevatedSibling) elevatedSibling.style.zIndex = /** @satisfies {CSSInfinity} */ ("calc(infinity)");
@@ -135,16 +148,16 @@ class PseudoBackdrop extends HTMLElement {
    * @returns {void}
    */
   static #demote(backdrop) {
-    const pseudoPopover = /** @type {HTMLElement} */ (backdrop[lastPseudoPopover]);
-    const elevatedSibling = backdrop[lastElevatedSibling];
+    const pseudoPopover = /** @type {HTMLElement} */ (backdrop.#lastPseudoPopover);
+    const elevatedSibling = backdrop.#lastElevatedSibling;
 
     pseudoPopover.style.zIndex = "";
     if (elevatedSibling) elevatedSibling.style.zIndex = "";
     if (elevatedSibling?.getAttribute("style") === "") elevatedSibling.removeAttribute("style");
     if (pseudoPopover.getAttribute("style") === "") pseudoPopover.removeAttribute("style");
 
-    backdrop[lastPseudoPopover] = null;
-    backdrop[lastElevatedSibling] = null;
+    backdrop.#lastPseudoPopover = null;
+    backdrop.#lastElevatedSibling = null;
   }
 
   /**

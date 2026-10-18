@@ -13,11 +13,11 @@ This file documents the collection of _known_ issues/concerns that &mdash; at le
 
 **The one thing to double-check — a small regression in the close path**
 
-You changed what the **close** paths operate on. The old code demoted `event.target` (the popover that actually fired the toggle); the new code demotes `backdrop[lastPseudoPopover]`. Those are the same element in a normal open→close cycle, but they diverge when a close arrives without a tracked open — and in that case the new code throws:
+You changed what the **close** paths operate on. The old code demoted `event.target` (the popover that actually fired the toggle); the new code demotes `backdrop.#lastPseudoPopover`. Those are the same element in a normal open→close cycle, but they diverge when a close arrives without a tracked open — and in that case the new code throws:
 
 ```js
 static #demote(backdrop) {
-  const pseudoPopover = /** @type {HTMLElement} */ (backdrop[lastPseudoPopover]); // null in the edge case
+  const pseudoPopover = /** @type {HTMLElement} */ (backdrop.#lastPseudoPopover); // null in the edge case
   ...
   pseudoPopover.style.zIndex = ""; // line 130 → TypeError on null
   ...
@@ -34,13 +34,13 @@ If you want to close that gap, the cheapest fix is a guard at the top of `#demot
 
 ```js
 static #demote(backdrop) {
-  const pseudoPopover = backdrop[lastPseudoPopover];
+  const pseudoPopover = backdrop.#lastPseudoPopover;
   if (!pseudoPopover) return;
   ...
 }
 ```
 
-That also makes the `if (this[lastPseudoPopover])` check on line 40 redundant (harmless to keep). Whether this edge is worth handling is your call — if you consider "backdrop inserted after its popover is already open" out of scope, the refactor as written is otherwise correct and Finding #1 is genuinely resolved.
+That also makes the `if (this.#lastPseudoPopover)` check on line 40 redundant (harmless to keep). Whether this edge is worth handling is your call — if you consider "backdrop inserted after its popover is already open" out of scope, the refactor as written is otherwise correct and Finding #1 is genuinely resolved.
 
 #### Concern #2
 
@@ -48,7 +48,7 @@ That also makes the `if (this[lastPseudoPopover])` check on line 40 redundant (h
 
 1. Popover A open, `lastPseudoPopover = A`, A promoted.
 2. Something moves the backdrop — `someContainer.appendChild(backdrop)`, a framework re-parenting/re-ordering a list, etc. A DOM move is a remove+insert, so:
-   - `disconnectedCallback` fires → `this[lastPseudoPopover]` is truthy → `#demote(this)` clears A's `z-index` and sets `lastPseudoPopover = null`.
+   - `disconnectedCallback` fires → `this.#lastPseudoPopover` is truthy → `#demote(this)` clears A's `z-index` and sets `lastPseudoPopover = null`.
    - `connectedCallback` fires → re-attaches the `toggle` listener. **A is still open** (its state never changed), but `lastPseudoPopover` is now `null`.
 3. User closes A → `#handleDelegatedToggle` matches this backdrop → `#demote(this)` (immediate path line 69, or via `#handleTransitionCompletion` line 117) → `pseudoPopover.style.zIndex` on `null` → **TypeError**.
 

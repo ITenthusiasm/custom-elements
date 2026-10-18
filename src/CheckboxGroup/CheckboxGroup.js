@@ -28,7 +28,7 @@ class CheckboxGroup extends HTMLElement {
     this.#internals.role = "group";
 
     // NOTE: We are intentionally adding these here to monitor behavior of elements not connected to the DOM.
-    this.addEventListener("click", this.#handleClick.bind(this));
+    this.addEventListener("click", CheckboxGroup.#handleClick);
     new MutationObserver(this.#watchChildren.bind(this)).observe(this, { childList: true, subtree: true });
   }
 
@@ -327,20 +327,21 @@ class CheckboxGroup extends HTMLElement {
    * @param {MouseEvent} event
    * @returns {void}
    */
-  #handleClick(event) {
+  static #handleClick(event) {
     const input = event.target;
+    const checkboxGroup = /** @type {CheckboxGroup} */ (event.currentTarget);
     if (!event.isTrusted || event.defaultPrevented || !(input instanceof HTMLInputElement)) return;
 
     event.preventDefault(); // Prevent developers from receiving irrelevant `input`/`change` events
     const { checked } = input;
     setTimeout(() => {
       input.checked = checked;
-      this.#value[checked ? "add" : "delete"](input.value);
-      this.#updateFormValue();
-      this.#validateConstraints();
+      checkboxGroup.#value[checked ? "add" : "delete"](input.value);
+      checkboxGroup.#updateFormValue();
+      checkboxGroup.#validateConstraints();
 
-      this.dispatchEvent(new Event("input", { bubbles: true, composed: true, cancelable: false }));
-      this.dispatchEvent(new Event("change", { bubbles: true, composed: false, cancelable: false }));
+      checkboxGroup.dispatchEvent(new Event("input", { bubbles: true, composed: true, cancelable: false }));
+      checkboxGroup.dispatchEvent(new Event("change", { bubbles: true, composed: false, cancelable: false }));
     });
   }
 

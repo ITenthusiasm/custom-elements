@@ -11,11 +11,6 @@ import ComboboxListbox from "./ComboboxListbox.js";
  * 1) `#matchingOptions` could technically be `null` but is `ComboboxOption[]` (never a practical problem)
  */
 
-/** Internally used to retrieve the value that the `combobox` had when it was focused. */
-const valueOnFocusKey = Symbol("value-on-focus-key");
-/** Internally used to determine if the `combobox`'s value is actively being modified through user's filter changes. */
-const editingKey = Symbol("editing-key");
-
 /** The attributes _commonly_ used by the `ComboboxField` component. (These are declared to help avoid typos.) */
 const attrs = Object.freeze({
   "aria-activedescendant": "aria-activedescendant",
@@ -61,8 +56,8 @@ class ComboboxField extends HTMLElement {
 
   /** @readonly */ #textNodeObserver = new MutationObserver(ComboboxField.#preserveTextNode);
   /** @readonly */ #activeDescendantObserver = new MutationObserver(ComboboxField.#watchActiveDescendant);
-  /** @readonly */ #expansionObserver = new MutationObserver(this.#watchExpansion.bind(this));
-  /** @readonly */ #optionNodesObserver = new MutationObserver(this.#watchOptionNodes.bind(this));
+  /** @readonly */ #expansionObserver = new MutationObserver(ComboboxField.#watchExpansion);
+  /** @readonly */ #optionNodesObserver = new MutationObserver(ComboboxField.#watchOptionNodes);
 
   /**
    * @type {string | null} The Custom Element's internal value. If you are updating the `combobox`'s value to anything
@@ -72,8 +67,12 @@ class ComboboxField extends HTMLElement {
    * the `combobox` was rendered without any `option`s).
    */
   #value = null;
-  /** @private @type {string | null} */ [valueOnFocusKey] = null;
-  /** @private @type {boolean} */ [editingKey] = false;
+
+  /** @type {string | null} The value which the `combobox` had when it was focused. Becomes `null` when focus is lost. */
+  #valueOnFocus = null;
+
+  /** Indicates that the `combobox`'s value is actively being modified through a user's filter changes. */
+  #editing = false;
 
   /* ------------------------------ Lifecycle Callbacks ------------------------------ */
   /**
@@ -167,8 +166,8 @@ class ComboboxField extends HTMLElement {
         if (this.isConnected) {
           this.removeEventListener("mousedown", ComboboxField.#handleMousedown);
           this.removeEventListener("focus", ComboboxField.#handleFocus);
-          this.removeEventListener("beforeinput", this.#handleSearch);
-          this.addEventListener("keydown", this.#handleTypeahead, { passive: true });
+          this.removeEventListener("beforeinput", ComboboxField.#handleSearch);
+          this.addEventListener("keydown", ComboboxField.#handleTypeahead, { passive: true });
         }
       } else {
         this.setAttribute("aria-autocomplete", "list");
@@ -185,10 +184,10 @@ class ComboboxField extends HTMLElement {
             this.ownerDocument.getSelection()?.setBaseAndExtent(this.text, 0, this.text, this.text.length);
           }
 
-          this.removeEventListener("keydown", this.#handleTypeahead);
+          this.removeEventListener("keydown", ComboboxField.#handleTypeahead);
           this.addEventListener("mousedown", ComboboxField.#handleMousedown, { passive: true });
           this.addEventListener("focus", ComboboxField.#handleFocus, { passive: true });
-          this.addEventListener("beforeinput", this.#handleSearch);
+          this.addEventListener("beforeinput", ComboboxField.#handleSearch);
         }
       }
 
@@ -237,14 +236,14 @@ class ComboboxField extends HTMLElement {
     // Setup Event Listeners
     this.addEventListener("click", ComboboxField.#handleClick, { passive: true });
     this.addEventListener("blur", ComboboxField.#handleBlur, { passive: true });
-    this.addEventListener("keydown", this.#handleKeydown);
+    this.addEventListener("keydown", ComboboxField.#handleKeydown);
 
     if (this.filter) {
       this.addEventListener("mousedown", ComboboxField.#handleMousedown, { passive: true });
       this.addEventListener("focus", ComboboxField.#handleFocus, { passive: true });
-      this.addEventListener("beforeinput", this.#handleSearch);
+      this.addEventListener("beforeinput", ComboboxField.#handleSearch);
     } else {
-      this.addEventListener("keydown", this.#handleTypeahead, { passive: true });
+      this.addEventListener("keydown", ComboboxField.#handleTypeahead, { passive: true });
     }
 
     this.listbox.addEventListener("mouseover", ComboboxField.#handleDelegatedOptionHover, { passive: true });
@@ -264,12 +263,12 @@ class ComboboxField extends HTMLElement {
 
     this.removeEventListener("click", ComboboxField.#handleClick);
     this.removeEventListener("blur", ComboboxField.#handleBlur);
-    this.removeEventListener("keydown", this.#handleKeydown);
+    this.removeEventListener("keydown", ComboboxField.#handleKeydown);
 
     this.removeEventListener("mousedown", ComboboxField.#handleMousedown);
     this.removeEventListener("focus", ComboboxField.#handleFocus);
-    this.removeEventListener("beforeinput", this.#handleSearch);
-    this.removeEventListener("keydown", this.#handleTypeahead);
+    this.removeEventListener("beforeinput", ComboboxField.#handleSearch);
+    this.removeEventListener("keydown", ComboboxField.#handleTypeahead);
 
     this.listbox.removeEventListener("mouseover", ComboboxField.#handleDelegatedOptionHover);
     this.listbox.removeEventListener("click", ComboboxField.#handleDelegatedOptionClick);
@@ -282,15 +281,15 @@ class ComboboxField extends HTMLElement {
    * @param {KeyboardEvent} event
    * @returns {void}
    */
-  #handleTypeahead = (event) => {
+  static #handleTypeahead(event) {
     const combobox = /** @type {ComboboxField} */ (event.currentTarget);
     const { listbox } = combobox;
     const activeOption = listbox.querySelector(":scope [role='option'][data-active='true']");
 
     if (event.key.length === 1 && !event.altKey && !event.ctrlKey && !event.metaKey) {
-      if (event.key === " " && !this.#searchString) return;
+      if (event.key === " " && !combobox.#searchString) return;
       setAttributeFor(combobox, attrs["aria-expanded"], String(true));
-      this.#searchString += event.key;
+      combobox.#searchString += event.key;
 
       /* -------------------- Determine Next Active `option` -------------------- */
       // NOTE: This approach won't work with `group`ed `option`s, but it can be fairly easily modified to do so
@@ -299,28 +298,28 @@ class ComboboxField extends HTMLElement {
 
       while (nextActiveOption !== null) {
         nextActiveOption = nextActiveOption.nextElementSibling ?? listbox.firstElementChild;
-        if (nextActiveOption?.textContent.toLowerCase().startsWith(this.#searchString.toLowerCase())) break;
+        if (nextActiveOption?.textContent.toLowerCase().startsWith(combobox.#searchString.toLowerCase())) break;
         if (nextActiveOption === lastOptionToEvaluate) nextActiveOption = null;
       }
 
       /* -------------------- Update `search` and Active `option` -------------------- */
-      clearTimeout(this.#searchTimeout);
+      clearTimeout(combobox.#searchTimeout);
       if (!nextActiveOption) {
-        this.#searchString = "";
+        combobox.#searchString = "";
         return;
       }
 
       setAttributeFor(combobox, attrs["aria-activedescendant"], nextActiveOption.id);
-      this.#searchTimeout = setTimeout(() => (this.#searchString = ""), 500);
+      combobox.#searchTimeout = setTimeout(() => (combobox.#searchString = ""), 500);
     }
-  };
+  }
 
   /**
    * Handles the searching logic for `combobox`es with a {@link filter}
    * @param {InputEvent} event
    * @returns {void}
    */
-  #handleSearch = (event) => {
+  static #handleSearch(event) {
     /*
      * Prevent developers from receiving irrelevant `input` events from a `ComboboxField`.
      *
@@ -360,21 +359,21 @@ class ComboboxField extends HTMLElement {
 
     // Filter `option`s
     setAttributeFor(combobox, attrs["aria-expanded"], String(true));
-    if (this.dispatchEvent(new Event("filterchange", { bubbles: true, cancelable: true }))) {
-      this.#filterOptions();
+    if (combobox.dispatchEvent(new Event("filterchange", { bubbles: true, cancelable: true }))) {
+      combobox.#filterOptions();
     }
 
     // Update `combobox` value if needed.
     // NOTE: We MUST set the internal value DIRECTLY here to produce desirable behavior. See Development Notes for details.
     if (!combobox.acceptsValue(text.data)) return;
-    const prevOption = this.#value == null ? null : this.getOptionByValue(this.#value);
+    const prevOption = combobox.#value == null ? null : combobox.getOptionByValue(combobox.#value);
 
-    this.#value = text.data;
-    this.#internals.setFormValue(this.#value);
+    combobox.#value = text.data;
+    combobox.#internals.setFormValue(combobox.#value);
     if (prevOption?.selected) prevOption.selected = false;
-    this.#validateRequiredConstraint();
+    combobox.#validateRequiredConstraint();
 
-    combobox[editingKey] = true;
+    combobox.#editing = true;
     combobox.dispatchEvent(
       new InputEvent("input", {
         bubbles: event.bubbles,
@@ -388,7 +387,7 @@ class ComboboxField extends HTMLElement {
         dataTransfer: null,
       }),
     );
-  };
+  }
 
   /** @returns {void} */
   #filterOptions() {
@@ -841,7 +840,7 @@ class ComboboxField extends HTMLElement {
    */
   static #handleFocus(event) {
     const combobox = /** @type {ComboboxField} */ (event.currentTarget);
-    combobox[valueOnFocusKey] = combobox.value;
+    combobox.#valueOnFocus = combobox.value;
     if (combobox.hasAttribute("data-mousedown")) return;
 
     const textNode = combobox.text;
@@ -865,19 +864,18 @@ class ComboboxField extends HTMLElement {
     }
 
     // Determine if a `change` event should be dispatched (for `clearable` and `anyvalue` mode only)
-    const { [valueOnFocusKey]: valueOnFocus, [editingKey]: editing } = combobox;
-    if (valueOnFocus !== combobox.value && editing && combobox.value !== null) {
+    if (combobox.#valueOnFocus !== combobox.value && combobox.#editing && combobox.value !== null) {
       combobox.dispatchEvent(new Event("change", { bubbles: true, composed: false, cancelable: false }));
     }
-    combobox[valueOnFocusKey] = null;
-    combobox[editingKey] = false;
+    combobox.#valueOnFocus = null;
+    combobox.#editing = false;
   }
 
   /**
    * @param {KeyboardEvent} event
    * @returns {void}
    */
-  #handleKeydown = (event) => {
+  static #handleKeydown(event) {
     const combobox = /** @type {ComboboxField} */ (event.currentTarget);
     const { listbox } = combobox;
     const activeOption = /** @type {ComboboxOption | null} */ (
@@ -895,8 +893,9 @@ class ComboboxField extends HTMLElement {
         return combobox.setAttribute(attrs["aria-expanded"], String(true));
       }
 
+      const self = combobox; // NOTE: Only using this variable for reducing multiline formatting
       const nextActiveOption = combobox.filter
-        ? this.#matchingOptions[(this.#activeIndex = Math.min(this.#activeIndex + 1, this.#matchingOptions.length - 1))]
+        ? self.#matchingOptions[(self.#activeIndex = Math.min(self.#activeIndex + 1, self.#matchingOptions.length - 1))]
         : activeOption?.nextElementSibling;
 
       if (nextActiveOption) setAttributeFor(combobox, attrs["aria-activedescendant"], nextActiveOption.id);
@@ -907,7 +906,7 @@ class ComboboxField extends HTMLElement {
       event.preventDefault(); // Don't scroll
 
       const lastOption = combobox.filter
-        ? this.#matchingOptions[(this.#activeIndex = this.#matchingOptions.length - 1)]
+        ? combobox.#matchingOptions[(combobox.#activeIndex = combobox.#matchingOptions.length - 1)]
         : listbox.lastElementChild;
 
       setAttributeFor(combobox, attrs["aria-expanded"], String(true));
@@ -934,7 +933,7 @@ class ComboboxField extends HTMLElement {
       }
 
       const nextActiveOption = combobox.filter
-        ? this.#matchingOptions[(this.#activeIndex = Math.max(this.#activeIndex - 1, 0))]
+        ? combobox.#matchingOptions[(combobox.#activeIndex = Math.max(combobox.#activeIndex - 1, 0))]
         : activeOption?.previousElementSibling;
 
       if (nextActiveOption) setAttributeFor(combobox, attrs["aria-activedescendant"], nextActiveOption.id);
@@ -944,7 +943,8 @@ class ComboboxField extends HTMLElement {
     if (event.key === "Home") {
       event.preventDefault(); // Don't scroll
 
-      const firstOption = combobox.filter ? this.#matchingOptions[(this.#activeIndex = 0)] : listbox.firstElementChild;
+      const self = combobox; // NOTE: Only using this variable for reducing multiline formatting
+      const firstOption = combobox.filter ? self.#matchingOptions[(self.#activeIndex = 0)] : listbox.firstElementChild;
       setAttributeFor(combobox, attrs["aria-expanded"], String(true));
       setAttributeFor(combobox, attrs["aria-activedescendant"], firstOption?.id ?? "");
       return;
@@ -972,7 +972,7 @@ class ComboboxField extends HTMLElement {
       }
 
       // Defer to `#handleTypeahead` instead of selecting the active `option` if there's an active Search String
-      return this.#searchString ? undefined : activeOption?.click();
+      return combobox.#searchString ? undefined : activeOption?.click();
     }
 
     if (event.key === "Enter") {
@@ -997,7 +997,7 @@ class ComboboxField extends HTMLElement {
       if (submitter) return submitter.disabled ? undefined : submitter.click();
       return form.requestSubmit();
     }
-  };
+  }
 
   /* -------------------- Listbox Handlers -------------------- */
   /**
@@ -1046,7 +1046,7 @@ class ComboboxField extends HTMLElement {
     combobox.value = option.value;
     combobox.dispatchEvent(new Event("input", { bubbles: true, composed: true, cancelable: false }));
     combobox.dispatchEvent(new Event("change", { bubbles: true, composed: false, cancelable: false }));
-    combobox[editingKey] = false;
+    combobox.#editing = false;
   }
 
   /**
@@ -1073,7 +1073,7 @@ class ComboboxField extends HTMLElement {
    * @param {MutationRecord[]} mutations
    * @returns {void}
    */
-  #watchExpansion(mutations) {
+  static #watchExpansion(mutations) {
     const combobox = /** @type {ComboboxField} */ (mutations[0].target);
     const ariaExpanded = combobox.getAttribute(attrs["aria-expanded"]);
 
@@ -1101,11 +1101,11 @@ class ComboboxField extends HTMLElement {
       /** @type {ComboboxOption | null} */
       const selectedOption = combobox.value == null ? null : combobox.getOptionByValue(combobox.value);
       let activeOption = selectedOption ?? combobox.listbox.firstElementChild;
-      if (combobox.filter && activeOption?.filteredOut) [activeOption] = this.#matchingOptions;
+      if (combobox.filter && activeOption?.filteredOut) [activeOption] = combobox.#matchingOptions;
 
       if (combobox.filter) {
-        this.#autoselectableOption = null;
-        this.#activeIndex = activeOption ? this.#matchingOptions.indexOf(activeOption) : -1;
+        combobox.#autoselectableOption = null;
+        combobox.#activeIndex = activeOption ? combobox.#matchingOptions.indexOf(activeOption) : -1;
       }
 
       if (activeOption) combobox.setAttribute(attrs["aria-activedescendant"], activeOption.id);
@@ -1113,11 +1113,11 @@ class ComboboxField extends HTMLElement {
     // Close Combobox
     else {
       combobox.setAttribute(attrs["aria-activedescendant"], "");
-      this.#searchString = "";
+      combobox.#searchString = "";
 
       // See if logic _exclusive_ to `filter`ed `combobox`es needs to be run
       if (!combobox.filter || combobox.value == null) break $;
-      this.#resetOptions();
+      combobox.#resetOptions();
 
       // Reset `combobox` display if needed
       // NOTE: `option` CAN be `null` or unselected if `combobox` is `clearable`, empty, and `collapsed` with a non-empty filter
@@ -1191,15 +1191,17 @@ class ComboboxField extends HTMLElement {
    * @param {MutationRecord[]} mutations
    * @returns {void}
    */
-  #watchOptionNodes(mutations) {
-    const textNode = this.text;
-    const nullable = this.valueIs !== "anyvalue";
+  static #watchOptionNodes(mutations) {
+    const listbox = /** @type {ComboboxListbox} */ (mutations[0].target);
+    const combobox = /** @type {ComboboxField} */ (listbox.previousElementSibling);
+    const textNode = combobox.text;
+    const nullable = combobox.valueIs !== "anyvalue";
 
-    if (!this.listbox.children.length) {
-      if (!nullable) this.value = textNode.data;
-      else this.#forceNullValue();
+    if (!listbox.children.length) {
+      if (!nullable) combobox.value = textNode.data;
+      else combobox.#forceNullValue();
 
-      if (this.filter) this.#filterOptions(); // Clean up internal data and show "No Matches" Message
+      if (combobox.filter) combobox.#filterOptions(); // Clean up internal data and show "No Matches" Message
       return;
     }
 
@@ -1212,32 +1214,32 @@ class ComboboxField extends HTMLElement {
 
         // TODO: TypeScript fails to derive the correct type from the above check. Open a GitHub Issue.
         const node = /** @type {ComboboxOption} */ (n);
-        if (node.defaultSelected) this.value = node.value;
-        else if (nullable && this.#value === null && j === 0) {
-          if (this.valueIs !== "clearable") this.value = node.value;
+        if (node.defaultSelected) combobox.value = node.value;
+        else if (nullable && combobox.#value === null && j === 0) {
+          if (combobox.valueIs !== "clearable") combobox.value = node.value;
           else {
-            this.#value = "";
-            this.#internals.setFormValue("");
+            combobox.#value = "";
+            combobox.#internals.setFormValue("");
           }
         }
       });
 
       mutation.removedNodes.forEach((node) => {
-        if (!(node instanceof ComboboxOption) || this.listbox.contains(node)) return;
-        if (this.#autoselectableOption === node) this.#autoselectableOption = null;
+        if (!(node instanceof ComboboxOption) || listbox.contains(node)) return;
+        if (combobox.#autoselectableOption === node) combobox.#autoselectableOption = null;
         if (node.selected) {
-          if (nullable) this.formResetCallback();
-          else this.value = textNode.data;
+          if (nullable) combobox.formResetCallback();
+          else combobox.value = textNode.data;
         }
       });
     }
 
-    if (!this.filter) return;
+    if (!combobox.filter) return;
 
     // NOTE: This can produce a confusing UX if the `combobox` is expanded but a filter was NOT applied yet.
     // However, such a scenario is unlikely and impractical. So we're keeping this logic to help with async loading.
-    if (this.getAttribute(attrs["aria-expanded"]) === String(true)) this.#filterOptions();
-    else this.#resetOptions();
+    if (combobox.getAttribute(attrs["aria-expanded"]) === String(true)) combobox.#filterOptions();
+    else combobox.#resetOptions();
   }
 }
 
